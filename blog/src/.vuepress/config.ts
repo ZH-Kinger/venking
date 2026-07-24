@@ -94,6 +94,14 @@ export default defineUserConfig({
       {},
       `(function(){try{var k='vuepress-theme-hope-scheme',v=localStorage.getItem(k);if(v===null){v='dark';}if(v.charAt(0)==='"'){try{v=JSON.parse(v);}catch(e){}}if(v==='auto'){v=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}v=v==='light'?'light':'dark';localStorage.setItem(k,v);document.documentElement.setAttribute('data-theme',v);}catch(e){}})();`,
     ],
+    // 关键无闪屏 CSS(阻塞式,先于主样式表):data-theme 一确定即刷底色 + color-scheme,
+    // 不等主 CSS 加载(dev 下主 CSS 由 JS 注入,故首屏/硬刷会白闪——这段消除它)。
+    // 默认深色兜底;仅显式 light 时切浅。color-scheme 让原生滚动条/表单控件同步不白闪。
+    [
+      "style",
+      {},
+      `html{background-color:#08090a;color-scheme:dark}html[data-theme="light"]{background-color:#f7f8fa;color-scheme:light}`,
+    ],
   ],
 
   // 和 PWA 一起启用

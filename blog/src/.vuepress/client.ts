@@ -27,6 +27,21 @@ export default defineClientConfig({
   setup() {
     // 动态 import 保证不在 SSR 阶段执行 DOM 操作
     if (typeof window === "undefined") return;
+
+    // ---- (0) 关掉主题切换的 View Transition 圆形揭示,根治"切换闪一下" ----
+    // theme-hope 2.x 的 ColorModeSwitch 在点击时若检测到 document.startViewTransition 就走
+    // startViewTransition + clip-path 圆形揭示;该揭示在合成期会露出 color-scheme 画布底(浅色=白)
+    // 造成闪屏。把 startViewTransition 置空 → 它走 else 分支 updateDarkmodeStatus() 瞬时切换,
+    // 配合 index.scss 的 .color-switching 消抖,干净无闪。(仅本页此一处用到 VT,置空无副作用。)
+    try {
+      Object.defineProperty(document, "startViewTransition", {
+        value: undefined,
+        configurable: true,
+        writable: true,
+      });
+    } catch {
+      /* 某些浏览器该属性不可重定义:忽略,退回原行为 */
+    }
     // 注:"首次默认深色"已移到 config.ts 的 head 内联脚本(在 theme-hope 读取偏好前同步执行,
     //     避免切换按钮要点两次的时序 bug)。此处只保留 AI 助手悬浮球注入。
 
@@ -49,7 +64,9 @@ export default defineClientConfig({
 
       const style = document.createElement("style");
       style.textContent = `
-        #ai-fab{position:fixed;right:24px;bottom:88px;z-index:2147483000;
+        /* 位置:回到顶部按钮在 right:1rem/bottom:4rem(48px 高,含进度环约到 114px);
+           本球上移到它正上方并与之居中对齐(right 14px 使两者中线对齐),留 ~10px 间隙,不再重叠。 */
+        #ai-fab{position:fixed;right:14px;bottom:124px;z-index:2147483000;
           width:52px;height:52px;display:grid;place-items:center;
           background:#5e6ad2;color:#fff;
           border-radius:16px;box-shadow:0 6px 22px rgba(94,106,210,.4);
@@ -64,7 +81,7 @@ export default defineClientConfig({
           opacity:0;transform:translateX(6px);pointer-events:none;
           transition:opacity .16s ease,transform .16s ease}
         #ai-fab:hover::after{opacity:1;transform:translateX(0)}
-        @media (max-width:480px){#ai-fab{right:16px;bottom:80px;width:46px;height:46px}#ai-fab svg{width:23px;height:23px}}
+        @media (max-width:480px){#ai-fab{right:12px;bottom:112px;width:46px;height:46px}#ai-fab svg{width:23px;height:23px}}
         @media (prefers-reduced-motion:reduce){#ai-fab,#ai-fab::after{transition:none}}
       `;
       document.head.appendChild(style);

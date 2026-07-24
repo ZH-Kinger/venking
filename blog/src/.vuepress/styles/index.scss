@@ -189,27 +189,34 @@
   #markdown-content {
     line-height: 1.8; // 中文长文更舒展
 
+    // 阅读行长(最关键的阅读体验杠杆):中英混排锁 ~46rem,单行不过长,眼睛回扫不累。
+    // 宽屏下正文靠左、右侧留给 TOC,符合技术文档习惯。
+    max-width: 46rem;
+
     p,
     li {
       line-height: 1.8;
     }
 
-    // 段落之间留更多呼吸感
+    // 段落之间留更多呼吸感;text-wrap:pretty 消除段尾孤字/坏断行(渐进增强)
     p {
       margin: 1.1em 0;
+      text-wrap: pretty;
     }
 
     li {
       margin: 0.4em 0;
     }
 
-    // 标题层级:大字负字距(Apple 排版)、上间距拉开与正文的区隔
+    // 标题层级:大字负字距(Apple 排版)、上间距拉开与正文的区隔;
+    // text-wrap:balance 让多行标题分行均衡,不留孤字(高级感细节)
     h1,
     h2,
     h3,
     h4 {
       font-family: var(--vp-font-heading);
       font-weight: 700;
+      text-wrap: balance;
     }
 
     h1 { letter-spacing: -0.02em; }
@@ -221,11 +228,31 @@
     }
     h3 { margin-top: 1.6em; }
 
-    // 引用块:品牌色左条 + 极淡底,更精致
+    // 正文链接:靛紫 + 下划线拉开偏移、随字重变细,悬停加深(比默认贴字下划线精致)
+    a {
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.2em;
+      text-decoration-color: var(--vp-c-accent-soft);
+      transition: text-decoration-color var(--vp-t-color);
+      &:hover { text-decoration-color: var(--vp-c-accent); }
+    }
+
+    // 行内代码:极淡品牌底 + 发丝边,和大块代码区分开,不喧宾夺主
+    :not(pre) > code {
+      background: var(--vp-c-accent-soft);
+      border: 1px solid var(--rn-surface-border);
+      border-radius: 6px;
+      padding: 0.12em 0.4em;
+      font-size: 0.88em;
+    }
+
+    // 引用块:品牌色左条 + 极淡底 + 内边距,更精致
     blockquote {
       border-left: 3px solid var(--vp-c-accent);
       background: var(--vp-c-bg-alt);
       border-radius: 0 8px 8px 0;
+      padding: 0.6em 1.1em;
+      color: var(--vp-c-text-mute, inherit);
     }
   }
 
@@ -733,3 +760,10 @@ html.color-switching,
 html.color-switching * {
   transition: none !important;
 }
+
+// ---------- 修复明暗切换"闪一下" ----------
+// theme-hope 2.x 用 document.startViewTransition + clip-path 圆形揭示切主题;揭示过程中
+// 合成层会短暂露出 color-scheme 画布底(浅色=白)→ 观感上"闪一下"。
+// 让 root 退出 view-transition(view-transition-name:none)→ 切换瞬时完成、无快照交叠,
+// 配合上面的 .color-switching 消抖,干净无闪。(如日后想要平滑主题过渡,再换受控 crossfade。)
+html { view-transition-name: none; }
