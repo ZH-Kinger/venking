@@ -17,6 +17,17 @@
   // 代码块跟随统一圆角(默认 6px)
   --code-border-radius: var(--rn-radius-media);
   --tab-border-radius: var(--rn-radius-media);
+
+  // ===== 编辑级阅读排版 token(CJK 校准;详见 docs/collab/research/article-design-award-survey.md)=====
+  // 阅读列:42rem @17px ≈ 39 全角/78 拉丁字每行,均达 WCAG 理想(CJK≤40 / 拉丁≤80)。
+  --read-measure: 42rem;
+  --read-font-size: 1.0625rem;   // 17px:16→17,长文更从容
+  // 模块化字阶(Perfect Fourth ~1.25,fluid clamp,免断点;H1 压缩最狠防移动端层级塌陷)
+  --step-title: clamp(2rem, 1.2rem + 3vw, 3.25rem);
+  --step-h2: clamp(1.5rem, 1.2rem + 1.4vw, 2rem);
+  --step-h3: clamp(1.25rem, 1.1rem + 0.8vw, 1.5rem);
+  // 纵向节奏单位(标题 space-before > space-after,与下文成组)
+  --rhythm: 1.5rem;
 }
 
 [data-theme="dark"] {
@@ -187,11 +198,13 @@
   font-family: var(--vp-font);
 
   #markdown-content {
-    line-height: 1.8; // 中文长文更舒展
+    font-size: var(--read-font-size); // 17px:比默认 16 更接近编辑级正文
+    line-height: 1.85; // 中文长文更舒展
 
-    // 阅读行长(最关键的阅读体验杠杆):中英混排锁 ~46rem,单行不过长,眼睛回扫不累。
-    // 宽屏下正文靠左、右侧留给 TOC,符合技术文档习惯。
-    max-width: 46rem;
+    // 阅读行长 + 居中:本主题此处无右侧 TOC,正文若靠左会留大片右侧空白(显得"空/看得太少")。
+    // 锁 ~42rem 行长(CJK 校准 ≈39 全角/行)并 margin 居中 → 版心均衡,是编辑排版的高级感来源。
+    max-width: var(--read-measure);
+    margin-inline: auto;
 
     p,
     li {
@@ -219,14 +232,21 @@
       text-wrap: balance;
     }
 
+    // 模块化字阶 + 非对称节奏(space-before > space-after,标题与下文成组)
     h1 { letter-spacing: -0.02em; }
     h2 {
+      font-size: var(--step-h2);
+      line-height: 1.25;
       letter-spacing: -0.01em;
-      margin-top: 2em;
+      margin-block: calc(var(--rhythm) * 1.6) calc(var(--rhythm) * 0.55);
       padding-bottom: 0.3em;
       border-bottom: 1px solid var(--vp-c-divider); // 二级标题细线分隔,层次更清
     }
-    h3 { margin-top: 1.6em; }
+    h3 {
+      font-size: var(--step-h3);
+      line-height: 1.35;
+      margin-block: var(--rhythm) calc(var(--rhythm) * 0.5);
+    }
 
     // 正文链接:靛紫 + 下划线拉开偏移、随字重变细,悬停加深(比默认贴字下划线精致)
     a {
@@ -254,6 +274,34 @@
       padding: 0.6em 1.1em;
       color: var(--vp-c-text-mute, inherit);
     }
+
+    // 图注:小字 muted 居中,与图轻微间距(编辑级 figure)
+    figure > figcaption {
+      font-size: 0.875em;
+      line-height: 1.5;
+      color: var(--vp-c-text-mute);
+      text-align: center;
+      margin-top: 0.5em;
+    }
+
+    // 分隔线:大留白 + 居中三点,去默认整宽实线(编辑感)
+    hr {
+      border: 0;
+      height: 0;
+      margin-block: calc(var(--rhythm) * 2);
+      text-align: center;
+      &::before {
+        content: "· · ·";
+        color: var(--vp-c-text-mute);
+        letter-spacing: 0.4em;
+        font-size: 0.9em;
+      }
+    }
+
+    // 表格:少边框编辑风(仅底线 + 加重表头),去重网格
+    table { display: table; width: 100%; }
+    th { border: 0; border-bottom: 2px solid var(--vp-c-divider); }
+    td { border: 0; border-bottom: 1px solid var(--vp-c-divider); }
   }
 
   // 图片统一圆角 + 柔和阴影
@@ -261,6 +309,15 @@
     border-radius: var(--rn-radius-media);
     box-shadow: var(--rn-shadow);
   }
+}
+
+// ---------- 分类徽标统一到品牌靛紫 ----------
+// theme-hope 默认给每个分类循环分配 .color0–.colorN 彩虹色(如 AIOps=红),与靛紫单色体系冲突、
+// 显杂。高级感来自"单一强调色克制使用",故统一覆盖为靛紫软底 pill(!important 压过 .colorN)。
+.page-category-item,
+.page-category-item.clickable {
+  background: var(--vp-c-accent-soft) !important;
+  color: var(--vp-c-accent) !important;
 }
 
 // ---------- 博客首页文章卡片 ----------
@@ -522,8 +579,9 @@ button,
   margin-bottom: 1rem;
 
   h1 {
+    font-size: var(--step-title);   // 放大 + fluid,页标题更有存在感(编辑级头部)
     letter-spacing: -0.035em;
-    line-height: 1.14;
+    line-height: 1.12;
     text-wrap: balance;
   }
 }
