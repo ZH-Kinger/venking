@@ -92,8 +92,8 @@ export default defineClientConfig({
       a.target = "_blank";
       a.rel = "noopener noreferrer";
       a.title = "打开 AI 助手 · 基于本站内容的智能问答";
-      // 机器人线性图标(比原来的绿点+文字更精致,配深色科技风)
-      a.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="13" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="13" r="1.2" fill="currentColor" stroke="none"/><path d="M2 13v3M22 13v3"/></svg>`;
+      // 品牌吉祥物:小鹦鹉(填充剪影 + 镂空眼 evenodd,眼自动透出悬浮球底色)。全站 AI 助手统一此形象。
+      a.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" stroke="none"><path d="M15.6 2.3c.5-.2 1 .2.9.8-.1.7-.5 1.3-1.1 1.7 1.9.7 3.2 2.5 3.4 4.6.6.2 1.1.7 1.3 1.4.1.5-.4.9-.9.7-.4-.1-.7-.4-.8-.8-.2 3-2.3 5.4-5.1 6.2l-.4 1.9c-.1.5-.6.9-1.1.8-.5-.1-.9-.6-.8-1.1l.3-1.4h-.1c-1.2 0-2.3-.3-3.3-.8l-.4 1.7c-.1.5-.6.9-1.1.8-.5-.1-.9-.6-.8-1.1l1.5-6.5C6.1 11.4 5.1 9.8 5.4 8.2c.1-.5.6-.8 1.1-.7l3.7.8C10.4 6 12.4 4 15 3.9c.2-.6.4-1.2.6-1.6Z M14.35 7.1a1.15 1.15 0 1 0-2.3 0 1.15 1.15 0 1 0 2.3 0Z"/></svg>`;
       document.body.appendChild(a);
     };
 
