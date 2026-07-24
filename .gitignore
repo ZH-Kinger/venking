@@ -1,0 +1,48 @@
+# Dependencies and package-manager caches
+node_modules/
+.npm/
+.pnpm-store/
+
+# Frontend build output and framework caches
+dist/
+.astro/
+src/.vuepress/.cache/
+src/.vuepress/.temp/
+src/.vuepress/dist/
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+.claude/settings.local.json
+
+# Agent runtime state. Source code and evaluation fixtures remain tracked.
+rag-server/data/
+rag-server/feedback.jsonl
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+.DS_Store
+
+# Local source snapshots and large knowledge-source imports
+_backup_posts_orig/
+*.pdf

@@ -1,0 +1,23 @@
+# ============================================================
+# 知识库来源登记表(RAG 入库的 Single Source-of-Truth)
+# 约定(详见 docs/collab/知识库存储规范.md):
+#   - 原始源(lakebook/pdf/md/图)→ 丢进 data/inbox/<分类>/,scripts/convert.py 按扩展名
+#     转成博客文章落 src/posts/<分类>/,再由下面 blog_md 源自动纳入 RAG(一份来源、不重复)。
+#   - "活语料"(博客,自有仓库/会更新)→ 原地引用,不拷贝(避免陈旧)。
+#   - RAG-only 源(纯参考、不发博客)→ 在此登记 path+type,ingest 按 type 分发 loader。
+#   - 去冗余:一份逻辑内容只登记一个规范源(AI INFRA SRE 认 lakebook→posts;
+#     PDF 原件归档 data/_archive/,不入库)。
+# ============================================================
+
+[[source]]
+name = "blog_posts"          # 全部博客 md(含转换出的 AI_Infra 108 篇)——活语料,原地引用
+type = "blog_md"
+path = "../src/posts"
+enabled = true
+
+# RAG-only 源示例(纯参考资料,不发博客;按需启用):
+# [[source]]
+# name = "study_space"
+# type = "md_dir"
+# path = "E:/study_space"
+# enabled = false

@@ -1,0 +1,39 @@
+---
+// 统计条:与当前 VuePress 内容库同步后的真实规模。
+const stats = [
+  { to: 529, label: "篇技术笔记", suffix: "" },
+  { to: 10, label: "个内容分类", suffix: "" },
+  { to: 344, label: "张图表与插图", suffix: "" },
+  { to: 1, label: "个接地问答助手", suffix: "" },
+];
+---
+<section class="stats reveal">
+  <div class="row">
+    {stats.map((s) => (
+      <div class="stat">
+        <div class="v"><span class="count" data-to={s.to}>0</span>{s.suffix}</div>
+        <div class="l">{s.label}</div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .stats { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+  .row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    padding: 36px 32px;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-1);
+    border: 1px solid var(--color-line);
+  }
+  .stat { text-align: center; }
+  .v {
+    font-size: clamp(28px, 5vw, 44px); font-weight: 700; letter-spacing: -.02em;
+    color: var(--color-fg);
+  }
+  .l { margin-top: 6px; font-size: 13px; color: var(--color-muted); }
+  @media (max-width: 620px) {
+    .row { grid-template-columns: repeat(2, 1fr); gap: 24px 16px; }
+  }
+</style>

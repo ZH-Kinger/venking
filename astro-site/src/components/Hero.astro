@@ -1,0 +1,151 @@
+---
+// 根站首屏:不对称编辑式布局。和博客、Agent 共用单靛紫品牌系统。
+import { SITE } from "../config";
+import Icon from "./Icon.astro";
+---
+<header class="hero" id="hero">
+  <div class="bg" aria-hidden="true">
+    <div class="grid"></div>
+    <div class="accent-field"></div>
+  </div>
+
+  <div class="inner">
+    <div class="copy">
+      <p class="eyebrow reveal"><span></span>AIOps · AI Infrastructure</p>
+      <h1 class="title reveal" style="--reveal-delay:80ms">Build systems that <em>think.</em></h1>
+      <p class="sub reveal" style="--reveal-delay:160ms">
+        记录训练基础设施、故障排查、Agent 开发与 RAG 的真实工程实践。
+      </p>
+      <div class="cta reveal" style="--reveal-delay:240ms">
+        <a class="btn primary" href="/blog/">
+          浏览技术博客 <Icon name="arrow-right" size={17} />
+        </a>
+        <a class="btn ghost" href={SITE.aiUrl} target="_blank" rel="noopener noreferrer">
+          <Icon name="robot" size={17} /> 询问 AI 助手
+        </a>
+      </div>
+    </div>
+
+    <div class="signal reveal" style="--reveal-delay:180ms" aria-label="内容方向">
+      <div class="signal-head">
+        <span>内容概览</span>
+        <span class="status">持续更新</span>
+      </div>
+      <div class="signal-main">
+        <strong>529</strong>
+        <span>篇工程笔记</span>
+      </div>
+      <div class="signal-list">
+        <span>GPU / RDMA / NCCL</span>
+        <span>Agentic RAG</span>
+        <span>Kubernetes / AIOps</span>
+      </div>
+    </div>
+  </div>
+
+</header>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 96px 24px 72px;
+    overflow: hidden;
+  }
+  .bg { position: absolute; inset: 0; pointer-events: none; }
+
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(to bottom, #000, transparent 82%);
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 82%);
+  }
+  .accent-field {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(680px circle at 74% 30%, rgba(94,106,210,.18), transparent 68%);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .accent-field { animation: field-shift 12s ease-in-out infinite alternate; }
+  }
+  @keyframes field-shift {
+    to { transform: translate3d(-3%, 4%, 0) scale(1.08); opacity: .8; }
+  }
+
+  .inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr);
+    gap: clamp(48px, 9vw, 120px);
+    align-items: end;
+    width: min(1120px, 100%);
+  }
+  .copy { max-width: 730px; }
+  .eyebrow {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 22px;
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .eyebrow span { width: 28px; height: 1px; background: var(--color-accent); }
+  .title {
+    margin: 0 0 24px;
+    font-size: clamp(52px, 8.8vw, 104px);
+    line-height: .94; letter-spacing: -.065em; font-weight: 650;
+    color: #fff;
+    text-wrap: balance;
+  }
+  .title em { color: var(--color-accent); font-style: normal; }
+  .sub {
+    margin: 0 0 34px; max-width: 560px;
+    font-size: clamp(15px, 2.2vw, 18px); line-height: 1.7; color: var(--color-muted);
+  }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 13px 24px; border-radius: var(--radius-md);
+    font-size: 15px; font-weight: 500; text-decoration: none;
+    transition: transform .12s ease, filter .15s ease, border-color .15s ease, box-shadow .2s ease;
+  }
+  .btn.primary {
+    background: var(--color-accent); color: #fff;
+    box-shadow: 0 4px 20px rgba(94,106,210,.35);
+  }
+  .btn.primary:hover { filter: brightness(1.08); box-shadow: 0 8px 30px rgba(94,106,210,.42); }
+  .btn.ghost { background: rgba(255,255,255,.03); color: var(--color-fg); border: 1px solid var(--color-line-strong); }
+  .btn.ghost:hover { border-color: var(--color-fg); }
+  .btn:active { transform: scale(.97); }
+
+  .signal {
+    align-self: center;
+    padding: 24px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: rgba(15,17,22,.76);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 28px 80px rgba(0,0,0,.28);
+  }
+  .signal-head { display: flex; justify-content: space-between; gap: 16px; color: var(--color-muted); font-size: 10px; letter-spacing: .14em; }
+  .status { color: #a9b1ec; letter-spacing: 0; }
+  .signal-main { display: flex; align-items: baseline; gap: 10px; padding: 34px 0 28px; border-bottom: 1px solid var(--color-line); }
+  .signal-main strong { font-size: 54px; line-height: 1; letter-spacing: -.05em; }
+  .signal-main span { color: var(--color-muted); font-size: 13px; }
+  .signal-list { display: grid; gap: 10px; padding-top: 20px; color: var(--color-muted); font-family: var(--font-mono); font-size: 11px; }
+  .signal-list span::before { color: var(--color-accent); content: "↳"; margin-right: 8px; }
+
+  @media (max-width: 760px) {
+    .hero { align-items: start; padding-top: 130px; }
+    .inner { grid-template-columns: 1fr; gap: 52px; }
+    .title { font-size: clamp(52px, 16vw, 78px); }
+    .signal { max-width: 420px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn { transition: none; }
+  }
+</style>

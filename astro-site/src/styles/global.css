@@ -1,0 +1,48 @@
+/* Tailwind v4 CSS-first(取代 tailwind.config.js)。@import 后用 @theme 块定义 token。 */
+@import "tailwindcss";
+
+/* ===== 设计 token ===== */
+/* 与 VuePress 博客和 Agent 共用的单品牌色深色系统。 */
+@theme {
+  --color-void: #08090a;        /* 落地页页面底 */
+  --color-bg-1: #0f1116;        /* 卡片一级 */
+  --color-bg-2: #16181d;        /* 卡片二级 */
+  --color-bg-3: #1b1e25;        /* hover 提亮 */
+  --color-fg: #f7f8f8;          /* 前景文字 */
+  --color-muted: #8a8f98;       /* 次要文字 */
+  --color-accent: #5e6ad2;      /* Linear 靛紫(链接/CTA/focus) */
+  --color-accent-soft: rgba(94, 106, 210, 0.16);
+  --color-line: rgba(255, 255, 255, 0.08);   /* 发丝线 */
+  --color-line-strong: rgba(255, 255, 255, 0.14);
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Microsoft YaHei", "Noto Sans SC", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo,
+    Consolas, monospace;
+}
+
+/* ===== 全局基线 ===== */
+:root { --nav-h: 56px; }   /* 顶栏高度,博客三栏 sticky 定位/scroll-margin 共用 */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  font-optical-sizing: auto;
+}
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+}
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* 尊重系统减弱动画偏好:关掉平滑滚动(前庭不适人群) */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Kinger">
+  <defs>
+    <linearGradient id="kg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5e6ad2"/>
+      <stop offset="1" stop-color="#f5455c"/>
+    </linearGradient>
+  </defs>
+  <!-- 深色圆角底:小尺寸(16px)也有辨识度 -->
+  <rect width="64" height="64" rx="14" fill="#08090a"/>
+  <!-- 连线拓扑 -->
+  <g stroke="url(#kg)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.9">
+    <line x1="18" y1="22" x2="18" y2="42"/>
+    <line x1="18" y1="22" x2="44" y2="18"/>
+    <line x1="18" y1="42" x2="44" y2="46"/>
+    <line x1="44" y1="18" x2="44" y2="46"/>
+    <line x1="18" y1="22" x2="44" y2="46"/>
+  </g>
+  <!-- 节点 -->
+  <g fill="url(#kg)">
+    <circle cx="18" cy="22" r="5.5"/>
+    <circle cx="18" cy="42" r="5.5"/>
+    <circle cx="44" cy="18" r="5"/>
+    <circle cx="44" cy="46" r="5"/>
+  </g>
+</svg>

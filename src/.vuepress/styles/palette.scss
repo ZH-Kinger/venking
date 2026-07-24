@@ -1,0 +1,73 @@
+// ===== Palette overrides =====
+// 覆盖 theme-hope 的调色板 SCSS 变量(会被生成器转成 CSS 自定义属性 --vp-c-*、--vp-font 等)。
+// 加载顺序:默认调色板 -> 本文件 -> generator,因此这里的赋值优先于默认值,
+// 且 generator 中派生变量(text-mute / border-hard / bg-soft ...)会基于这里的取值。
+// 亮 / 暗色分别对应 :root 与 [data-theme='dark']。
+
+// ===== 深色科技风(darkmode:enable,只有 dark 值生效)=====
+// 基调对齐落地页/AI 助手:近黑底 #08090a + 靛紫 #5e6ad2 + 发丝线边框。
+// light 值保留但用不到(强制深色)。
+
+// ---------- 背景:近黑深邃 + 表面亮度阶梯 ----------
+$vp-c-bg: (
+  light: #f7f8fa,
+  dark: #08090a,          // 页面底(Linear void)
+);
+$vp-c-bg-alt: (
+  light: #f0f1f4,
+  dark: #0f1116,          // 次级面(代码块/引用底)
+);
+// 卡片 / 导航栏等"抬升"表面
+$vp-c-bg-elv: (
+  light: #ffffff,
+  dark: #16181d,          // 卡片
+);
+
+// ---------- 文字:浅灰白 ----------
+$vp-c-text: (
+  light: #2b2b2b,
+  dark: #f7f8f8,
+);
+
+// ---------- 边框 / 分隔线:发丝级半透明白 ----------
+$vp-c-border: (
+  light: #ececee,
+  dark: rgb(255 255 255 / 10%),
+);
+$vp-c-divider: (
+  light: #f0f0f2,
+  dark: rgb(255 255 255 / 7%),
+);
+
+// ---------- 阴影:深色下更深 ----------
+$vp-c-shadow: (
+  light: rgb(0 0 0 / 6%),
+  dark: rgb(0 0 0 / 45%),
+);
+
+// ---------- 强调色:靛紫(与落地页/AI 助手同色,全站统一)----------
+$vp-c-accent: (
+  light: #5e6ad2,
+  dark: #7c86e0,          // 深底上稍提亮,保证对比度
+);
+$vp-c-accent-bg: (
+  light: #5e6ad2,
+  dark: #5e6ad2,
+);
+$vp-c-accent-hover: (
+  light: #4d59c4,
+  dark: #949ce8,
+);
+$vp-c-accent-soft: (
+  light: rgb(94 106 210 / 12%),
+  dark: rgb(94 106 210 / 20%),
+);
+
+// ---------- 字体:中文友好字体栈 + 正文行高 ----------
+$vp-font: '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+$vp-font-heading: $vp-font;
+$vp-font-mono: '"JetBrains Mono", ui-monospace, "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace';
+
+// ---------- 过渡:平滑一致(收快到 0.15s——卡片 hover 是高频动作,快才跟手) ----------
+$vp-t-color: "0.2s ease";
+$vp-t-transform: "0.15s ease";

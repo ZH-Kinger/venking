@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blog-rag"
+version = "0.1.0"
+description = "生产级 Agentic RAG over 个人技术博客(ZH-Kinger)"
+requires-python = ">=3.11"
+dependencies = [
+  "openai>=1.40",
+  "python-dotenv>=1.0",
+  "pydantic-settings>=2.0",
+]
+
+# 后续模块按需安装,避免一次拉满依赖:
+#   pip install -e ".[ingest]"  等
+[project.optional-dependencies]
+ingest = ["pymupdf", "python-frontmatter", "langchain-text-splitters", "markdownify", "pyyaml"]
+pdf = ["docling"]  # 版面感知 PDF→Markdown(R3选定;重~2-3GB,仅PDF入库时装)
+rag = ["langchain", "langchain-community", "langchain-chroma", "chromadb", "dashscope", "rank-bm25", "jieba"]
+agent = ["langgraph", "langgraph-checkpoint-sqlite", "pydantic"]  # sqlite saver=M8 持久短时记忆
+web = ["ddgs", "tavily-python"]   # 联网搜索:ddgs 免key起步 / tavily 精准首选(需key);博查走裸HTTP无需SDK
+# 评测自实现(GLM 判官),不用 ragas:0.4 硬 import 了 community 已删的 vertexai 路径,与本栈 langchain 1.x 不兼容
+eval = []
+obs = ["langfuse>=4"]                       # 在线追踪看板,延后到 M6
+ui = ["gradio>=5"]                          # M6.1 Gradio 对话界面(已被 api+自定义前端取代,保留备用)
+api = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]  # M6.2 FastAPI + SSE 流式后端(配自定义 Gemini 风格前端)
+dev = ["pytest", "ruff", "tenacity"]
+
+[project.scripts]
+# cli 在 M2 落地后可用:blog-rag "问题"
+blog-rag = "blog_rag.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

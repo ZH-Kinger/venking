@@ -1,0 +1,38 @@
+---
+// 文章底部上一篇/下一篇(同分类内)。任一为空则那侧留白。
+import type { Post } from "../../lib/blog";
+interface Props { prev: Post | null; next: Post | null; }
+const { prev, next } = Astro.props;
+---
+{(prev || next) && (
+  <nav class="postnav" aria-label="上下篇">
+    {prev ? (
+      <a class="pn prev" href={`/blog/${prev.id}/`}>
+        <span class="dir">← 上一篇</span>
+        <span class="t">{prev.data.title}</span>
+      </a>
+    ) : <span />}
+    {next ? (
+      <a class="pn next" href={`/blog/${next.id}/`}>
+        <span class="dir">下一篇 →</span>
+        <span class="t">{next.data.title}</span>
+      </a>
+    ) : <span />}
+  </nav>
+)}
+
+<style>
+  .postnav { display: flex; gap: 16px; margin-top: 48px; }
+  .pn {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;
+    padding: 16px 18px; border: 1px solid var(--color-line); border-radius: 12px;
+    text-decoration: none; background: rgba(255,255,255,.025);
+    transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+  }
+  .pn.next { text-align: right; }
+  .pn:hover { border-color: rgba(255,255,255,.15); background: rgba(255,255,255,.05); transform: translateY(-1px); }
+  .dir { font-size: 12px; color: #8a8f98; }
+  .t { font-size: 15px; font-weight: 600; color: #e5e7ea; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 640px) { .postnav { flex-direction: column; } .pn.next { text-align: left; } }
+  @media (prefers-reduced-motion: reduce) { .pn { transition: none; } .pn:hover { transform: none; } }
+</style>

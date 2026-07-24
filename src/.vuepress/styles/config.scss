@@ -1,0 +1,16 @@
+// ===== Sass config / compile-time variables =====
+// 小红书(RED)风格浅色焕新 —— 此文件被 theme-hope 以 `@use "@sass-palette/hope-config"`
+// 形式使用，palette 生成器会在编译期从这里读取 $theme-color 来派生强调色，
+// 因此主色必须写在 config 里(而非 palette)。
+
+/* 品牌主色:靛紫(深色科技风,与落地页/AI 助手同色,全站统一) */
+$theme-color: #5e6ad2;
+
+/* 主题色选择器预设(首色≈品牌色) */
+$colors: #5e6ad2, #7c86e0, #06b6d4, #10a5a5, #2ecc71, #f39c12, #eb3b54, #aa6fe9;
+
+/* 代码块底色:深色科技风(近黑,配发丝线边框在 index.scss) */
+$code-bg-color: (
+  light: #f6f7f9,
+  dark: #0d1117,
+);

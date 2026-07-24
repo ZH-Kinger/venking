@@ -1,0 +1,35 @@
+# ============================================================
+# Blog RAG agent —— 编排(单服务起步;第二闸再加 caddy 反代做 HTTPS)
+#
+# 关键设计:
+# - .env 与 data/ 用**挂载卷**,不打进镜像:key 不落镜像层、库可独立更新。
+# - restart: unless-stopped —— 进程崩了/服务器重启都自动拉起(生产级守护,替代 systemd)。
+# - healthcheck —— 用 python 探 7860 端口活性(slim 镜像无 curl),崩溃可被编排感知。
+# - 端口仅绑定宿主回环地址，由 Nginx 的 /ai/ 统一对外提供访问。
+# ============================================================
+services:
+  agent:
+    build: .
+    image: blog-rag-agent:latest
+    container_name: blog-rag-agent
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7860:7860"
+    env_file:
+      - .env                       # 真实 key 从宿主 .env 注入(不进镜像)
+    environment:
+      # 容器内仍绑定 0.0.0.0，宿主发布范围由上面的回环地址限制。
+      UI_HOST: "0.0.0.0"
+      UI_PORT: "7860"
+    volumes:
+      - ./data:/app/data           # chroma 库 + feedback 落盘持久化(容器重建不丢)
+      # 前端热更新:static 目录挂载进容器,api.py 用 FileResponse 每次现读磁盘。
+      # 改前端只需 scp 覆盖宿主 ./src/blog_rag/static/*,刷新即生效——**无需 rebuild、无需重启**。
+      - ./src/blog_rag/static:/app/src/blog_rag/static
+    healthcheck:
+      # 检查真实 ASGI 路由,不再只测"端口有人监听"。
+      test: ["CMD", "python", "-c", "import sys,urllib.request; r=urllib.request.urlopen('http://127.0.0.1:7860/health', timeout=3); sys.exit(0 if r.status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s            # 首次启动留足冷启动时间(加载依赖/首个请求连 GLM)

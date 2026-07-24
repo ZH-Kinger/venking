@@ -1,0 +1,24 @@
+---
+// 落地页(根路由 /)。Linear 深色风 + 动态背景 + 滚动揭示 + 交互细节。
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Nav from "../components/Nav.astro";
+import Hero from "../components/Hero.astro";
+import Stats from "../components/Stats.astro";
+import Features from "../components/Features.astro";
+import TechStack from "../components/TechStack.astro";
+import AIEntry from "../components/AIEntry.astro";
+import Footer from "../components/Footer.astro";
+import Reveal from "../components/Reveal.astro";
+---
+<BaseLayout title="Kinger · AIOps & AI Infra" theme="dark">
+  <Nav />
+  <main>
+    <Hero />
+    <Stats />
+    <Features />
+    <TechStack />
+    <AIEntry />
+  </main>
+  <Footer />
+  <Reveal />
+</BaseLayout>

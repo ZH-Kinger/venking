@@ -1,0 +1,43 @@
+---
+// 博客顶栏。与落地页和 Agent 使用同一深色材质。
+import { SITE } from "../../config";
+---
+<nav id="blognav" class="bnav">
+  <a href="/" class="brand">
+    <svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true">
+      <defs><linearGradient id="bnkg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#5e6ad2"/><stop offset="1" stop-color="#f5455c"/>
+      </linearGradient></defs>
+      <g stroke="url(#bnkg)" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".9">
+        <line x1="16" y1="20" x2="16" y2="44"/><line x1="16" y1="20" x2="46" y2="16"/>
+        <line x1="16" y1="44" x2="46" y2="48"/><line x1="46" y1="16" x2="46" y2="48"/>
+        <line x1="16" y1="20" x2="46" y2="48"/>
+      </g>
+      <g fill="url(#bnkg)"><circle cx="16" cy="20" r="6"/><circle cx="16" cy="44" r="6"/>
+        <circle cx="46" cy="16" r="5.5"/><circle cx="46" cy="48" r="5.5"/></g>
+    </svg>
+    <span>Kinger</span>
+  </a>
+  <div class="links">
+    <a href="/">主页</a>
+    <a href="/blog/" class="active">博客</a>
+    <a href={SITE.aiUrl} target="_blank" rel="noopener noreferrer">AI 助手</a>
+  </div>
+</nav>
+
+<style>
+  .bnav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    height: var(--nav-h, 56px); padding: 0 24px;
+    background: rgba(8,9,10,.78);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: var(--color-fg); font-weight: 600; letter-spacing: -.01em; }
+  .links { display: flex; align-items: center; gap: 22px; }
+  .links a { color: #9297a1; text-decoration: none; font-size: 14px; transition: color .2s ease; }
+  .links a:hover, .links a.active { color: #f06a7e; }
+  @media (prefers-reduced-motion: reduce) { .links a { transition: none; } }
+</style>

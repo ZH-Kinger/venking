@@ -1,0 +1,17 @@
+# 构建镜像时排除:让 build context 小、镜像干净、机密不进层
+.venv/
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
+.ruff_cache/
+tests/
+
+# 机密:.env 绝不进镜像层(运行时由 compose 挂载)
+.env
+
+# 数据:chroma/归档/投放/评测产物不进镜像(运行时挂载 ./data 卷)
+data/
+
+# 文档/杂项
+*.md
+.git/

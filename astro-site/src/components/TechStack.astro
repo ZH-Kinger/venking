@@ -1,0 +1,42 @@
+---
+// 技术栈标签墙:滚动揭示 + 逐个错峰浮现。承接 vault 真实主题。
+const tags = [
+  "PyTorch", "CUDA", "NCCL", "RDMA", "InfiniBand", "vLLM", "LangGraph",
+  "RAG", "Function Calling", "Multi-Agent", "Kubernetes", "Docker",
+  "Prometheus", "CI/CD", "Nginx", "Redis", "MySQL", "TCP/IP",
+  "Clos", "Spine-Leaf", "Go", "Python",
+];
+---
+<section class="tech">
+  <div class="head reveal">
+    <h2>技术关键词</h2>
+    <p>笔记里高频出现的技术栈。</p>
+  </div>
+  <div class="wall">
+    {tags.map((t, i) => (
+      <span class="tag reveal" style={`--reveal-delay:${i * 30}ms`}>{t}</span>
+    ))}
+  </div>
+</section>
+
+<style>
+  .tech { max-width: 900px; margin: 0 auto; padding: 100px 24px 40px; text-align: center; }
+  .head { margin-bottom: 32px; }
+  .head h2 { margin: 0 0 10px; font-size: clamp(24px, 4vw, 34px); letter-spacing: -.02em; font-weight: 600; }
+  .head p { margin: 0; color: var(--color-muted); font-size: 15px; }
+  .wall { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .tag {
+    padding: 8px 16px; border-radius: 999px;
+    background: var(--color-bg-1); border: 1px solid var(--color-line);
+    font-size: 14px; color: var(--color-muted);
+    transition: color .15s ease, border-color .15s ease, background .15s ease, transform .15s ease;
+  }
+  .tag:hover {
+    color: var(--color-fg); border-color: var(--color-line-strong);
+    background: var(--color-bg-3); transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tag { transition: none; }
+    .tag:hover { transform: none; }
+  }
+</style>

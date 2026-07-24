@@ -1,0 +1,47 @@
+---
+// 官方 Tabler SVG。内联后继承 currentColor，和博客及 Agent 一致。
+import arrowRight from "@tabler/icons/outline/arrow-right.svg?raw";
+import book from "@tabler/icons/outline/book.svg?raw";
+import clipboardText from "@tabler/icons/outline/clipboard-text.svg?raw";
+import cpu from "@tabler/icons/outline/cpu.svg?raw";
+import network from "@tabler/icons/outline/network.svg?raw";
+import robot from "@tabler/icons/outline/robot.svg?raw";
+import server from "@tabler/icons/outline/server.svg?raw";
+
+const icons = {
+  "arrow-right": arrowRight,
+  book,
+  "clipboard-text": clipboardText,
+  cpu,
+  network,
+  robot,
+  server,
+} as const;
+
+interface Props {
+  name: keyof typeof icons;
+  size?: number;
+  label?: string;
+}
+
+const { name, size = 20, label } = Astro.props;
+---
+
+<span
+  class="icon"
+  style={`--icon-size:${size}px`}
+  aria-hidden={label ? undefined : "true"}
+  aria-label={label}
+  set:html={icons[name]}
+></span>
+
+<style>
+  .icon { display: contents; }
+  .icon :global(svg) {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    stroke-width: 1.8;
+  }
+</style>

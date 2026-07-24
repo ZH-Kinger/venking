@@ -1,0 +1,735 @@
+// ===== Custom global styles =====
+// 深色科技编辑风:清晰层级 + 克制表面 + 真实内容优先。
+// 仅使用 theme-hope 真实存在的 class(.vp-article-*、.vp-card、[vp-content] 等)
+// 与 CSS 变量(--vp-c-*、--vp-font、--vp-t-* 等)。
+
+:root {
+  // 统一圆角体系
+  --rn-radius-card: 16px;
+  --rn-radius-media: 12px;
+  --rn-radius-control: 12px;
+
+  // 阴影带一点冷色,和靛紫品牌色处在同一色温
+  --rn-shadow: 0 8px 28px rgb(30 38 88 / 8%);
+  --rn-shadow-hover: 0 18px 44px rgb(30 38 88 / 13%);
+  --rn-surface-border: rgb(27 31 43 / 9%);
+
+  // 代码块跟随统一圆角(默认 6px)
+  --code-border-radius: var(--rn-radius-media);
+  --tab-border-radius: var(--rn-radius-media);
+}
+
+[data-theme="dark"] {
+  --rn-shadow: 0 12px 36px rgb(0 0 0 / 28%);
+  --rn-shadow-hover: 0 20px 52px rgb(0 0 0 / 38%);
+  --rn-surface-border: rgb(255 255 255 / 8%);
+}
+
+// ---------- 定制博客首页 Hero(theme-hope Blog 插槽,不替换博客功能)----------
+.kinger-hero {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(240px, 0.65fr);
+  gap: clamp(2rem, 7vw, 7rem);
+  align-items: center;
+  width: min(1180px, calc(100% - 3rem));
+  min-height: calc(100dvh - var(--navbar-height, 3.75rem));
+  margin: 0 auto;
+  padding: clamp(5rem, 12vh, 8rem) 0 clamp(3.5rem, 8vh, 6rem);
+  color: #f7f8fb;
+  text-align: left;
+}
+
+.kinger-hero__copy {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+}
+
+.kinger-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  margin: 0 0 1.4rem;
+  padding: 0 0.85rem;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  background: rgb(8 9 10 / 28%);
+  color: rgb(255 255 255 / 78%);
+  font-family: var(--vp-font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.kinger-hero__title {
+  margin: 0;
+  color: #f7f8fb;
+  font-size: clamp(3.6rem, 8vw, 7.2rem);
+  font-weight: 760;
+  letter-spacing: -0.065em;
+  line-height: 0.94;
+  text-wrap: balance;
+  text-shadow: 0 6px 32px rgb(0 0 0 / 24%);
+}
+
+.kinger-hero__tagline {
+  max-width: 620px;
+  margin: 1.6rem 0 0;
+  color: rgb(247 248 251 / 82%);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  font-weight: 450;
+  letter-spacing: 0.01em;
+  line-height: 1.75;
+  text-shadow: 0 2px 16px rgb(0 0 0 / 28%);
+}
+
+.kinger-hero__topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-top: 2.15rem;
+  color: rgb(247 248 251 / 68%);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.kinger-hero__topics span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.kinger-hero__topics span + span::before {
+  width: 1px;
+  height: 0.85rem;
+  margin: 0 0.9rem;
+  background: rgb(255 255 255 / 28%);
+  content: "";
+}
+
+.kinger-hero__visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.kinger-hero__logo-frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(25vw, 310px);
+  min-width: 230px;
+  aspect-ratio: 1;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 12%), rgb(255 255 255 / 3%)),
+    rgb(8 9 10 / 24%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 14%),
+    0 30px 80px rgb(0 0 0 / 24%);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  transform: rotate(2deg);
+}
+
+.kinger-hero__logo-frame::after {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 20px;
+  content: "";
+}
+
+.kinger-hero__logo-frame img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 28px rgb(0 0 0 / 22%));
+}
+
+@media (max-width: 767px) {
+  .kinger-hero {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+    width: min(100% - 2rem, 680px);
+    min-height: 100dvh;
+    padding: 6.5rem 0 3.5rem;
+  }
+
+  .kinger-hero__title {
+    font-size: clamp(3.4rem, 18vw, 5.2rem);
+    letter-spacing: -0.055em;
+  }
+
+  .kinger-hero__tagline {
+    max-width: 32rem;
+  }
+
+  .kinger-hero__visual {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .kinger-hero__eyebrow,
+  .kinger-hero__logo-frame {
+    background: rgb(15 17 22 / 88%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+// ---------- 正文排版:更通透的行高、段距与字重 ----------
+[vp-content] {
+  font-family: var(--vp-font);
+
+  #markdown-content {
+    line-height: 1.8; // 中文长文更舒展
+
+    p,
+    li {
+      line-height: 1.8;
+    }
+
+    // 段落之间留更多呼吸感
+    p {
+      margin: 1.1em 0;
+    }
+
+    li {
+      margin: 0.4em 0;
+    }
+
+    // 标题层级:大字负字距(Apple 排版)、上间距拉开与正文的区隔
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--vp-font-heading);
+      font-weight: 700;
+    }
+
+    h1 { letter-spacing: -0.02em; }
+    h2 {
+      letter-spacing: -0.01em;
+      margin-top: 2em;
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid var(--vp-c-divider); // 二级标题细线分隔,层次更清
+    }
+    h3 { margin-top: 1.6em; }
+
+    // 引用块:品牌色左条 + 极淡底,更精致
+    blockquote {
+      border-left: 3px solid var(--vp-c-accent);
+      background: var(--vp-c-bg-alt);
+      border-radius: 0 8px 8px 0;
+    }
+  }
+
+  // 图片统一圆角 + 柔和阴影
+  img {
+    border-radius: var(--rn-radius-media);
+    box-shadow: var(--rn-shadow);
+  }
+}
+
+// ---------- 博客首页文章卡片 ----------
+.vp-article-item {
+  position: relative;
+  overflow: hidden;
+  padding: 1.45rem 1.6rem;
+  border: 1px solid var(--rn-surface-border);
+  border-radius: var(--rn-radius-card);
+
+  background: var(--vp-c-bg-elv);
+  box-shadow: var(--rn-shadow);
+
+  transition:
+    transform var(--vp-t-transform),
+    box-shadow var(--vp-t-transform),
+    background var(--vp-t-color);
+
+  &:hover {
+    box-shadow: var(--rn-shadow-hover);
+    transform: translateY(-3px);
+  }
+
+  // 封面图跟随卡片圆角
+  .vp-article-cover {
+    border-top-left-radius: var(--rn-radius-card);
+    border-top-right-radius: var(--rn-radius-card);
+  }
+}
+
+// 加大卡片之间的间距,更通透
+.vp-article-wrapper {
+  margin-bottom: 1.7rem;
+}
+
+.vp-article-title {
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+.vp-article-excerpt {
+  color: var(--vp-c-text-mute);
+  line-height: 1.75;
+}
+
+// ---------- VPCard(组件卡片 / 链接卡)----------
+.vp-card {
+  padding: 1.25rem;
+  border: 1px solid var(--rn-surface-border);
+  border-radius: var(--rn-radius-card);
+
+  // 纯白卡片 + 柔和阴影,去掉默认灰底
+  background: var(--vp-c-bg-elv);
+  box-shadow: var(--rn-shadow);
+
+  transition:
+    transform var(--vp-t-transform),
+    box-shadow var(--vp-t-transform),
+    background var(--vp-t-color);
+
+  &:hover {
+    background: var(--vp-c-bg-elv);
+    box-shadow: var(--rn-shadow-hover);
+    transform: translateY(-2px);
+  }
+}
+
+// ---------- 代码块:统一圆角 + 柔和阴影 ----------
+div[class*="language-"] {
+  border: 1px solid var(--rn-surface-border);
+  border-radius: var(--code-border-radius);
+  box-shadow: var(--rn-shadow);
+}
+
+// ---------- 输入框 / 按钮统一圆角 ----------
+input,
+textarea,
+select,
+button,
+.vp-blog-type-button {
+  border-radius: var(--rn-radius-control);
+}
+
+// 搜索框圆角(plugin-search / docsearch 通用容器)
+.search-box input,
+.DocSearch-Button {
+  border-radius: var(--rn-radius-control) !important;
+}
+
+// ---------- 导航栏:毛玻璃(跟随主题,浅色白玻璃/深色黑玻璃)----------
+.vp-navbar {
+  background: rgb(255 255 255 / 72%);   // 浅色场景
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 1px 0 var(--vp-c-divider);
+}
+[data-theme="dark"] .vp-navbar {
+  background: rgb(8 9 10 / 68%);         // 深色场景
+}
+
+.vp-navbar .vp-navbar-item > a {
+  position: relative;
+  font-weight: 560;
+}
+
+.vp-navbar .vp-navbar-item > a::after {
+  position: absolute;
+  right: 0.2rem;
+  bottom: -0.38rem;
+  left: 0.2rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--vp-c-accent);
+  content: "";
+  opacity: 0;
+  transform: scaleX(0.4);
+  transition:
+    opacity var(--vp-t-color),
+    transform var(--vp-t-transform);
+}
+
+.vp-navbar .vp-navbar-item > a:hover::after,
+.vp-navbar .vp-navbar-item > a.route-link-active::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+// 系统降低透明度偏好:回退实底,保证可读
+@media (prefers-reduced-transparency: reduce) {
+  .vp-navbar {
+    background: var(--vp-c-bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+// ---------- 侧栏博主信息卡也套用柔和阴影 ----------
+.vp-blogger-info {
+  overflow: hidden;
+  border: 1px solid var(--rn-surface-border);
+  border-radius: var(--rn-radius-card);
+  box-shadow: var(--rn-shadow);
+}
+
+.vp-blog-info-wrapper {
+  gap: 1rem;
+}
+
+.vp-blog-type-button {
+  border: 1px solid transparent;
+  transition:
+    color var(--vp-t-color),
+    background var(--vp-t-color),
+    border-color var(--vp-t-color),
+    transform var(--vp-t-transform);
+}
+
+.vp-blog-type-button:hover {
+  border-color: var(--rn-surface-border);
+  background: var(--vp-c-accent-soft);
+  transform: translateY(-1px);
+}
+
+// ---------- 精致化增强(纯样式,不动布局/功能)----------
+
+// 卡片 hover:纯净的阴影加深 + 发丝线边框提亮(去掉发光,editorial 克制)
+.vp-article-item:hover,
+.vp-card:hover {
+  box-shadow: var(--rn-shadow-hover), 0 0 0 1px var(--vp-c-border);
+}
+
+// hero 大标题:仅英文标题收紧字距(中文 tagline 不加负字距,否则字挤)
+.vp-hero-info-wrapper .vp-hero-title {
+  letter-spacing: -0.01em;
+}
+
+// 无障碍:降低动画偏好时,去掉卡片位移/过渡(保留颜色变化)
+@media (prefers-reduced-motion: reduce) {
+  .vp-article-item,
+  .vp-card,
+  .vp-blog-type-button,
+  .vp-navbar .vp-navbar-item > a::after {
+    transition: background var(--vp-t-color);
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .kinger-hero__logo-frame {
+    transform: none;
+  }
+}
+
+// ---------- 首页 hero:方向性遮罩兼顾摄影主体与左侧文字可读性 ----------
+.vp-blog-mask::after {
+  background:
+    linear-gradient(
+      90deg,
+      rgb(8 9 10 / 76%) 0%,
+      rgb(8 9 10 / 48%) 46%,
+      rgb(8 9 10 / 24%) 100%
+    ),
+    linear-gradient(180deg, rgb(8 9 10 / 12%) 0%, rgb(8 9 10 / 4%) 55%, rgb(8 9 10 / 48%) 100%) !important;
+}
+// hero 文字加一点阴影,任何背景图上都清晰
+.vp-hero-info-wrapper .vp-hero-title,
+.vp-hero-info-wrapper .vp-hero-description {
+  text-shadow: 0 2px 12px rgb(0 0 0 / 35%);
+}
+
+// 首页摄影图统一做冷色压暗,确保前景信息在亮暗屏幕都清晰。
+.vp-blog-mask {
+  filter: saturate(0.82) contrast(1.04) brightness(0.84);
+}
+
+// 细化滚动条(浅色淡灰 / 深色淡白,不突兀)
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(0 0 0 / 18%) transparent;
+}
+[data-theme="dark"] * {
+  scrollbar-color: rgb(255 255 255 / 18%) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgb(0 0 0 / 16%);
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgb(0 0 0 / 26%);
+  background-clip: padding-box;
+}
+[data-theme="dark"] *::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 16%);
+  background-clip: padding-box;
+}
+
+// ---------- 全站界面语言:文章、侧栏、目录与聚合页 ----------
+// Tabler 图标保持同一视觉重量，避免导航、正文信息与 Agent 控件出现实心/线性混搭。
+.vp-icon {
+  width: 1.08em;
+  height: 1.08em;
+  color: currentcolor;
+  vertical-align: -0.14em;
+}
+
+// 键盘操作使用统一的品牌色焦点环，鼠标点击不额外制造视觉噪音。
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--vp-c-accent);
+  outline-offset: 3px;
+}
+
+.vp-page-title {
+  margin-bottom: 1rem;
+
+  h1 {
+    letter-spacing: -0.035em;
+    line-height: 1.14;
+    text-wrap: balance;
+  }
+}
+
+.page-info {
+  color: var(--vp-c-text-mute);
+  font-size: 0.85rem;
+}
+
+.vp-breadcrumb {
+  color: var(--vp-c-text-mute);
+  font-size: 0.82rem;
+}
+
+// 桌面侧栏是安静的次级表面，当前项仅用一层品牌色软底标识。
+.vp-sidebar {
+  border-inline-end: 1px solid var(--rn-surface-border);
+  background: color-mix(in srgb, var(--vp-c-bg) 94%, var(--vp-c-accent) 6%);
+}
+
+.vp-sidebar-header,
+.vp-sidebar-link {
+  border-radius: 10px;
+  transition:
+    color var(--vp-t-color),
+    background var(--vp-t-color);
+}
+
+.vp-sidebar-header {
+  font-weight: 620;
+  letter-spacing: -0.01em;
+}
+
+.vp-sidebar-link {
+  color: var(--vp-c-text-mute);
+
+  &:hover {
+    color: var(--vp-c-text);
+  }
+
+  &.active {
+    color: var(--vp-c-accent);
+    font-weight: 600;
+  }
+}
+
+// 右侧目录使用细线和小面积状态色，长文章浏览时更容易定位。
+.vp-toc-wrapper {
+  border-inline-start: 1px solid var(--rn-surface-border);
+}
+
+.vp-toc-link {
+  border-radius: 6px;
+  color: var(--vp-c-text-mute);
+  transition:
+    color var(--vp-t-color),
+    background var(--vp-t-color);
+
+  &:hover,
+  &.active {
+    color: var(--vp-c-accent);
+  }
+}
+
+// 上一篇/下一篇改成清晰的内容导航卡，不改变链接结构。
+.vp-page-nav {
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+
+  .auto-link {
+    min-width: min(18rem, 100%);
+    padding: 0.8rem 1rem;
+    border-color: var(--rn-surface-border);
+    border-radius: var(--rn-radius-control);
+    background: var(--vp-c-bg-elv);
+    transition:
+      border-color var(--vp-t-color),
+      background var(--vp-t-color),
+      transform var(--vp-t-transform);
+
+    &:hover {
+      border-color: color-mix(in srgb, var(--vp-c-accent) 38%, var(--rn-surface-border));
+      background: var(--vp-c-accent-soft);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.vp-pagination-number,
+.vp-pagination-button,
+.vp-pagination-nav input {
+  border-color: var(--rn-surface-border);
+  border-radius: 10px;
+  background: var(--vp-c-bg-elv);
+  box-shadow: none;
+}
+
+.vp-pagination-number {
+  height: 34px;
+
+  div {
+    min-width: 32px;
+    padding-inline: 0.6rem;
+    text-align: center;
+  }
+}
+
+.vp-category,
+.vp-tag {
+  border: 1px solid var(--rn-surface-border);
+  border-radius: 999px;
+  background: var(--vp-c-bg-elv) !important;
+  color: var(--vp-c-text-mute) !important;
+  box-shadow: none;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--vp-c-accent) 38%, var(--rn-surface-border));
+    color: var(--vp-c-accent) !important;
+  }
+
+  &.active {
+    border-color: transparent;
+    background: var(--vp-c-accent-bg) !important;
+    color: var(--vp-c-white) !important;
+    transform: none;
+  }
+}
+
+.vp-dropdown {
+  overflow: hidden;
+  border: 1px solid var(--rn-surface-border);
+  border-radius: 14px;
+  background: var(--vp-c-bg-elv);
+  box-shadow: var(--rn-shadow-hover);
+}
+
+.vp-footer-wrapper {
+  border-top: 1px solid var(--rn-surface-border);
+  color: var(--vp-c-text-mute);
+}
+
+[vp-content] {
+  table {
+    overflow: hidden;
+    border: 1px solid var(--rn-surface-border);
+    border-radius: var(--rn-radius-media);
+    box-shadow: var(--rn-shadow);
+  }
+
+  thead {
+    background: var(--vp-c-bg-alt);
+  }
+
+  th {
+    font-weight: 650;
+  }
+}
+
+@media (max-width: 719px) {
+  .vp-article-item,
+  .vp-blogger-info,
+  .vp-card {
+    border-radius: 14px;
+  }
+
+  .vp-page-nav {
+    gap: 0.35rem;
+  }
+}
+
+// ---------- 动效层:只表达层级、反馈与状态 ----------
+@keyframes rn-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rn-logo-drift {
+  50% {
+    transform: translateY(-6px) rotate(-1deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kinger-hero__eyebrow,
+  .kinger-hero__title,
+  .kinger-hero__tagline,
+  .kinger-hero__topics,
+  .kinger-hero__visual {
+    animation: rn-enter 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .kinger-hero__title { animation-delay: 80ms; }
+  .kinger-hero__tagline { animation-delay: 160ms; }
+  .kinger-hero__topics { animation-delay: 240ms; }
+  .kinger-hero__visual { animation-delay: 180ms; }
+
+  .kinger-hero__logo-frame {
+    animation: rn-logo-drift 6s ease-in-out 1s infinite;
+  }
+
+  @supports (animation-timeline: view()) {
+    .vp-article-wrapper,
+    .vp-blogger-info,
+    .vp-blog-info-wrapper,
+    .vp-card {
+      animation: rn-enter linear both;
+      animation-timeline: view();
+      animation-range: entry 4% cover 24%;
+    }
+  }
+
+  .vp-sidebar-header:hover .vp-icon,
+  .vp-navbar-item:hover .vp-icon {
+    transform: translateY(-1px) rotate(-3deg);
+  }
+}
+
+.vp-sidebar-header .vp-icon,
+.vp-navbar-item .vp-icon {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+// ---------- 深浅切换:瞬间禁用全站过渡,避免大量元素同时 transition 造成的卡顿 ----------
+// client.ts 在切换瞬间给 <html> 加 .color-switching,150ms 后移除。
+html.color-switching,
+html.color-switching * {
+  transition: none !important;
+}

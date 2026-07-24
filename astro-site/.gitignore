@@ -1,0 +1,15 @@
+# Astro / Node
+node_modules/
+dist/
+.astro/
+
+# 环境与日志
+.env
+.env.production
+*.log
+
+# 截图/临时(dev 验证用,不进 git)
+_shots/
+
+# 系统
+.DS_Store
