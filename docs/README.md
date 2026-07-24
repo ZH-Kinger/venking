@@ -15,7 +15,7 @@
 
 ## 存放规则
 
-- 可公开复用的技术文章放在 `astro-site/src/content/posts/`。
+- 技术文章(博客事实源)放在 `blog/src/posts/`。
 - 项目内部的设计、决策、调研与部署记录放在本目录。
 - API Key、密码和服务器私钥只放 `.env` 或密钥管理服务，不写入 Markdown。
 - SQLite、Chroma、日志和反馈运行数据不进入 Git。

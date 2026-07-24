@@ -12,7 +12,7 @@
 [[source]]
 name = "blog_posts"          # 全部博客 md(含转换出的 AI_Infra 108 篇)——活语料,原地引用
 type = "blog_md"
-path = "../src/posts"
+path = "../blog/src/posts"
 enabled = true
 
 # RAG-only 源示例(纯参考资料,不发博客;按需启用):

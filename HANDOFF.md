@@ -3,6 +3,8 @@
 > 用云盘/U盘把整个 `ZH-Kinger` 目录拷到新电脑即可(所有改动都在文件夹里,不依赖 git 提交)。
 > 新电脑打开这个项目后,让 AI 先读这份 HANDOFF.md + `docs/collab/notes.md` 末尾的交接快照。
 
+> ⚠️ **结构已于 2026-07-24 规范化重组**:VuePress 博客从根 `src/` 下沉到 **`blog/src/`**,`astro-site/` 改名 **`homepage/`**,根 `package.json`/`tsconfig` 移入 `blog/`。**本文下面正文里的 `src/...`、`astro-site/...` 路径均为旧路径,请以 [`STRUCTURE.md`](STRUCTURE.md) 为准**(如 `src/.vuepress/` → `blog/src/.vuepress/`)。
+
 ---
 
 ## 这个项目是什么

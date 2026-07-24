@@ -11,6 +11,9 @@ permissions:
 jobs:
   deploy-gh-pages:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: blog   # VuePress 博客已下沉到 blog/(结构规范化 2026-07-24)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,6 +29,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: blog/package-lock.json
 
       - name: 安装依赖
         run: |
@@ -46,5 +50,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           # 修正点 3：部署目标分支建议改为 gh-pages，除非你非要推送到 blog 分支
           branch: blog
-          # 修正点 4：同样，路径改为正斜杠
-          folder: src/.vuepress/dist
+          # folder 相对仓库根(deploy action 不受 working-directory 影响),故带 blog/ 前缀
+          folder: blog/src/.vuepress/dist

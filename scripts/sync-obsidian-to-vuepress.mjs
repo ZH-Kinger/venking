@@ -17,9 +17,9 @@ import { join, relative, dirname, basename } from "node:path";
 import { execSync } from "node:child_process";
 
 const VAULT = "D:/obsidian workspace";
-const OUT = "src/posts";
-const PUB_IMG = "src/.vuepress/public/assets/posts";   // 图片落地(public 下)
-const IMG_URLBASE = "/blog/assets/posts";              // 引用绝对路径(注意 base=/blog/)
+const OUT = "blog/src/posts";                          // 博客已下沉到 blog/(结构规范化 2026-07-24)
+const PUB_IMG = "blog/src/.vuepress/public/assets/posts";  // 图片落地(public 下)
+const IMG_URLBASE = "/blog/assets/posts";              // 引用绝对路径(URL,base=/blog/,不随目录改)
 const DRY = process.argv.includes("--dry");
 
 // Obsidian 顶层目录 → theme-hope 中文分类名(用户审定)

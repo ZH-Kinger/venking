@@ -1,4 +1,4 @@
-/* 全站统一深色靛紫品牌 token(源:astro-site/src/styles/global.css、vuepress palette.scss、
+/* 全站统一深色靛紫品牌 token(源:homepage/src/styles/global.css、blog vuepress palette.scss、
    rag-server static/index.html —— admin-web 复用,保持与主页/博客/AI 助手同一视觉语言)。 */
 :root,
 .radix-themes {

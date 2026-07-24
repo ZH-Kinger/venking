@@ -4,13 +4,15 @@ Kinger 的个人技术站与博客知识库，包含统一深色主页、技术�
 
 ## 项目结构
 
+> 目录规范与跨项目耦合见 [`STRUCTURE.md`](STRUCTURE.md)。
+
 | 路径 | 用途 | 是否部署 |
 | --- | --- | --- |
-| `astro-site/` | 生产主页；其中旧 Astro 博客实现已弃用 | `/` |
+| `blog/` | VuePress theme-hope 博客主线与文章源（`blog/src/`） | `/blog/` |
+| `homepage/` | Astro 生产主页 | `/` |
 | `rag-server/` | Blog RAG Agent、登录/管理后台 API、测试与容器配置 | `/ai/`、`/api/` |
 | `admin-web/` | 管理后台前端（React + TypeScript + Vite + Radix Themes） | `/admin/`（本地开发，未上线） |
 | `docs/` | 架构、ADR、研究、规划和部署记录 | 不直接公开 |
-| `src/` | 当前 VuePress 博客主线与文章源 | `/blog/` |
 | `deploy/` | Nginx 等部署配置 | 服务器配置 |
 
 线上入口：
@@ -24,16 +26,18 @@ Kinger 的个人技术站与博客知识库，包含统一深色主页、技术�
 主页：
 
 ```bash
-cd astro-site
+cd homepage
 npm install
- npm run dev
+npm run dev
 ```
 
 博客：
 
 ```bash
-npm run docs:dev
-npm run docs:build
+cd blog
+npm install
+npm run docs:dev      # 本地预览 http://localhost:8080/blog/
+npm run docs:build    # 产物 blog/src/.vuepress/dist/
 ```
 
 Agent：

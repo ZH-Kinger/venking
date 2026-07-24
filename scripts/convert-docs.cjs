@@ -9,7 +9,7 @@ const path = require('path');
 // ── 配置 ────────────────────────────────────────────────────────────────
 const LAKE_DIR   = 'C:/Users/asus/AppData/Local/Temp'; // 解压后的 lakebook 目录
 const STUDY_DIR  = 'E:/study_space'; // 原始 md 文件目录
-const POSTS_DIR  = path.resolve(__dirname, '../src/posts');
+const POSTS_DIR  = path.resolve(__dirname, '../blog/src/posts');  // 博客已下沉 blog/(2026-07-24)
 
 // lakebook → { dir, category, icon }
 const LAKEBOOKS = [

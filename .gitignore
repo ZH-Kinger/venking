@@ -6,9 +6,10 @@ node_modules/
 # Frontend build output and framework caches
 dist/
 .astro/
-src/.vuepress/.cache/
-src/.vuepress/.temp/
-src/.vuepress/dist/
+# VuePress 缓存/临时/产物(用 **/ 通配,不锚定具体目录 —— 博客已下沉 blog/src/.vuepress/)
+**/.vuepress/.cache/
+**/.vuepress/.temp/
+**/.vuepress/dist/
 
 # Python caches and local environments
 __pycache__/

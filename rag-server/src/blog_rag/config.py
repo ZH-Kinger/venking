@@ -20,7 +20,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # 路径锚点:本文件在 rag-server/src/blog_rag/config.py
 PKG_DIR = Path(__file__).resolve().parent          # .../rag-server/src/blog_rag
 PROJECT_ROOT = PKG_DIR.parents[1]                  # .../rag-server
-BLOG_ROOT = PROJECT_ROOT.parent                    # .../ZH-Kinger
+REPO_ROOT = PROJECT_ROOT.parent                    # .../ZH-Kinger(仓库根;rag-server 是其直接子目录)
 
 # 端点常量
 DASHSCOPE_COMPAT = "https://dashscope.aliyuncs.com/compatible-mode/v1"
@@ -146,7 +146,7 @@ class Settings(BaseSettings):
     # ---------- 派生路径(结构性,不从 env)----------
     @property
     def posts_dir(self) -> Path:
-        return BLOG_ROOT / "src" / "posts"
+        return REPO_ROOT / "blog" / "src" / "posts"   # 博客已下沉到 blog/(结构规范化 2026-07-24)
 
     @property
     def data_dir(self) -> Path:

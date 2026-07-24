@@ -172,3 +172,18 @@
 - **闸门**:tester **262 passed**(新增 test_admin_auth.py 12 例);ruff 洁净(仅项目通用 BLE001 兜底);curl 全链路手验(未登录401/错密不区分/登录发HttpOnly cookie/CSRF缺失403/改密后旧session失效)。auditor 过闸:本地可提交。
 - **auditor 提交前修复**:①【生产MEDIUM】`require_session_secret` 原是死代码 → authn.hmac_hex 非 dev 模式缺 SESSION_SECRET 现快速失败(不静默回退公开盐),加测试锁定;②【LOW】api.py 懒挂载改只捕 ImportError(真实 bug 不再被吞);③【LOW】admin-web QueryCache 全局 401→跳登录。
 - **仍待**:生产上线(HTTPS/备案)、P3/P4;`.env` 已加 DATABASE_URL/SESSION_SECRET/DEV_MODE(gitignore)。
+
+---
+
+## [2026-07-24] [DEV] 项目结构规范化(中等重组)
+
+- **动机**:根目录既是仓库根又是 VuePress 博客(根 package.json=king-blog);astro-site 内躺一整套已弃用 Astro 博客(529 篇重复,content/posts 101M);命名四套并存;无结构文档。
+- **重排(git mv 保历史)**:根 `src/`→`blog/src/`;根 `package.json`/`package-lock.json`/`tsconfig.json`→`blog/`(node_modules 物理随迁);`astro-site/`→`homepage/`。顶层现为 `blog/ homepage/ rag-server/ admin-web/ docs/ scripts/ deploy/ .github/`。
+- **命名统一 venking**:blog/package.json king-blog→venking-blog;homepage venking-site→venking-homepage。
+- **耦合路径同步**(Explore 测绘清单逐条):
+  - `.github/workflows/deploy-docs.yml`:job 加 `working-directory: blog`、setup-node `cache-dependency-path: blog/package-lock.json`、deploy `folder: blog/src/.vuepress/dist`。
+  - `rag-server/src/blog_rag/config.py`:`BLOG_ROOT`→`REPO_ROOT`,posts_dir→`REPO_ROOT/blog/src/posts`;`sources.toml` path→`../blog/src/posts`。
+  - `scripts/sync-obsidian-to-vuepress.mjs`(OUT/PUB_IMG 加 blog/)、`scripts/convert-docs.cjs`(POSTS_DIR)。
+- **验证(全过)**:blog `docs:build` 705 页 exit0;homepage `build` 531 页(含未删 astro 博客)exit0;admin-web build exit0;rag-server posts_dir 解析=blog/src/posts(529 md)、`pytest` 263 passed。
+- **文档**:新增 `STRUCTURE.md`(顶层职责/品牌token/跨项目耦合/构建部署索引/约定);README 结构表 + 本地开发命令更新(cd homepage、cd blog);HANDOFF 置顶重组提醒指向 STRUCTURE.md;docs/README 文章路径更正。
+- **仍待**:astro 废弃博客死代码(homepage/src/content/posts 101M + pages/blog + components/blog + lib/blog.ts + content.config.ts)删除——用户上次打断了 git rm,待其确认后单独删;`_backup_posts_orig`(gitignore)本地可删。
