@@ -63,10 +63,10 @@ $vp-c-accent-soft: (
   dark: rgb(94 106 210 / 20%),
 );
 
-// ---------- 字体:中文友好字体栈 + 正文行高 ----------
-$vp-font: '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+// ---------- 字体:Inter(拉丁,与落地页统一)在前 + 中文友好回退 ----------
+$vp-font: '"Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 $vp-font-heading: $vp-font;
-$vp-font-mono: '"JetBrains Mono", ui-monospace, "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace';
+$vp-font-mono: '"JetBrains Mono Variable", "JetBrains Mono", ui-monospace, "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace';
 
 // ---------- 过渡:平滑一致(收快到 0.15s——卡片 hover 是高频动作,快才跟手) ----------
 $vp-t-color: "0.2s ease";

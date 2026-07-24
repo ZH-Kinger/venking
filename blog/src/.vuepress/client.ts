@@ -1,4 +1,7 @@
 import { defineClientConfig } from "vuepress/client";
+// 自托管 Inter/JetBrains Mono(与落地页同款,全站字体统一;零 CDN)。只取 weight 轴变量字体。
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource-variable/jetbrains-mono/wght.css";
 import KingerBlog from "./layouts/KingerBlog.vue";
 
 /**

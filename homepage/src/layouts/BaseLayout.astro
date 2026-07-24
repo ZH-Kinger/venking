@@ -1,5 +1,10 @@
 ---
 // 全站基座布局:head/meta/字体/全局 CSS。落地页与博客都基于它。
+// 字体自托管(零 CDN,与 AI UI/备案/隐私一致):Inter/JetBrains Mono 只取 weight 轴变量字体。
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource-variable/jetbrains-mono/wght.css";
+// KaTeX 样式自托管(rehype-katex 只出结构,样式靠这个);katex 已是本地依赖,去掉 jsDelivr CDN。
+import "katex/dist/katex.min.css";
 import "../styles/global.css";
 
 interface Props {
@@ -31,19 +36,7 @@ const {
     <!-- 语雀图床防盗链:阶段2 迁入的文章插图靠此 meta 才显示(承接现有 VuePress 做法) -->
     <meta name="referrer" content="no-referrer" />
 
-    <!-- Inter 可变字体(Linear 招牌字体) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-    />
-
-    <!-- KaTeX CSS(数学公式渲染必需;rehype-katex 只出结构,样式靠这个) -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
-    />
+    <!-- 字体(Inter/JetBrains Mono)与 KaTeX 样式均自托管:见本文件顶部的 import(零 CDN)。 -->
 
     <slot name="head" />
   </head>
