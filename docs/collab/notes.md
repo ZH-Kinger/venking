@@ -202,3 +202,40 @@
 - **auditor 过闸 + 修复**:核心鉴权 CLEAN(alg=none/密钥混淆不可能、越权无、匿名边界安全、无机密泄露)。已修:①【MED】迁移 `sa.text("now()")`→`sa.func.now()`(方言感知;原字面 now() 在 SQLite fallback 上 INSERT 必炸→登录历史被 history.py 静默吞掉;并连带修上一版 9b59b7bdb04b 同款债)——已用全新 SQLite 库 `alembic upgrade head`+record_turn 实测通过;②【LOW】JWKS `cache_keys=False`(吊销 ≤300s 生效);③【LOW】JWKS/网络失败 → 503 而非误导性 401。残留【LOW】`?access_token=` 入 URL:仅 SSE 作用域(admin/me 只走 header),短时 token+HTTPS 可接受,留 Phase E 文档标注反代勿落 query。
 - **顺带**:ruff 规范化 4 处无关文件 import 顺序/空格(ingest/llm/observability/reliability,零行为变更)。
 - **仍待**:Phase C(admin-web 接 @logto/react)、Phase D(AI 前端终端用户登录 + 历史侧栏)——卡在 Logto 建 2 个 SPA 应用拿 App ID(方案1 Management API 自动建 / 方案2 手动);Phase E 文档/roadmap/ADR。
+
+---
+
+## [2026-07-24] [DEV] 交接进度快照(HANDOFF)——Logto IAM 迁移 + 前端视觉打磨
+
+> 供接手的 AI/人快速上手。git 历史 06e2843→115e95d 为本轮。所有改动已 commit,**未 push**(push 由用户手动)。
+
+### 一、已完成并提交
+1. **Logto 统一 IAM 迁移(后端+两前端,代码完成,端到端待用户建 Logto 应用)**
+   - `06e2843` Phase B 后端:`logto_auth.py`(JWKS 验签,禁 alg=none,强制 iss/aud/exp/sub;require_user/admin/optional_user/optional_user_sse)、`me_routes.py`(/api/me/*)、`admin_routes.py`(require_admin)、`history.py`(按 sub 隔离)、`/api/chat` 登录落库、models(conversations/messages + audit_logs.actor_sub)、Alembic `b2f1c0d3e4a5`(已 upgrade head)、pyproject 去 pwdlib 加 pyjwt[crypto]。tester 283 passed;auditor 过闸(修了 SQLite now()→func.now()、JWKS cache_keys=False、JWKS 失败→503)。
+   - `7cfab93` Phase C+D 前端:admin-web 接 @logto/react(config.ts/Callback.tsx/auth.tsx/client.ts Bearer);AI 前端 @logto/browser vendored(static/vendor/logto-browser.js + auth.js),登录后 /api/chat 带 ?access_token=,「云端历史」侧栏;后端 config.logto_app_id + GET /api/public-config。**单一 Logto SPA 应用两前端共用,App ID 走 env/后端下发,绝不硬编码。is_admin 以后端 /api/me 为准。**
+   - **待用户操作(端到端前置)**:在 Logto :3002 建管理员 + API resource `https://api.venking.tech` + roles(admin/user)+ 一个 SPA 应用(回调 http://localhost:5173/admin/callback 与 http://localhost:7860/);把 App ID 填进 `admin-web/.env`(见 .env.example)与 `rag-server/.env` 的 LOGTO_APP_ID。可选:我提议过用 Logto Management API 自动建(用户给一个 M2M 凭据即可),用户未定。
+2. **前端视觉打磨(侧重视觉设计;参考热门 OSS + 获奖编辑设计)**
+   - `57299ff` 全站字体统一 Inter + JetBrains Mono,**自托管去 CDN**(@fontsource-variable/*,homepage dist 实测 0 CDN 引用)。
+   - `7ff5345` 博客:**明暗切换消闪**(根因=theme-hope 用 startViewTransition 圆形揭示露白;修法:client.ts 置空 document.startViewTransition + index.scss root 退出 view-transition + config.ts head 注入关键无闪 <style>)、正文排版精修、AI 悬浮球上移避让"回到顶部"(right:14/bottom:124)。
+   - `9a79820` 博客文章页**编辑级排版**(依据 docs/collab/research/article-design-award-survey.md):正文 42rem 居中(CJK 校准≈39全角/行)、17px、fluid clamp 字阶、图注/hr/表格、分类徽标统一靛紫。
+   - `115e95d` **自有吉祥物「小鹦鹉」**(极简填充剪影 + evenodd 镂空眼)接入 AI 助手:homepage Icon.astro 的 robot→鹦鹉、blog client.ts 悬浮球→鹦鹉。
+
+### 二、研究产出(docs/collab/research/)
+- `frontend-polish-survey.md` 全站功能对标(含 quick wins:blog hostname 占位待修、slimsearch 全文搜索未配、feed 未开)。
+- `article-design-award-survey.md` 文章页获奖编辑设计规格(PART 10 有可用 SCSS token spec)。
+
+### 三、待办(下一步,按用户意图=视觉个性化优先)
+1. **主页个性化重构(用户明确要,材料待提供)**:主页现为"内容门户"口吻、缺身份/真项目/自有图标 → 加身份块(头像+名+一句自我介绍+GitHub)、真项目作品卡(venking RAG Agent、AIOps 自愈平台)。**需用户给:自我介绍文案、头像图(放 homepage/public/)、社交链接、主推项目**。
+2. 扩展自有图标集:把 nav/板块卡的 Tabler(cpu/network/server/book/clipboard-text)也换成与鹦鹉同语言的极简自有图标 + favicon 用鹦鹉。
+3. blog 快速改进(frontend-polish-survey):修 `blog/src/.vuepress/theme.ts` hostname `kinger.example.com`→`https://venking.tech`、修 config.ts title/描述/社交占位、开 slimsearch(中文分词)、开 feed。**注意:title「王梓涵」可能是真名,改前问用户。**
+4. Logto Phase E:待用户建好应用后端到端验(admin 登录/普通用户 403/匿名可用/历史跨设备+A/B 隔离)。
+
+### 四、本地怎么跑(渲染看界面)
+- 主页(Astro):`cd homepage && npm run dev` → http://localhost:4321(用 localhost,绑 IPv4+IPv6)。**当前在跑**。
+- 博客(VuePress):`cd blog && npm run docs:dev` → http://localhost:8080/blog/。**当前在跑**。首屏无闪只在**生产构建**体现(dev 的 head 客户端注入);验证无闪用 `npm run docs:build` 后静态serve。
+- AI 问答 UI:需 `cd rag-server && uvicorn ...`(:7860,要 .env 里 GLM/DASHSCOPE key)。**当前未起**,故 :7860 打不开——用户看到的"其他界面没渲染"即此。
+- 图标/视觉迭代:我用 puppeteer-core(/tmp/node_modules,系统 Chrome)截图看效果——脚本 /tmp/shot.js、/tmp/render.js。接手方无 puppeteer 时可让用户自己看。
+
+### 五、纪律/约束(务必遵守)
+- 提交闸门=auditor 过;源码改动派 tester。commit 尾 `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`;push 用户手动。
+- 机密只在本地/服务器 .env(已 gitignore);公开仓不得暴露服务器 IP/root/端口/MaaS 实例 ID(脱敏为 venking.tech/占位)。
