@@ -14,8 +14,9 @@ import jieba
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
 
+from blog_rag.cache import memoize
 from blog_rag.config import settings
-from blog_rag.ingest import collect_documents, get_vectorstore
+from blog_rag.ingest import get_vectorstore
 from blog_rag.llm import get_client
 
 
@@ -193,6 +194,7 @@ def rag_fusion_search(query: str, k: int | None = None) -> list[Document]:
 
 
 # ---------- 编排:混合(或 RAG-Fusion)→ 重排 → top_k ----------
+@memoize("retrieve")   # 确定性(temp=0 全链):同 (query, rerank, fusion) 直接复用,省 embedding+检索+重排
 def retrieve(query: str, *, rerank: bool = True, fusion: bool | None = None) -> list[Document]:
     use_fusion = settings.rag_fusion_enabled if fusion is None else fusion  # 用户flag > config默认
     fused = rag_fusion_search(query) if use_fusion else hybrid_search(query)

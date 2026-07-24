@@ -8,7 +8,8 @@ ReAct 四要素落地:
 
 图形(见 plan「M5 图骨架」):
   START → route_question ─general→ general_generate → record_turn → END
-                         └─rag→ contextualize → retrieve ─grounded→ grounded_generate → guardrails
+                         └─rag→ contextualize ─web_mode→ web_search(短路,跳过本地检索)
+                                          └─否→ retrieve ─grounded→ grounded_generate → guardrails
                                           ├─rewrite→ transform_query → retrieve(回环)
                                           ├─web→ web_search ─有→ web_generate → guardrails
                                           │                  └─无→ refuse
@@ -33,6 +34,7 @@ from langgraph.graph import END, START, StateGraph
 from blog_rag.config import settings
 from blog_rag.general import general_generate
 from blog_rag.graders import (
+    after_contextualize,
     after_web,
     grade_documents,
     grade_web,
@@ -177,7 +179,9 @@ def build_graph():
     g.add_edge(START, "route_question")
     g.add_conditional_edges("route_question", pick_route,
                             {"general": "general_generate", "rag": "contextualize_query"})
-    g.add_edge("contextualize_query", "retrieve")
+    # web_mode 短路:强制联网时跳过必被丢弃的本地检索+细筛,直达 web_search(省 embedding+重排)
+    g.add_conditional_edges("contextualize_query", after_contextualize,
+                            {"web_search": "web_search", "retrieve": "retrieve"})
     g.add_edge("retrieve", "grade_documents")          # 检索后先细筛,再判接地
     g.add_conditional_edges("grade_documents", grounding_gate,
                             {"grounded": "grounded_generate", "rewrite": "transform_query",

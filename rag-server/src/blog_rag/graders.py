@@ -14,6 +14,7 @@
 """
 from __future__ import annotations
 
+from blog_rag.cache import memoize
 from blog_rag.config import settings
 from blog_rag.llm import get_client
 
@@ -60,21 +61,28 @@ def _prefilter_route(question: str) -> str | None:
     return "general" if any(p in q for p in _GENERAL_PREFILTER) else None
 
 
+@memoize("route")   # 确定性(temp=0 关思考):同一问题复用分类,省一次路由 LLM
+def _classify_route_llm(question: str) -> str:
+    """真正调 LLM 分类;失败**抛异常**(不在此吞),好让 @memoize 不缓存兜底值(下次可重试自愈)。"""
+    resp = get_client().chat.completions.create(
+        model=settings.llm_model,
+        temperature=0.0,
+        stream=False,
+        extra_body={"enable_thinking": False},   # 判断题关思考:快且确定
+        messages=[
+            {"role": "system", "content": _ROUTE_SYS},
+            {"role": "user", "content": question},
+        ],
+    )
+    out = (resp.choices[0].message.content or "").strip().lower()
+    return "general" if "general" in out else "rag"
+
+
 def classify_route(question: str) -> str:
-    """LLM 分类 general/rag;失败或输出异常 → 退化为 rag(安全侧:走完整检索有接地兜底)。"""
+    """LLM 分类 general/rag;失败或输出异常 → 退化为 rag(安全侧:走完整检索有接地兜底)。
+    兜底路径**不入缓存**:一次瞬时抖动不应把该问题钉死在降级结果上(auditor 2026-07-24)。"""
     try:
-        resp = get_client().chat.completions.create(
-            model=settings.llm_model,
-            temperature=0.0,
-            stream=False,
-            extra_body={"enable_thinking": False},   # 判断题关思考:快且确定
-            messages=[
-                {"role": "system", "content": _ROUTE_SYS},
-                {"role": "user", "content": question},
-            ],
-        )
-        out = (resp.choices[0].message.content or "").strip().lower()
-        return "general" if "general" in out else "rag"
+        return _classify_route_llm(question)
     except Exception:
         return "rag"                                  # 失败退化:走检索(有接地闸门兜底,不丢精准)
 
@@ -93,6 +101,13 @@ def route_question(state: dict) -> dict:
 def pick_route(state: dict) -> str:
     """条件边选择器:读黑板上的 route(纯函数,不再调用 LLM)。"""
     return state.get("route", "rag")
+
+
+def after_contextualize(state: dict) -> str:
+    """web_mode 短路:用户强制联网时,本地检索结果必被 grounding_gate 丢弃,故跳过
+    retrieve + grade_documents,直接联网,省 1 次 embedding + 1 次重排 LLM + 混合检索耗时。
+    contextualize 仍先跑(把追问补成独立查询,利于联网),只省掉注定被丢弃的两步。"""
+    return "web_search" if state.get("web_mode") else "retrieve"
 
 
 # ---------- 2. 检索证据细筛(CRAG:rerank 粗筛后再按阈值留相关证据)----------

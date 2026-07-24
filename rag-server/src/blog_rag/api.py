@@ -14,13 +14,14 @@ from pathlib import Path
 from typing import Annotated, Literal
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from blog_rag.graph import stream_answer
 from blog_rag.config import settings
+from blog_rag.graph import stream_answer
+from blog_rag.security import guard
 
 STATIC_DIR = Path(__file__).parent / "static"
 logger = logging.getLogger("blog_rag.api")
@@ -39,7 +40,7 @@ def _sse(ev: dict) -> str:
     return f"data: {json.dumps(ev, ensure_ascii=False)}\n\n"
 
 
-@app.get("/api/chat")
+@app.get("/api/chat", dependencies=[Depends(guard)])   # 按 IP 限流 + 可选 token(防白嫖 GLM key)
 def chat(
     q: Annotated[str, Query(min_length=1, max_length=4000)],
     deep: bool = False,
@@ -97,7 +98,7 @@ class FeedbackIn(BaseModel):
     correction: str | None = None     # 👎 时可附纠正 → 回流 golden reference
 
 
-@app.post("/api/feedback")
+@app.post("/api/feedback", dependencies=[Depends(guard)])
 def feedback_ep(f: FeedbackIn):
     """👍👎(可带纠正)落盘 feedback.jsonl(字段对齐 golden,供回流评测集)。"""
     from blog_rag import feedback as fb

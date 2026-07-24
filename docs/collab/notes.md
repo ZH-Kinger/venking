@@ -144,3 +144,18 @@
 - **提交**:因首个 README-only 提交已含 IP,遂 `git commit --amend` 把脱敏后的全部 2070 文件并入唯一初始提交(`d84ed95`),force-push 覆盖,含 IP 的旧提交 `9911e11` 从分支移除(不可达待 GC)。远端 main 已确认 = d84ed95。
 - **代理**:全局 git 走 127.0.0.1:7890 但代理没开;本次 push 用 `-c http.proxy= -c https.proxy=` 直连(未改全局)。
 - **残留提醒**:①Astro 废弃博客仍随仓库入库(423M,含与 VuePress 重复的文章内容),体积/困惑负担未清;②AI 端点无鉴权、同步脚本破坏性删除仍未修;③`:7860` 是否真只绑回环需上线实查。
+
+---
+
+## [2026-07-24] [DEV] agent 链路优化:3 条快赢实现 + 过闸修复
+
+- **来源**:researcher R8 报告(docs/collab/research/R8-agent链路优化.md)。判断类调用已全量关思考(无低垂果实);选前 3 条低风险快赢落地。
+- **#1 web_mode 短路**:新增 `graders.after_contextualize` 选择器 + `graph.py` 把 `contextualize_query→retrieve` 改条件边;web_mode 时直达 web_search,跳过必被 grounding_gate 丢弃的 retrieve+grade_documents(省 1 embedding + 1 rerank LLM + 混检耗时)。副带:web_mode 下 retrieved_doc_ids 现为 [](原来源自被丢弃检索,更合理);grounding_gate 的 `if web_mode` 成防御性死代码(留)。
+- **#2 API 公网防护**:新 `security.py`(RateLimiter 令牌桶 + guard 依赖)+ config 加 `api_token/rate_limit_*`;`/api/chat`、`/api/feedback` 挂 `Depends(guard)`。堵掉此前 FastAPI 端点完全无鉴权无限流的白嫖 GLM key 敞口(ui_auth_* 是 Gradio 遗留从未接进 FastAPI)。
+- **#3 确定性缓存**:新 `cache.py`(有界 LRU + `@memoize`,键含 index_version)+ config 加 `retrieval_cache_*`;`retrieve()` 与 `classify_route()` 结果按输入缓存,重复问命中即省整条检索链/路由 LLM。
+- **auditor 过闸抓到并修复(高/中/低全修)**:
+  - **【高】限流被 XFF 伪造绕过**:nginx `$proxy_add_x_forwarded_for` 追加语义,取 XFF 首段可被一行 header 伪造→每请求全新令牌桶→限流失效。**修**:`client_ip` 改只信 `X-Real-IP`($remote_addr,nginx 覆盖写不可伪造),忽略 XFF。
+  - **【中】`_buckets` 无界增长 OOM**:`_maybe_evict` 只淘汰空闲桶,活跃 key 永不淘汰。**修**:改 OrderedDict + 超 max_keys 无条件 LRU 硬淘汰。
+  - **【低】兜底值被缓存**:classify_route 失败兜底 rag 会被 @memoize 钉死。**修**:拆 `_classify_route_llm`(memoize,失败抛)+ `classify_route`(catch 兜底不缓存)。
+- **闸门**:tester **251 passed / 0 failed**(新增 test_cache/test_security/test_web_shortcut,17 例:缓存命中/失效/淘汰/兜底不缓存、令牌桶回填/隔离/硬上限、client_ip 只信 X-Real-IP、guard token/限流、web 短路布线)。ruff 我的文件仅余 2 处 BLE001(项目全仓通用兜底 except 惯用法,保留)。
+- **环境**:本机首次搭 rag-server dev 环境(brew python@3.12 + .venv + pip install -e .[rag,agent,web,api,dev,ingest,obs]);.venv 已 gitignore。

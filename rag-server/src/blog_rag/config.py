@@ -108,8 +108,20 @@ class Settings(BaseSettings):
     ui_host: str = Field(default="127.0.0.1", validation_alias="UI_HOST")
     ui_port: int = Field(default=7860, validation_alias="UI_PORT")
     # 登录鉴权:两者都填才启用 Gradio auth(挡白嫖 GLM key)。留空=不鉴权(仅限本机开发)。
+    # 注:FastAPI 生产路径不读 ui_auth_*(那是 Gradio 遗留);公网防护见下面 api_token/rate_limit_*。
     ui_auth_user: str = Field(default="", validation_alias="UI_AUTH_USER")
     ui_auth_pass: str = Field(default="", validation_alias="UI_AUTH_PASS")
+
+    # ---- API 公网防护(FastAPI /api/*;见 security.py)----
+    # 共享令牌:填了才校验 ?token= / X-API-Token 头;留空=不校验(本机开发)。浏览器公开前端仍靠限流兜底。
+    api_token: str = Field(default="", validation_alias="API_TOKEN")
+    rate_limit_enabled: bool = True     # 按 IP 令牌桶限流(挡脚本刷量白嫖 GLM key)
+    rate_limit_per_min: int = 30        # 每 IP 每分钟请求上限(也是突发容量);浏览器正常交互远低于此
+
+    # ---- 检索/路由缓存(见 cache.py)----
+    # 缓存 temp=0 确定性算子结果(retrieve / classify_route);键含 index_version,kb rebuild 自动失效。
+    retrieval_cache_enabled: bool = True
+    retrieval_cache_size: int = 256     # 每个命名缓存的 LRU 上限
 
     # ---------- 校验 ----------
     @field_validator("embedding_dim")
