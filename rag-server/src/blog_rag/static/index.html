@@ -88,6 +88,10 @@
   .top-link{display:inline-flex;align-items:center;height:34px;padding:0 10px;border-radius:9px;
     color:var(--sub);font-size:12.5px;text-decoration:none;transition:background .15s,color .15s}
   .top-link:hover{background:var(--hover);color:var(--ink)}
+  button.top-link{border:1px solid var(--line);background:var(--elev);cursor:pointer;font:inherit;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #cloudBox{display:none;flex-direction:column}
+  #cloudBox.show{display:flex}
+  .cloud-hint{font-size:11px;color:var(--muted);padding:2px 9px 8px}
   .health{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 11px;margin-left:4px;
     border:1px solid var(--line);border-radius:10px;color:var(--sub);font-size:12px;background:rgba(255,255,255,.025)}
   .health-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);box-shadow:0 0 0 4px rgba(255,255,255,.035)}
@@ -281,7 +285,12 @@
   <aside class="sidebar" id="sidebar" aria-label="对话历史">
     <div class="side-head"><svg class="brand-dot" viewBox="0 0 64 64" aria-hidden="true"><g stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><line x1="16" y1="20" x2="16" y2="44"/><line x1="16" y1="20" x2="46" y2="16"/><line x1="16" y1="44" x2="46" y2="48"/><line x1="46" y1="16" x2="46" y2="48"/><line x1="16" y1="20" x2="46" y2="48"/></g><g fill="currentColor"><circle cx="16" cy="20" r="5"/><circle cx="16" cy="44" r="5"/><circle cx="46" cy="16" r="5"/><circle cx="46" cy="48" r="5"/></g></svg><span class="brand-copy"><span class="logo">Kinger Agent</span><span class="brand-sub">PERSONAL KNOWLEDGE SYSTEM</span></span></div>
     <button class="newchat" id="newChat" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>新对话<span class="shortcut">⌘ K</span></button>
-    <div class="side-label">最近</div>
+    <div id="cloudBox">
+      <div class="side-label">云端历史 · 本账号</div>
+      <div class="cloud-hint">登录后跨设备可见(只读)</div>
+      <div class="side-list" id="cloudList"></div>
+    </div>
+    <div class="side-label">本机最近</div>
     <div class="side-list" id="sideList"></div>
     <div class="side-foot">
       <button class="side-tool" id="exportChat" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>导出当前对话</button>
@@ -296,6 +305,7 @@
       <div class="top-actions">
         <a class="top-link" href="/">首页</a>
         <a class="top-link" href="/blog/">知识库</a>
+        <button class="top-link" id="authBtn" type="button" hidden></button>
         <div class="health" id="health" title="Agent 服务状态"><span class="health-dot"></span><span>检查服务</span></div>
       </div>
     </div>
@@ -602,7 +612,8 @@ function runQuery(q){
   const content=wrap.lastElementChild.querySelector('.content');
   busy=true;sendBtn.classList.add('stop');sendBtn.innerHTML=IC.stop;
   let acc='',done=null,errorMessage='',finished=false;
-  const url=`/api/chat?q=${encodeURIComponent(q)}&thread=${encodeURIComponent(c.thread)}&deep=${deep}&web=${web}&length=${length}`;
+  const tok=window.__accessToken?`&access_token=${encodeURIComponent(window.__accessToken)}`:'';  // 登录用户:后端按 sub 落库历史
+  const url=`/api/chat?q=${encodeURIComponent(q)}&thread=${encodeURIComponent(c.thread)}&deep=${deep}&web=${web}&length=${length}${tok}`;
   const source=new EventSource(url);es=source;
   activeRun={cancel:()=>{errorMessage='已停止生成，可重新发送此问题。';finish();}};
   source.onmessage=e=>{let ev;try{ev=JSON.parse(e.data);}catch{return;}
@@ -640,6 +651,45 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 
 ensureConv();renderSide();renderChat();
 if(!narrow())qEl.focus({preventScroll:true});
+
+// ===== Logto 终端用户登录 + 云端历史(与匿名流程解耦;由 /vendor/auth.js 模块驱动) =====
+const authBtn=$('#authBtn'),cloudBox=$('#cloudBox'),cloudList=$('#cloudList');
+function fmtTime(ts){if(!ts)return'';try{return new Date(ts).toLocaleDateString('zh-CN');}catch{return'';}}
+window.addEventListener('kinger-auth',ev=>{
+  const d=ev.detail||{};
+  if(!d.configured){authBtn.hidden=true;cloudBox.classList.remove('show');return;}
+  authBtn.hidden=false;
+  if(d.authed){
+    const name=(d.user&&(d.user.username||d.user.name||d.user.email))||'我的账号';
+    authBtn.textContent=name;authBtn.title='点击退出登录';
+    authBtn.onclick=()=>{if(confirm('退出登录?'))window.KingerAuth.logout();};
+    cloudBox.classList.add('show');renderCloud();
+  }else{
+    authBtn.textContent='登录';authBtn.title='登录以跨设备同步历史';
+    authBtn.onclick=()=>window.KingerAuth.login();
+    cloudBox.classList.remove('show');cloudList.innerHTML='';
+  }
+});
+async function renderCloud(){
+  try{
+    const {items=[]}=await window.KingerAuth.listConversations();
+    if(!items.length){cloudList.innerHTML='<div class="cloud-hint">暂无云端对话</div>';return;}
+    cloudList.innerHTML=items.map(it=>`<div class="item" title="${escAttr(it.title||'对话')}"><button class="item-main" type="button" onclick="openCloud('${it.id}')">${esc(it.title||'未命名对话')}</button><span class="item-actions"><span class="cloud-hint" style="padding:0 6px">${fmtTime(it.updated_at)}</span></span></div>`).join('');
+  }catch{cloudList.innerHTML='<div class="cloud-hint">历史加载失败</div>';}
+}
+window.openCloud=async id=>{
+  try{
+    const conv=await window.KingerAuth.getConversation(id);
+    // 映射服务端消息(assistant→bot)到本地渲染模型;标记只读,不写 localStorage。
+    const msgs=(conv.messages||[]).map(m=>({role:m.role==='assistant'?'bot':'user',content:m.content||'',
+      mode:m.mode,sources:m.sources||[],q:m.role==='assistant'?null:m.content}));
+    const c={id:'cloud_'+id,title:(conv.title||'云端对话')+' · 只读',thread:conv.thread_id||nid(),msgs,readonly:true};
+    convs=convs.filter(x=>!String(x.id).startsWith('cloud_'));  // 只保留一个临时只读会话
+    convs.unshift(c);cur=c.id;renderSide();renderChat();
+    if(narrow())closeSidebar();
+  }catch{alert('无法加载该对话');}
+};
 </script>
+<script type="module" src="/vendor/auth.js"></script>
 </body>
 </html>

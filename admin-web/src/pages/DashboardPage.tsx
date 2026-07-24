@@ -28,7 +28,7 @@ export default function DashboardPage() {
       <Grid columns={{ initial: "1", sm: "3" }} gap="3">
         <Stat label="服务状态" value={health.data?.ok ? "正常" : "异常"} />
         <Stat label="数据库" value={health.data?.db_backend ?? "—"} />
-        <Stat label="运行模式" value={health.data?.dev_mode ? "dev" : "prod"} />
+        <Stat label="身份系统" value={health.data?.iam ?? "—"} />
       </Grid>
       <Grid columns={{ initial: "1", sm: "2" }} gap="3">
         <Stat label="审计记录总数" value={audit.data?.total ?? "…"} />

@@ -163,6 +163,16 @@ def feedback_ep(f: FeedbackIn):
     return {"ok": True}
 
 
+@app.get("/api/public-config")
+def public_config():
+    """公开的前端接入配置(非机密):静态 AI 页据此初始化 Logto。app_id 空=不显示登录入口。"""
+    return {
+        "endpoint": settings.logto_endpoint,
+        "app_id": settings.logto_app_id,
+        "api_resource": settings.logto_api_resource,
+    }
+
+
 @app.get("/health")
 def health():
     return {"ok": True, "service": "blog-rag-agent"}

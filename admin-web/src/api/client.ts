@@ -1,4 +1,5 @@
-// 统一 API 客户端:同源(dev 走 Vite proxy)、带 cookie、写操作附 CSRF 头、401 抛出供守卫跳登录。
+// 统一 API 客户端:同源(dev 走 Vite proxy),带 Logto access token(Bearer),401 抛出供守卫处理。
+// 令牌由 AuthProvider 通过 setTokenGetter 注入(getAccessToken 是 Logto hook,只能在组件树内取)。
 
 export class ApiError extends Error {
   status: number;
@@ -8,9 +9,10 @@ export class ApiError extends Error {
   }
 }
 
-let csrfToken = "";
-export function setCsrf(token: string) {
-  csrfToken = token || "";
+type TokenGetter = () => Promise<string | undefined>;
+let tokenGetter: TokenGetter | null = null;
+export function setTokenGetter(fn: TokenGetter | null) {
+  tokenGetter = fn;
 }
 
 type Options = { method?: string; body?: unknown };
@@ -19,12 +21,19 @@ async function request<T>(path: string, opts: Options = {}): Promise<T> {
   const method = opts.method ?? "GET";
   const headers: Record<string, string> = {};
   if (opts.body !== undefined) headers["Content-Type"] = "application/json";
-  // 写操作带 CSRF(双提交:后端比对本 session 派生的令牌)
-  if (method !== "GET" && csrfToken) headers["X-CSRF-Token"] = csrfToken;
+
+  // 附 Bearer:token 拿不到就不带头(后端返 401,守卫会引导重新登录)。
+  if (tokenGetter) {
+    try {
+      const token = await tokenGetter();
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+    } catch {
+      /* 取 token 失败 → 不带头,后端 401 */
+    }
+  }
 
   const res = await fetch(`/api${path}`, {
     method,
-    credentials: "include", // 携带 HttpOnly session cookie
     headers,
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
   });

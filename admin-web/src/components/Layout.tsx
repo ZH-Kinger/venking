@@ -1,5 +1,5 @@
 import { Badge, Box, Button, Flex, Heading, Text } from "@radix-ui/themes";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/auth";
 
 const NAV = [
@@ -12,13 +12,9 @@ const NAV = [
 ];
 
 export default function Layout() {
-  const { user, logout } = useAuth();
-  const nav = useNavigate();
-
-  const onLogout = async () => {
-    await logout();
-    nav("/login", { replace: true });
-  };
+  const { me, logout } = useAuth();
+  // Logto 登出会重定向到 post-logout URI,无需前端再导航。
+  const onLogout = () => logout();
 
   return (
     <Flex style={{ minHeight: "100vh" }}>
@@ -75,7 +71,7 @@ export default function Layout() {
           </Text>
           <Flex align="center" gap="3">
             <Badge color="indigo" variant="soft">
-              {user?.username} · {user?.role}
+              {me?.username ?? me?.email ?? "管理员"} · admin
             </Badge>
             <Button size="1" variant="soft" color="gray" onClick={onLogout}>
               退出

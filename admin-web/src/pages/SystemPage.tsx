@@ -42,7 +42,7 @@ export default function SystemPage() {
         </Table.Root>
       </Card>
       <Text size="2" color="gray">
-        后端:{data?.db_backend} · 模式:{data?.dev_mode ? "dev" : "prod"}
+        数据库:{data?.db_backend} · 身份系统:{data?.iam ?? "—"}
       </Text>
     </Flex>
   );

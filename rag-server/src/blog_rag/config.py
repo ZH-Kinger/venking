@@ -133,6 +133,9 @@ class Settings(BaseSettings):
     logto_endpoint: str = Field(default="http://localhost:3001", validation_alias="LOGTO_ENDPOINT")
     logto_api_resource: str = Field(default="https://api.venking.tech", validation_alias="LOGTO_API_RESOURCE")
     logto_admin_scope: str = Field(default="admin", validation_alias="LOGTO_ADMIN_SCOPE")  # API resource 上的管理员权限位
+    # 前端(admin-web + AI 静态页)共用的 Logto SPA 应用 App ID;经 /api/public-config 下发给静态页。
+    # 是公开客户端标识(非机密),留空=前端不显示登录入口(仅匿名可用)。
+    logto_app_id: str = Field(default="", validation_alias="LOGTO_APP_ID")
 
     # ---------- 校验 ----------
     @field_validator("embedding_dim")
