@@ -159,3 +159,16 @@
   - **【低】兜底值被缓存**:classify_route 失败兜底 rag 会被 @memoize 钉死。**修**:拆 `_classify_route_llm`(memoize,失败抛)+ `classify_route`(catch 兜底不缓存)。
 - **闸门**:tester **251 passed / 0 failed**(新增 test_cache/test_security/test_web_shortcut,17 例:缓存命中/失效/淘汰/兜底不缓存、令牌桶回填/隔离/硬上限、client_ip 只信 X-Real-IP、guard token/限流、web 短路布线)。ruff 我的文件仅余 2 处 BLE001(项目全仓通用兜底 except 惯用法,保留)。
 - **环境**:本机首次搭 rag-server dev 环境(brew python@3.12 + .venv + pip install -e .[rag,agent,web,api,dev,ingest,obs]);.venv 已 gitignore。
+
+---
+
+## [2026-07-24] [DEV] M10 登录 + 管理后台(本地 P1+P2)
+
+- **范围**:方案 admin-auth-cms-plan.md 的 P1(认证后端)+ P2(登录页/后台骨架),本地开发跑通;P3 文章管理 / P4 发布 / 生产 HTTPS 留后续。
+- **本地环境**:brew postgresql@16 + createdb blog_rag_dev;pyproject 新增 `[admin]`(sqlalchemy2/alembic/psycopg/pwdlib[argon2]);pip install -e .[api,admin]。
+- **P1 后端**(rag-server/src/blog_rag/):新 db.py/models.py/authn.py/deps.py/auth_routes.py/admin_routes.py/cli_admin.py;config 加 db_url/session_secret/dev_mode/session_ttl/login_rate;api.py include_router + /admin SPA 懒挂载(资产+catch-all 回退 index)。Alembic 初始迁移(users/sessions/login_events/audit_logs)。`blog-rag-admin create-admin` CLI。
+  - 安全:Argon2id 密码;服务端 session(库存 sha256,cookie 持原始 token,HttpOnly+SameSite=Lax,Secure=非dev);CSRF=HMAC(secret,token_hash) 无状态派生 + 常量时间比较;账号枚举防护(dummy 校验 + 统一 401);登录双维度限速;RBAC(APIRouter dependencies);HTTPS 硬闸门(dev_mode 豁免);审计 IP/账号 HMAC 脱敏。
+- **P2 前端**(admin-web/):React+TS+Vite+Radix+TanStack Query+Router,base /admin/;登录页 + 后台骨架(仪表盘/系统状态/审计/反馈只读)+ 路由守卫 + 加载/空/失败态;全站靛紫深色 token ��用。dev 走 vite proxy /api→7860;生产由 FastAPI 挂 dist。
+- **闸门**:tester **262 passed**(新增 test_admin_auth.py 12 例);ruff 洁净(仅项目通用 BLE001 兜底);curl 全链路手验(未登录401/错密不区分/登录发HttpOnly cookie/CSRF缺失403/改密后旧session失效)。auditor 过闸:本地可提交。
+- **auditor 提交前修复**:①【生产MEDIUM】`require_session_secret` 原是死代码 → authn.hmac_hex 非 dev 模式缺 SESSION_SECRET 现快速失败(不静默回退公开盐),加测试锁定;②【LOW】api.py 懒挂载改只捕 ImportError(真实 bug 不再被吞);③【LOW】admin-web QueryCache 全局 401→跳登录。
+- **仍待**:生产上线(HTTPS/备案)、P3/P4;`.env` 已加 DATABASE_URL/SESSION_SECRET/DEV_MODE(gitignore)。

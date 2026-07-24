@@ -34,6 +34,30 @@ _VENDOR = STATIC_DIR / "vendor"
 if _VENDOR.is_dir():
     app.mount("/vendor", StaticFiles(directory=str(_VENDOR)), name="vendor")
 
+# M10 登录 + 管理后台:auth/admin API 路由(DB 后端)。懒导入——未装 [admin] 依赖时不影响
+# 纯问答部署启动(与 feedback/ingest 的延迟导入纪律一致)。
+try:
+    from blog_rag.admin_routes import router as _admin_router
+    from blog_rag.auth_routes import router as _auth_router
+
+    app.include_router(_auth_router)
+    app.include_router(_admin_router)
+except ImportError:  # 仅"未装 [admin] 依赖"才跳过;真实代码 bug 应暴露而非静默吞掉
+    logger.info("admin/auth routes not mounted (blog_rag[admin] deps absent)")
+
+# admin-web 生产构建产物(SPA):存在才挂。资产按真实文件服务;其余 /admin/* 深链一律回退
+# index.html(SPA 客户端路由,避免硬刷 /admin/login 404)——等价于 nginx try_files,不依赖反代。
+# 本地开发走 Vite dev server(:5173 proxy /api),此挂载仅用于生产同源提供 /admin/。
+_ADMIN_DIST = STATIC_DIR / "admin"
+if (_ADMIN_DIST / "index.html").is_file():
+    if (_ADMIN_DIST / "assets").is_dir():
+        app.mount("/admin/assets", StaticFiles(directory=str(_ADMIN_DIST / "assets")), name="admin-assets")
+
+    @app.get("/admin")
+    @app.get("/admin/{_spa_path:path}")
+    def admin_spa(_spa_path: str = ""):
+        return FileResponse(_ADMIN_DIST / "index.html", headers={"Cache-Control": "no-cache"})
+
 
 def _sse(ev: dict) -> str:
     """打包成 SSE 帧(data: <json>\\n\\n),中文不转义。"""

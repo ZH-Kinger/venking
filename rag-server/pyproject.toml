@@ -26,11 +26,15 @@ eval = []
 obs = ["langfuse>=4"]                       # 在线追踪看板,延后到 M6
 ui = ["gradio>=5"]                          # M6.1 Gradio 对话界面(已被 api+自定义前端取代,保留备用)
 api = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]  # M6.2 FastAPI + SSE 流式后端(配自定义 Gemini 风格前端)
+# M10 登录 + 管理后台:auth/session/审计 落 PostgreSQL(本地开发 SQLite 亦可,模型可移植)
+admin = ["sqlalchemy>=2", "alembic>=1.13", "psycopg[binary]>=3.1", "pwdlib[argon2]>=0.2"]
 dev = ["pytest", "ruff", "tenacity"]
 
 [project.scripts]
 # cli 在 M2 落地后可用:blog-rag "问题"
 blog-rag = "blog_rag.cli:main"
+# M10:创建/管理后台管理员账号(无默认密码)
+blog-rag-admin = "blog_rag.cli_admin:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

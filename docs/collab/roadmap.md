@@ -15,7 +15,7 @@
 | **M7 生产化** | ✅ | Docker/compose + Nginx 统一入口;容器仅绑定 `127.0.0.1:7860`;healthcheck/自动重启;SDK 超时重试 + 可选备用 provider | 线上 `/ai/health` 200、容器 healthy/0 restart;M7/M8 生产路径 228 测试全绿。备用 provider 代码已就绪,待用户提供配置 |
 | **M8 记忆三层** | 🔄 | **短时层 ✅**:SqliteSaver 持久 thread + 最近历史生成 + 追问独立查询改写;**黑板层 ✅**:State reducer;**长期层 ⏳**:用户画像 Store | SQLite 关闭重开仍保留并追加同 thread 消息的集成测试已通过;长期 Store 需先确定用户身份/namespace |
 | **M9 微调(可选)** | ⏳ | 纯学习性,不在关键路径:embedding/reranker 微调 或 LoRA+DPO 走通 RLHF-lite | 触发条件:prompt/检索/评测榨干 + 数千高质量样本 + 明确行为缺口(三者不齐→不做) |
-| **M10 登录与管理后台** | ⏳ | `/login/` + `/admin/`;管理员认证、文章草稿/发布、用户/会话/反馈/审计管理 | 计划见 [`planning/admin-auth-cms-plan.md`](planning/admin-auth-cms-plan.md);HTTPS 是生产开放硬闸门 |
+| **M10 登录与管理后台** | 🔄 | **P1 认证后端 ✅ + P2 登录页/后台骨架 ✅(本地)**:`/api/auth/*`(登录/登出/me/改密/csrf)+ `/api/admin/*`(系统状态/审计/登录事件/反馈只读)+ Argon2 密码 + 服务端 session(库存 sha256)+ HMAC-CSRF + 双维度登录限速 + RBAC;`blog-rag-admin` CLI + Alembic;admin-web(React+Vite+Radix)登录页+后台骨架(仪表盘/系统/审计/反馈,含加载/空/失败/无权限态)。**P3 文章管理 / P4 发布流水线 / 生产 HTTPS 上线 ⏳** | 计划见 [`planning/admin-auth-cms-plan.md`](planning/admin-auth-cms-plan.md);本地 262 测试全绿;HTTPS 仍是生产开放硬闸门(dev_mode 仅本地豁免) |
 
 ## 当前焦点
 
