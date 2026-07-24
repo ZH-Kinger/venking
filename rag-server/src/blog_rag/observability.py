@@ -7,9 +7,9 @@ and prevents per-request telemetry from growing conversation memory.
 """
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from functools import wraps
-import logging
 from time import perf_counter
 from typing import Any
 

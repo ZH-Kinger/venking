@@ -41,7 +41,7 @@ def create_completion(**kwargs):
     主 provider(自带 SDK 超时+退避重试)→ 若抛可重试错误且配置了 fallback → 切备用兜一次(换 model)。
     未配置 fallback 时行为 = 直接用主 provider(与改动前等价,只是多了超时/重试)。
     """
-    from blog_rag.llm import get_client   # 延迟 import 破环
+    from blog_rag.llm import get_client  # 延迟 import 破环
     try:
         return get_client().chat.completions.create(**kwargs)
     except _RETRYABLE:

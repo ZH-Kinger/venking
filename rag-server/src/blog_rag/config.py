@@ -123,16 +123,16 @@ class Settings(BaseSettings):
     retrieval_cache_enabled: bool = True
     retrieval_cache_size: int = 256     # 每个命名缓存的 LRU 上限
 
-    # ---- M10 登录 + 管理后台(见 db.py/authn.py/auth_routes.py/admin_routes.py)----
-    # 数据库:本地开发默认 SQLite(零安装);生产/本地 PG 用 DATABASE_URL 覆盖,如
-    # postgresql+psycopg://localhost/blog_rag_dev。模型写成可移植类型,两引擎通用。
+    # ---- M10 后台 + 业务数据库(审计 / 用户 AI 历史;见 db.py/models.py)----
+    # 身份/登录交给 Logto;这里只存业务数据(audit_logs、conversations、messages)。
+    # 本地默认 SQLite(零安装),PG 用 DATABASE_URL 覆盖;模型可移植两引擎通用。
     db_url: str = Field(default="", validation_alias="DATABASE_URL")
-    session_secret: str = Field(default="", validation_alias="SESSION_SECRET")  # session/CSRF 派生;空=报错
-    # dev 模式:允许 http + 非 Secure cookie + 跳过"HTTPS 未启用禁止登录"的生产硬闸门。
-    # 生产**不要**设 DEV_MODE;届时强制要求 X-Forwarded-Proto=https 才放行登录。
-    dev_mode: bool = Field(default=False, validation_alias="DEV_MODE")
-    session_ttl_hours: int = 168        # session 有效期(默认 7 天)
-    login_rate_per_min: int = 5         # 登录尝试限速(按 IP、按账号双维度各一桶)
+
+    # ---- Logto 统一 IAM(见 logto_auth.py)----
+    # 后端按 OIDC 校验 Logto access token:issuer=ENDPOINT/oidc,aud=API resource indicator。
+    logto_endpoint: str = Field(default="http://localhost:3001", validation_alias="LOGTO_ENDPOINT")
+    logto_api_resource: str = Field(default="https://api.venking.tech", validation_alias="LOGTO_API_RESOURCE")
+    logto_admin_scope: str = Field(default="admin", validation_alias="LOGTO_ADMIN_SCOPE")  # API resource 上的管理员权限位
 
     # ---------- 校验 ----------
     @field_validator("embedding_dim")
@@ -207,15 +207,6 @@ class Settings(BaseSettings):
         return self.db_url or f"sqlite:///{self.data_dir / 'admin.sqlite'}"
 
     # ---------- 工具 ----------
-    def require_session_secret(self) -> str:
-        """需要签发 session/CSRF 时调用;没填/占位符给人话报错(生产必须设强随机值)。"""
-        if not self.session_secret or "在这里" in self.session_secret:
-            raise RuntimeError(
-                "缺少 SESSION_SECRET:请在 rag-server/.env 填一个强随机串"
-                "(如 `python -c \"import secrets;print(secrets.token_urlsafe(48))\"`)。"
-            )
-        return self.session_secret
-
     def require_api_key(self) -> str:
         """需要鉴权时调用;没填 / 没换掉占位符时给人话报错。"""
         if not self.api_key:

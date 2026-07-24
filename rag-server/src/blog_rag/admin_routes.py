@@ -1,21 +1,24 @@
-"""M10:管理后台路由 /api/admin/*(全部要求 admin 登录)。
+"""管理后台路由 /api/admin/*(全部要求 Logto admin 权限)。
 
-本轮(P2)实现只读能力:系统状态、审计/登录流水、反馈列表。
-文章管理(P3)、用户管理、发布(P4)后续轮次接入(此处不实现)。
+鉴权改由 Logto(logto_auth.require_admin)——校验 access token 且具 admin 权限位。
+只读能力:系统状态、审计流水、反馈列表、用户对话概览。文章/发布(P3/P4)后续接入。
 """
 from __future__ import annotations
 
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
+from sqlalchemy.orm import Session as DBSession
 
 from blog_rag.config import settings
-from blog_rag.db import get_engine
-from blog_rag.deps import DbDep, require_admin
-from blog_rag.models import AuditLog, LoginEvent, User
+from blog_rag.db import get_db, get_engine
+from blog_rag.logto_auth import require_admin
+from blog_rag.models import AuditLog, Conversation
 
-# 整组默认要求 admin;各端点再注入 user 便于审计。
+DbDep = Annotated[DBSession, Depends(get_db)]
+
+# 整组默认要求 Logto admin。
 router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
 
@@ -24,7 +27,7 @@ def system_health(db: DbDep):
     """系统状态:DB 连通性 + 知识库/数据目录 + API key 就绪(不调付费 API)。"""
     checks: dict[str, bool] = {}
     try:
-        db.execute(select(func.count()).select_from(User))
+        db.execute(text("SELECT 1"))
         checks["database"] = True
     except Exception:
         checks["database"] = False
@@ -35,7 +38,7 @@ def system_health(db: DbDep):
         "ok": all(checks.values()),
         "checks": checks,
         "db_backend": get_engine().url.get_backend_name(),
-        "dev_mode": settings.dev_mode,
+        "iam": "logto",
     }
 
 
@@ -51,7 +54,7 @@ def audit_logs(
     ).all()
     items = [{
         "id": str(r.id),
-        "actor_user_id": str(r.actor_user_id) if r.actor_user_id else None,
+        "actor_sub": r.actor_sub,
         "action": r.action,
         "resource_type": r.resource_type,
         "resource_id": r.resource_id,
@@ -61,22 +64,21 @@ def audit_logs(
     return {"total": total, "limit": limit, "offset": offset, "items": items}
 
 
-@router.get("/login-events")
-def login_events(
+@router.get("/conversations")
+def all_conversations(
     db: DbDep,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ):
-    total = db.scalar(select(func.count()).select_from(LoginEvent)) or 0
+    """全站对话概览(管理员视角;按用户 sub 分组的原始列表)。"""
+    total = db.scalar(select(func.count()).select_from(Conversation)) or 0
     rows = db.scalars(
-        select(LoginEvent).order_by(LoginEvent.created_at.desc()).limit(limit).offset(offset)
+        select(Conversation).order_by(Conversation.updated_at.desc()).limit(limit).offset(offset)
     ).all()
     items = [{
-        "id": str(r.id),
-        "event_type": r.event_type,
-        "user_id": str(r.user_id) if r.user_id else None,
-        "created_at": r.created_at.isoformat() if r.created_at else None,
-    } for r in rows]
+        "id": str(c.id), "user_sub": c.user_sub, "title": c.title,
+        "updated_at": c.updated_at.isoformat() if c.updated_at else None,
+    } for c in rows]
     return {"total": total, "limit": limit, "offset": offset, "items": items}
 
 

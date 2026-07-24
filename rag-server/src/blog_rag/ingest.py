@@ -11,8 +11,8 @@
 """
 from __future__ import annotations
 
-from langchain_classic.indexes import SQLRecordManager, index  # langchain 1.x 迁到 classic
 from langchain_chroma import Chroma
+from langchain_classic.indexes import SQLRecordManager, index  # langchain 1.x 迁到 classic
 from langchain_community.embeddings import DashScopeEmbeddings
 from langchain_core.documents import Document
 

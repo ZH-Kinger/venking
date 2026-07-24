@@ -13,7 +13,7 @@ from __future__ import annotations
 from openai import OpenAI
 
 from blog_rag.config import settings
-from blog_rag.reliability import create_completion   # M7:主+备用降级(内部延迟 import 破环)
+from blog_rag.reliability import create_completion  # M7:主+备用降级(内部延迟 import 破环)
 
 
 def get_client() -> OpenAI:

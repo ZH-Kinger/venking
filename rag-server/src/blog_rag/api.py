@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Annotated, Literal
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -34,16 +34,16 @@ _VENDOR = STATIC_DIR / "vendor"
 if _VENDOR.is_dir():
     app.mount("/vendor", StaticFiles(directory=str(_VENDOR)), name="vendor")
 
-# M10 登录 + 管理后台:auth/admin API 路由(DB 后端)。懒导入——未装 [admin] 依赖时不影响
-# 纯问答部署启动(与 feedback/ingest 的延迟导入纪律一致)。
+# 管理后台 + 用户历史 API(登录交给 Logto,后端只校验 token)。懒导入——未装 [admin] 依赖
+# 时不影响纯问答部署启动(与 feedback/ingest 的延迟导入纪律一致)。
 try:
     from blog_rag.admin_routes import router as _admin_router
-    from blog_rag.auth_routes import router as _auth_router
+    from blog_rag.me_routes import router as _me_router
 
-    app.include_router(_auth_router)
     app.include_router(_admin_router)
+    app.include_router(_me_router)
 except ImportError:  # 仅"未装 [admin] 依赖"才跳过;真实代码 bug 应暴露而非静默吞掉
-    logger.info("admin/auth routes not mounted (blog_rag[admin] deps absent)")
+    logger.info("admin/me routes not mounted (blog_rag[admin] deps absent)")
 
 # admin-web 生产构建产物(SPA):存在才挂。资产按真实文件服务;其余 /admin/* 深链一律回退
 # index.html(SPA 客户端路由,避免硬刷 /admin/login 404)——等价于 nginx try_files,不依赖反代。
@@ -66,6 +66,7 @@ def _sse(ev: dict) -> str:
 
 @app.get("/api/chat", dependencies=[Depends(guard)])   # 按 IP 限流 + 可选 token(防白嫖 GLM key)
 def chat(
+    request: Request,
     q: Annotated[str, Query(min_length=1, max_length=4000)],
     deep: bool = False,
     web: bool = False,
@@ -76,13 +77,26 @@ def chat(
 
     前端用 EventSource 接:token 事件追加正文,done 事件渲染来源面板。
     thread 由前端生成并固定一会话(接 checkpointer,多轮上下文用留 M8)。
+    登录用户(带 Logto token,EventSource 经 ?access_token= 兜底)问答落库,匿名不落库。
     """
     question = q.strip()
     if not question:
         raise HTTPException(status_code=422, detail="问题不能为空")
     request_id = uuid4().hex
 
+    # 解析调用者身份(可选;未装 [admin] 依赖时静默降级为匿名,不影响纯问答部署)。
+    identity = None
+    try:
+        from blog_rag.logto_auth import optional_user_sse
+        identity = optional_user_sse(request)
+    except ImportError:
+        pass
+
     def gen():
+        answer_parts: list[str] = []
+        done_mode: str | None = None
+        done_sources: list = []
+        done_thread: str | None = None
         try:
             for ev in stream_answer(
                 question,
@@ -93,6 +107,13 @@ def chat(
                 show_reasoning=False,
                 request_id=request_id,
             ):
+                etype = ev.get("type")
+                if etype == "token":
+                    answer_parts.append(ev.get("text", ""))
+                elif etype == "done":
+                    done_mode = ev.get("mode")
+                    done_sources = ev.get("sources", [])
+                    done_thread = ev.get("thread_id")
                 yield _sse(ev)
         except Exception:                            # 真实异常只进服务端日志,公网不泄露内部实现/key 路径
             logger.exception("agent_request_failed request_id=%s", request_id)
@@ -101,6 +122,17 @@ def chat(
                 "msg": "Agent 服务暂时不可用，请稍后重试。",
                 "request_id": request_id,
             })
+            return
+        # 落个人历史(仅登录用户;record_turn 内部再做静默保护,落库失败不影响已流出的答案)。
+        if identity is not None:
+            try:
+                from blog_rag import history
+                history.record_turn(
+                    identity.sub, thread or done_thread or "", question,
+                    "".join(answer_parts), mode=done_mode, sources=done_sources,
+                )
+            except ImportError:
+                pass
     return StreamingResponse(
         gen(),
         media_type="text/event-stream",

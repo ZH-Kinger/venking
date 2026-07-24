@@ -187,3 +187,18 @@
 - **验证(全过)**:blog `docs:build` 705 页 exit0;homepage `build` 531 页(含未删 astro 博客)exit0;admin-web build exit0;rag-server posts_dir 解析=blog/src/posts(529 md)、`pytest` 263 passed。
 - **文档**:新增 `STRUCTURE.md`(顶层职责/品牌token/跨项目耦合/构建部署索引/约定);README 结构表 + 本地开发命令更新(cd homepage、cd blog);HANDOFF 置顶重组提醒指向 STRUCTURE.md;docs/README 文章路径更正。
 - **仍待**:astro 废弃博客死代码(homepage/src/content/posts 101M + pages/blog + components/blog + lib/blog.ts + content.config.ts)删除——用户上次打断了 git rm,待其确认后单独删;`_backup_posts_orig`(gitignore)本地可删。
+[2026-07-24] [TESTER] Phase B Logto-IAM 测试落地:新增 tests/test_logto_auth.py(21)+tests/test_history_isolation.py(11)。覆盖 verify_bearer 验签/iss/aud/exp/sub/alg=none/异钥/篡改、require_admin(scope|roles)、optional_user(_sse) query 兜底与匿名 None、history 按 sub 严格隔离+匿名 no-op。全量 283 passed(--ignore 两个退役 Gradio UI)。未改源码。已知点:get_conversation(conv_id=None) 会漏 TypeError(源码只 catch ValueError/AttributeError),但 conv_id 恒为路由 str,非真实路径,未测。
+
+---
+
+## [2026-07-24] [DEV] Phase B:后端迁 Logto 统一 IAM + per-user AI 历史
+
+- **范围**:退役自建管理员认证(M10 的 authn/session/CSRF/Argon2),后端改纯 OIDC 资源服务器校验 Logto access token;新增按 Logto `sub` 归属的用户 AI 对话历史。登录 UI/注册/多方式全交给 Logto 托管(见 Phase A `deploy/logto/`)。
+- **新增**:`logto_auth.py`(PyJWKClient JWKS 验签 + `iss`/`aud`/`exp`/`sub` 强制 + 算法白名单 RS256/ES* 禁 none;`require_user`/`require_admin`/`optional_user`/`optional_user_sse`);`me_routes.py`(`/api/me/*` 个人历史,按 sub 隔离,非本人 404);`history.py`(record_turn/list/get,sub 严格隔离)。
+- **改**:`admin_routes.py` 整组 `Depends(require_admin)`(actor 改 Logto sub);`api.py` `/api/chat` 用 `optional_user_sse` 绑 sub、流末 `record_turn` 落库(匿名照常可用不落库);`config.py` 加 `logto_endpoint`/`logto_api_resource`/`logto_admin_scope`,删自建 session/dev_mode/login_rate 旋钮;`models.py` 删 User/Session/LoginEvent,`audit_logs.actor_sub`,新增 `Conversation`/`Message`;`pyproject.toml` `[admin]` 去 pwdlib 加 pyjwt[crypto]、删 `blog-rag-admin` 脚本。
+- **退役(git rm)**:authn.py/auth_routes.py/deps.py/cli_admin.py/tests/test_admin_auth.py。
+- **迁移**:`b2f1c0d3e4a5` drop users/sessions/login_events、audit_logs.actor_user_id→actor_sub、add conversations/messages;已 `upgrade head`(PG),`alembic check` 无漂移。
+- **闸门**:tester **283 passed**(新增 32 例 Logto 验签 + 历史隔离,全 hermetic 自签 JWT/内存 sqlite);ruff 洁净(仅仓库通用 BLE001/S110 兜底);TestClient 手验 401/403 鉴权链。
+- **auditor 过闸 + 修复**:核心鉴权 CLEAN(alg=none/密钥混淆不可能、越权无、匿名边界安全、无机密泄露)。已修:①【MED】迁移 `sa.text("now()")`→`sa.func.now()`(方言感知;原字面 now() 在 SQLite fallback 上 INSERT 必炸→登录历史被 history.py 静默吞掉;并连带修上一版 9b59b7bdb04b 同款债)——已用全新 SQLite 库 `alembic upgrade head`+record_turn 实测通过;②【LOW】JWKS `cache_keys=False`(吊销 ≤300s 生效);③【LOW】JWKS/网络失败 → 503 而非误导性 401。残留【LOW】`?access_token=` 入 URL:仅 SSE 作用域(admin/me 只走 header),短时 token+HTTPS 可接受,留 Phase E 文档标注反代勿落 query。
+- **顺带**:ruff 规范化 4 处无关文件 import 顺序/空格(ingest/llm/observability/reliability,零行为变更)。
+- **仍待**:Phase C(admin-web 接 @logto/react)、Phase D(AI 前端终端用户登录 + 历史侧栏)——卡在 Logto 建 2 个 SPA 应用拿 App ID(方案1 Management API 自动建 / 方案2 手动);Phase E 文档/roadmap/ADR。
