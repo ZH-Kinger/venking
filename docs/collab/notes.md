@@ -127,3 +127,20 @@
   - **同步脚本健壮性(非提交阻塞,下次重跑前修)**:rmSync(src/posts) 在 walk(VAULT) 之前无条件执行+VAULT 硬编码 Windows 路径→路径错会先删光已发布文章;图片按 basename 去重会串图;CRLF 致 `^---\n` frontmatter 解析失败;gitFirstDate 相对路径插双引号 shell 串有注入风险。
   - **死链 ✅**:10 个中文分类目录 ↔ sidebar 10 prefix ↔ navbar 10 `/category/`↔ 529 篇 category 值,一一对应无孤儿。
   - **裁定**:凭据角度可安全提交;前提是用户接受公开仓库暴露 IP/root/端口/MaaS ID。
+
+---
+
+## [2026-07-24] [DEV] 脱敏 + 完整初始提交推送 GitHub
+
+- **用户决策**:脱敏后完整推送(博客主线 + rag-server + astro-site 全进公开仓库 ZH-Kinger/venking)。
+- **脱敏**(仅动将跟踪文件,article 正文里的 `[root@host]#` shell 提示符等技术内容未碰):
+  - AI 入口 `navbar.ts` / `client.ts`:`http://SERVER_IP:7860` → 同源相对路径 `/ai/`(经 Nginx 反代,顺带修掉 auditor 报的“navbar 直连 vs README 回环”矛盾 + 消除端口暴露)。
+  - 用户可见 README(根 + rag-server):生产 IP → 域名 `venking.tech`(http→https)。
+  - 部署脚本 `deploy.sh`:`SERVER` 默认值去掉,改 `${SERVER:?...}` 必填;完成提示改经 Nginx 域名。
+  - MaaS 实例 ID(`config.py` / `.env.example`):`ws-...maas` → `YOUR-MAAS-INSTANCE` 占位;真实值靠 `.env`(gitignore)覆盖。
+  - 内部 docs(notes/部署.md/ADR-0017):IP → `SERVER_IP` 占位,MaaS 实例 → 占位。
+  - 复核:将跟踪文件里 `115.191.2.86` / `ws-iwb5x2xssjmnh9zy` / `root@115` 全部清零。
+- **构建复验**:脱敏后 `docs:build` 仍 exit 0,705 页,成功。
+- **提交**:因首个 README-only 提交已含 IP,遂 `git commit --amend` 把脱敏后的全部 2070 文件并入唯一初始提交(`d84ed95`),force-push 覆盖,含 IP 的旧提交 `9911e11` 从分支移除(不可达待 GC)。远端 main 已确认 = d84ed95。
+- **代理**:全局 git 走 127.0.0.1:7890 但代理没开;本次 push 用 `-c http.proxy= -c https.proxy=` 直连(未改全局)。
+- **残留提醒**:①Astro 废弃博客仍随仓库入库(423M,含与 VuePress 重复的文章内容),体积/困惑负担未清;②AI 端点无鉴权、同步脚本破坏性删除仍未修;③`:7860` 是否真只绑回环需上线实查。
