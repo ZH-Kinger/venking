@@ -1,0 +1,38 @@
+# Logto 统一 IAM(本地开发编排)。生产上线另配子域名 + HTTPS(见 README)。
+# 起法:cd deploy/logto && cp .env.example .env && docker compose up -d
+# 首访 http://localhost:3002 建 Logto 管理员;登录 UI 在 http://localhost:3001。
+services:
+  logto:
+    depends_on:
+      logto-db:
+        condition: service_healthy
+    image: svhd/logto:${LOGTO_TAG:-latest}
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
+    ports:
+      - "3001:3001"   # 登录/OIDC 端点(核心服务)
+      - "3002:3002"   # 管理台
+    environment:
+      - TRUST_PROXY_HEADER=1
+      - DB_URL=postgres://postgres:p0stgr3s@logto-db:5432/logto
+      - ENDPOINT=${LOGTO_ENDPOINT:-http://localhost:3001}
+      - ADMIN_ENDPOINT=${LOGTO_ADMIN_ENDPOINT:-http://localhost:3002}
+    restart: unless-stopped
+
+  logto-db:
+    image: postgres:17-alpine
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: p0stgr3s
+      POSTGRES_DB: logto
+    volumes:
+      - logto-db-data:/var/lib/postgresql/data   # 持久化,容器重建不丢身份数据
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  logto-db-data:
