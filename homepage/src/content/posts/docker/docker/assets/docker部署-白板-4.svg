@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-  viewBox="-316.7333679199219 78.59999084472656 647 359" width="647" height="359"
-  style="background:#fff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-<defs></defs>
-<rect x="-316.7333679199219" y="78.59999084472656" width="647" height="359" fill="#fff"/>
-<g><rect x="-242.73336791992188" y="152.59999084472656" width="170" height="211" rx="2" fill="#FFFFFF" stroke="#585A5A" stroke-width="1"/></g>
-<text x="85.26663208007812" y="179.19999084472656" font-size="14" font-weight="normal" fill="#333" font-family="-apple-system,BlinkMacSystemFont,sans-serif">容器需要哪些资源</text><text x="85.26663208007812" y="198.79999084472655" font-size="14" font-weight="normal" fill="#333" font-family="-apple-system,BlinkMacSystemFont,sans-serif">1.存储文件</text><text x="85.26663208007812" y="218.39999084472657" font-size="14" font-weight="normal" fill="#333" font-family="-apple-system,BlinkMacSystemFont,sans-serif">2.连接网络</text><text x="85.26663208007812" y="237.99999084472654" font-size="14" font-weight="normal" fill="#333" font-family="-apple-system,BlinkMacSystemFont,sans-serif">3.对容器里的进程进行编号</text><text x="85.26663208007812" y="257.59999084472656" font-size="14" font-weight="normal" fill="#333" font-family="-apple-system,BlinkMacSystemFont,sans-serif">4.主机名和时间</text>
-</svg>
