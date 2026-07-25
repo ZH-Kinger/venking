@@ -1,9 +1,21 @@
 name: 部署文档
 
+# 文章源已移出本公开仓库,存放在私有仓库 ZH-Kinger/obisidian。
+# CI 流程:拉取私有文章源 → 同步生成 posts(含脱敏)→ 密钥闸门 → 构建 VuePress → 部署到 blog 分支。
+#
+# 需要在本仓库 Settings → Secrets and variables → Actions 配置:
+#   OBSIDIAN_TOKEN   (必填)能读取私有 obisidian 仓库的 PAT(fine-grained:该仓库 Contents 只读即可)
+#   SECRETS_DENYLIST (可选)每行一条要额外精确脱敏的字面量,等同本地 scripts/.secrets-denylist
+#
+# 触发:push 到 main(改样式/配置时)、或手动 workflow_dispatch(改完文章后重建)。
+# 说明:文章改动发生在私有 obisidian 仓库,不会自动触发本 CI;改完文章到 Actions 手动跑一次,
+#       或后续在 obisidian 仓库加 repository_dispatch 回调本仓库实现自动发布。
+
 on:
   push:
     branches:
       - main
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -11,18 +23,11 @@ permissions:
 jobs:
   deploy-gh-pages:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: blog   # VuePress 博客已下沉到 blog/(结构规范化 2026-07-24)
     steps:
-      - name: Checkout
+      - name: Checkout(本仓库)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # 如果你文档需要 Git 子模块，取消注释下一行
-          # submodules: true
-
-
 
       - name: 设置 Node.js
         uses: actions/setup-node@v4
@@ -31,12 +36,42 @@ jobs:
           cache: npm
           cache-dependency-path: blog/package-lock.json
 
+      - name: 拉取私有文章源 + 同步生成 posts(含脱敏)
+        env:
+          OBSIDIAN_TOKEN: ${{ secrets.OBSIDIAN_TOKEN }}
+          SECRETS_DENYLIST: ${{ secrets.SECRETS_DENYLIST }}
+          OBSIDIAN_VAULT: ${{ github.workspace }}/.cache/obsidian-vault
+        run: |
+          if [ -z "$OBSIDIAN_TOKEN" ]; then
+            echo "::error::缺少 secret OBSIDIAN_TOKEN(需能读取私有 obisidian 仓库的 PAT)。在 Settings→Secrets and variables→Actions 添加后重跑。"
+            exit 1
+          fi
+          # 全量 clone(保留历史以尽量取到文章日期;token 由 Actions 自动打码,不落日志)
+          git clone --quiet "https://x-access-token:${OBSIDIAN_TOKEN}@github.com/ZH-Kinger/obisidian.git" "$OBSIDIAN_VAULT"
+          # 可选:把精确 denylist 从 secret 落地,获得与本地一致的精确脱敏
+          if [ -n "$SECRETS_DENYLIST" ]; then
+            printf '%s\n' "$SECRETS_DENYLIST" > scripts/.secrets-denylist
+          fi
+          node scripts/sync-obsidian-to-vuepress.mjs
+
+      - name: 密钥泄露闸门(检出即阻断部署)
+        run: |
+          # 高置信度形态(API key)兜底扫描:命中则失败,把带密钥的文章挡在部署前。
+          # 本地 publish.mjs 已做脱敏,这里是 CI 侧的最后一道防线。
+          if grep -rEn "sk-[A-Za-z0-9]{16,}" blog/src/posts; then
+            echo "::error::检测到疑似 API key(sk-…)进入构建内容,已阻断部署。请在源笔记中改为占位,或加入 SECRETS_DENYLIST。"
+            exit 1
+          fi
+          echo "✓ 密钥闸门通过(未检出 sk- 形态密钥)"
+
       - name: 安装依赖
+        working-directory: blog
         run: |
           corepack enable
           npm ci
 
       - name: 构建文档
+        working-directory: blog
         env:
           NODE_OPTIONS: --max_old_space_size=8192
         run: |
@@ -46,9 +81,8 @@ jobs:
       - name: 部署文档
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          # 修正点 2：如果你没有手动去设置 ACCESS_TOKEN，请直接改用下面的默认变量
           token: ${{ secrets.GITHUB_TOKEN }}
-          # 修正点 3：部署目标分支建议改为 gh-pages，除非你非要推送到 blog 分支
           branch: blog
-          # folder 相对仓库根(deploy action 不受 working-directory 影响),故带 blog/ 前缀
           folder: blog/src/.vuepress/dist
+          # 部署分支只保留单提交,不累积历史 —— 避免旧构建产物(含历史泄露)残留在 blog 分支。
+          single-commit: true
