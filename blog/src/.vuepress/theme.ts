@@ -14,7 +14,7 @@ export default hopeTheme({
 
   logo: "/assets/images/logo.png",
 
-  repo: "vuepress-theme-hope/vuepress-theme-hope",
+  repo: "ZH-Kinger/venking",
 
   docsDir: "src",
 
@@ -37,11 +37,9 @@ export default hopeTheme({
   blog: {
     description: "AIOps 与 AI Infra 实战笔记",
     intro: "/intro.html",
-    // TODO: 换成你的真实主页链接(占位)
+    // 社交/联系:填真实链接才展示;Gitee/Email 待用户提供后再加(不留占位空链接)。
     medias: {
-      GitHub: "https://github.com/",
-      Gitee: "https://gitee.com/",
-      Email: "mailto:you@example.com",
+      GitHub: "https://github.com/ZH-Kinger",
     },
   },
 
