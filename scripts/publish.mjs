@@ -67,9 +67,13 @@ run("node", ["scripts/sync-obsidian-to-vuepress.mjs", ...(DRY ? ["--dry"] : [])]
 if (DRY) {
   console.log("\n[dry-run] 未写文件。若执行,posts 会有如下变更(git status):");
   run("git", ["status", "--short", "blog/src/posts"]);
-  console.log("\n确认无误后去掉 --dry 重跑,即执行真写入 + ingest + build。");
+  console.log("\n确认无误后去掉 --dry 重跑,即执行真写入 + 图片压缩 + ingest + build。");
   process.exit(0);
 }
+
+// ②.5 压缩文章图片(降到最大边 1600 + 质量,10× 缩小,解决大图加载慢)
+console.log("\n②.5 压缩文章图片 …");
+run("node", ["scripts/optimize-images.mjs"]);
 
 // ③ 重建 RAG 索引(LangChain Indexing API 幂等增量:只处理变化的 chunk)
 if (!NO_INGEST) {

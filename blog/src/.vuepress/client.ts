@@ -97,6 +97,29 @@ export default defineClientConfig({
       document.body.appendChild(a);
     };
 
-    Promise.resolve().then(() => { inject(); observeThemeSwitch(); });
+    // ---- (3) 渐进图片:图片下载完成后加 .img-loaded → 触发"模糊→清晰"淡入 ----
+    // 原生 loading=lazy 已让图滚到才下;这里只负责下完后的揭示动画。缓存命中的图(complete)
+    // 立即标记;error 也标记以免卡在模糊态。用 MutationObserver 兜住路由切换后的新内容。
+    const enhanceImages = () => {
+      document
+        .querySelectorAll<HTMLImageElement>("[vp-content] img:not([data-enh])")
+        .forEach((img) => {
+          img.dataset.enh = "1";
+          if (img.complete && img.naturalWidth > 0) {
+            img.classList.add("img-loaded");
+          } else {
+            img.addEventListener("load", () => img.classList.add("img-loaded"), { once: true });
+            img.addEventListener("error", () => img.classList.add("img-loaded"), { once: true });
+          }
+        });
+    };
+
+    Promise.resolve().then(() => {
+      inject();
+      observeThemeSwitch();
+      enhanceImages();
+      const imgObserver = new MutationObserver(() => enhanceImages());
+      imgObserver.observe(document.body, { childList: true, subtree: true });
+    });
   },
 });

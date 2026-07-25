@@ -127,6 +127,10 @@ export default hopeTheme({
   plugins: {
     blog: true,
 
+    // 图片点击 → 全屏高清预览(按需加载那张原图,可缩放/手势)。
+    // 配合正文内联图的懒加载 + 模糊淡入:先看清晰缩略,点开看大图。
+    photoSwipe: true,
+
     // 启用之前需安装 @waline/client
     // 警告: 这是一个仅供演示的测试服务，在生产环境中请自行部署并使用自己的服务！
     // comment: {

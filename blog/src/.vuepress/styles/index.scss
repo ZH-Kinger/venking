@@ -309,6 +309,21 @@
     border-radius: var(--rn-radius-media);
     box-shadow: var(--rn-shadow);
   }
+
+  // 渐进图片:占位框(imgSize 预留)+ 模糊淡入揭示。
+  // 未加载 → 淡色占位底 + 模糊 + 半透明;client.ts 在 load 后加 .img-loaded → 清晰淡入。
+  // 效果:文字先出,图滚到才下(原生 lazy),下完"模糊→清晰"揭示;点击走 photoSwipe 看大图。
+  img {
+    background-color: var(--vp-c-bg-alt);
+    opacity: 0;
+    filter: blur(12px);
+    transition: opacity 0.6s ease, filter 0.6s ease;
+    &.img-loaded { opacity: 1; filter: none; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [vp-content] img { transition: none; opacity: 1; filter: none; }
 }
 
 // ---------- 分类徽标统一到品牌靛紫 ----------
