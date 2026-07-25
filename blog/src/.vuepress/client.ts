@@ -92,8 +92,8 @@ export default defineClientConfig({
       a.target = "_blank";
       a.rel = "noopener noreferrer";
       a.title = "打开 AI 助手 · 基于本站内容的智能问答";
-      // 品牌吉祥物:Kinger 的绿颊锥尾鹦鹉(单色剪影,长尾招牌;眼深色半透明,悬浮球白鸟上可读)。
-      a.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11.4 13.4 14 12.1l6.2 7.9c.3.4 0 1-.5 1-.2 0-.4-.1-.5-.2L11.3 15Z"/><ellipse cx="9.5" cy="11" rx="3.7" ry="4.4"/><circle cx="9.6" cy="6.3" r="3.4"/><path d="M6.5 5.6c-1.6.1-2.7 1-2.6 2.2.1.9.8 1.3 1.6 1.1-.7-.5-.8-1.4.2-1.8.6-.3 1.4-.4 2-.2Z"/><path d="M8 14.7c0 1 0 1.8-.2 2.6M10.6 14.9c.1 1 .2 1.7.1 2.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" fill="none"/><circle cx="8.3" cy="5.9" r="1.05" fill="rgba(12,14,20,.6)"/></svg>`;
+      // 通用 AI 图标(Lucide bot,线性,继承 currentColor)。
+      a.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>`;
       document.body.appendChild(a);
     };
 
