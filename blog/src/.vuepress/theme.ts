@@ -12,7 +12,7 @@ export default hopeTheme({
     url: "https://www.yuque.com/kinger-wwnro",
   },
 
-  logo: "/assets/images/logo.png",
+  logo: "/feather-indigo.png",
 
   repo: "ZH-Kinger/venking",
 

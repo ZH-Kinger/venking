@@ -83,6 +83,8 @@ export default defineUserConfig({
   ],
 
   head: [
+    // favicon:品牌羽毛(靛紫版,明暗标签页都可见)
+    ["link", { rel: "icon", type: "image/png", href: "/feather-indigo.png" }],
     // 语雀图片防盗链
     ["meta", { name: "referrer", content: "no-referrer" }],
     // 首次访问默认深色,并迁移旧版错误存储值:
