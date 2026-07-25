@@ -92,8 +92,8 @@ export default defineClientConfig({
       a.target = "_blank";
       a.rel = "noopener noreferrer";
       a.title = "打开 AI 助手 · 基于本站内容的智能问答";
-      // 品牌吉祥物:小鹦鹉(填充剪影 + 镂空眼 evenodd,眼自动透出悬浮球底色)。全站 AI 助手统一此形象。
-      a.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" stroke="none"><path d="M15.6 2.3c.5-.2 1 .2.9.8-.1.7-.5 1.3-1.1 1.7 1.9.7 3.2 2.5 3.4 4.6.6.2 1.1.7 1.3 1.4.1.5-.4.9-.9.7-.4-.1-.7-.4-.8-.8-.2 3-2.3 5.4-5.1 6.2l-.4 1.9c-.1.5-.6.9-1.1.8-.5-.1-.9-.6-.8-1.1l.3-1.4h-.1c-1.2 0-2.3-.3-3.3-.8l-.4 1.7c-.1.5-.6.9-1.1.8-.5-.1-.9-.6-.8-1.1l1.5-6.5C6.1 11.4 5.1 9.8 5.4 8.2c.1-.5.6-.8 1.1-.7l3.7.8C10.4 6 12.4 4 15 3.9c.2-.6.4-1.2.6-1.6Z M14.35 7.1a1.15 1.15 0 1 0-2.3 0 1.15 1.15 0 1 0 2.3 0Z"/></svg>`;
+      // 品牌吉祥物:Kinger 的绿颊锥尾鹦鹉(单色剪影,长尾招牌;眼深色半透明,悬浮球白鸟上可读)。
+      a.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11.4 13.4 14 12.1l6.2 7.9c.3.4 0 1-.5 1-.2 0-.4-.1-.5-.2L11.3 15Z"/><ellipse cx="9.5" cy="11" rx="3.7" ry="4.4"/><circle cx="9.6" cy="6.3" r="3.4"/><path d="M6.5 5.6c-1.6.1-2.7 1-2.6 2.2.1.9.8 1.3 1.6 1.1-.7-.5-.8-1.4.2-1.8.6-.3 1.4-.4 2-.2Z"/><path d="M8 14.7c0 1 0 1.8-.2 2.6M10.6 14.9c.1 1 .2 1.7.1 2.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" fill="none"/><circle cx="8.3" cy="5.9" r="1.05" fill="rgba(12,14,20,.6)"/></svg>`;
       document.body.appendChild(a);
     };
 
