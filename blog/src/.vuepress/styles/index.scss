@@ -333,11 +333,11 @@
   .vp-project-icon, svg, .vp-icon { color: var(--vp-c-accent) !important; }
 }
 
-// ========== B:文章卡摘要截断(统一高度、可扫读)==========
+// ========== B:文章卡摘要(放大 + 多显示几行,内容更充实可读)==========
 .vp-article-excerpt {
-  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
+  display: -webkit-box; -webkit-line-clamp: 6; line-clamp: 6;
   -webkit-box-orient: vertical; overflow: hidden;
-  color: var(--vp-c-text-mute, #9aa0aa); font-size: 0.94rem; line-height: 1.7;
+  color: var(--vp-c-text-mute, #9aa0aa); font-size: 1.02rem; line-height: 1.75;
 }
 
 // ========== C:文章卡顶部"封面"——标题直接落在流动渐变头图上(不再留空条)==========
@@ -388,8 +388,8 @@
   position: relative;
   z-index: 2;                               // 压过 ::after 光泽扫过层
   display: block;
-  margin: -1.45rem -1.6rem 1.15rem;         // 出血抵消卡片 padding → 铺满顶部
-  padding: 1.5rem 1.6rem;
+  margin: -1.45rem -1.6rem 1.1rem;          // 出血抵消卡片 padding → 铺满顶部
+  padding: 0.85rem 1.6rem;                  // 压矮头图条,只包住标题
   background: linear-gradient(120deg, #5e6ad2 0%, #8b6cf8 42%, #6d78dd 72%, #4d59c4 100%);
   background-size: 220% 220%;
   background-position: 0% 50%;
