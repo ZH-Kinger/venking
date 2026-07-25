@@ -5,7 +5,7 @@ import sidebar from "./sidebar.js";
 
 export default hopeTheme({
   // TODO: 部署后改成你的实际域名(影响 sitemap/SEO)
-  hostname: "https://kinger.example.com",
+  hostname: "https://venking.tech",
 
   author: {
     name: "Kinger",

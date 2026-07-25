@@ -43,8 +43,8 @@ export default defineUserConfig({
   }),
 
   lang: "zh-CN",
-  title: "王梓涵",
-  description: "vuepress-theme-hope 的博客blog",
+  title: "Kinger 的技术博客",
+  description: "AIOps 与 AI Infrastructure 实战笔记:训练基础设施、故障排查、Agent 与 RAG 工程实践。",
 
   theme,
 
