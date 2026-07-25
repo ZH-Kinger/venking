@@ -480,8 +480,11 @@ const STAGE_LABEL={
   general_generate:'正在组织回答',refuse:'正在确认可回答范围',guardrails:'正在检查引用',
   record_turn:'正在保存对话上下文'
 };
+// 知识库来源 doc_id(如 "AIOps平台/项目描述.md")→ 博客文章 URL(生产同源 /blog/posts/...;
+// 本地 :7860 因跨端口打不开,生产 venking.tech 下 nginx 同源可跳)。
+function docUrl(doc){if(!doc)return'';return '/blog/posts/'+doc.replace(/\.md$/,'').split('/').map(encodeURIComponent).join('/')+'.html';}
 function sourcesHtml(m){const md_=m.mode||'general',src=m.sources||[];let h='';
-  if(md_==='grounded'&&src.length)h='<div class="t">来源（知识库）</div><ul>'+src.map(s=>`<li>[${s.sid}] <code class="inline">${esc(s.doc_id||'')}</code>${s.section?' · '+esc(s.section):''}</li>`).join('')+'</ul>';
+  if(md_==='grounded'&&src.length)h='<div class="t">来源（知识库）· 点击跳原文</div><ul>'+src.map(s=>{const u=docUrl(s.doc_id||'');const c=`<code class="inline">${esc(s.doc_id||'')}</code>`;return `<li>[${s.sid}] ${u?`<a href="${u}" target="_blank" rel="noopener">${c}</a>`:c}${s.section?' · '+esc(s.section):''}</li>`;}).join('')+'</ul>';
   else if(md_==='web'&&src.length)h='<div class="t">联网来源</div><ul>'+src.map(s=>`<li>[${s.wid}] <a href="${s.url}" target="_blank" rel="noopener">${esc(s.title||s.url)}</a></li>`).join('')+'</ul>';
   else if(md_==='general'&&(m.suggestions||[]).length)h='<div class="t">你可能想问</div><ul>'+m.suggestions.map(s=>`<li>${esc(s)}</li>`).join('')+'</ul>';
   const label=md_==='web'?'查看联网出处':md_==='general'?'查看相关问题':'查看知识库引用';
