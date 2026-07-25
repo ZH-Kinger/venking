@@ -100,6 +100,9 @@ export default defineClientConfig({
     // ---- (3) 渐进图片:图片下载完成后加 .img-loaded → 触发"模糊→清晰"淡入 ----
     // 原生 loading=lazy 已让图滚到才下;这里只负责下完后的揭示动画。缓存命中的图(complete)
     // 立即标记;error 也标记以免卡在模糊态。用 MutationObserver 兜住路由切换后的新内容。
+    // 启用图片模糊淡入(CSS 里 .img-fx 才生效)→ 无 JS 时图片正常显示,不隐身。
+    document.documentElement.classList.add("img-fx");
+
     const enhanceImages = () => {
       document
         .querySelectorAll<HTMLImageElement>("[vp-content] img:not([data-enh])")
@@ -110,6 +113,14 @@ export default defineClientConfig({
           } else {
             img.addEventListener("load", () => img.classList.add("img-loaded"), { once: true });
             img.addEventListener("error", () => img.classList.add("img-loaded"), { once: true });
+          }
+          // 双层图片:内联是 1600px 显示版;点击打开 orig/ 原图(新标签,浏览器原生缩放看清晰)
+          const src = img.getAttribute("src") || "";
+          if (src.includes("/assets/posts/") && !src.includes("/assets/posts/orig/")) {
+            const origUrl = src.replace("/assets/posts/", "/assets/posts/orig/");
+            img.style.cursor = "zoom-in";
+            img.setAttribute("title", "点击查看原图");
+            img.addEventListener("click", () => window.open(origUrl, "_blank", "noopener"));
           }
         });
     };
