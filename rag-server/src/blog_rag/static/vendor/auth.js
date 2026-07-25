@@ -44,7 +44,9 @@ async function init() {
     endpoint: cfg.endpoint,
     appId: cfg.app_id,
     resources: [cfg.api_resource],
-    scopes: ["email", "profile"],
+    // 终端用户:要 profile/email 展示;不需要 admin(那是后台的)。token 带 sub 即可绑历史。
+    // 前提同 admin-web:该应用须为「第一方」,否则会拒 profile/email。
+    scopes: ["profile", "email"],
   });
 
   // 从 Logto 登录回跳(redirect uri = 站点根,带 ?code&state)→ 处理并清理地址栏。

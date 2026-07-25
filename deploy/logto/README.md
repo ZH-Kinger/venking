@@ -34,3 +34,19 @@ docker compose logs -f logto  # 看到 "Core app is running" 即就绪
 ## 数据
 
 身份数据落 `logto-db`(独立 Postgres 容器 + 命名卷 `logto-db-data`),与业务库 `blog_rag_dev` 隔离。`.env`(真实凭据)不入库。
+
+## ⚠️ 关键坑:应用必须建成「第一方」(2026-07-25 血泪)
+
+在 Logto 建 SPA 应用时**务必选普通应用,不要选「第三方应用(Third-party app)」**。
+- 第三方应用不会自动把用户经角色获得的 API resource 权限位放进 access token(授权记录 resources=null),
+  且会拒绝 profile/email(invalid_scope)→ 登录后 is_admin 恒为 false、进不了后台。
+- 症状:登录能过,但 `/api/me` 的 is_admin 一直 false;OIDC 授权页出现"授权给 <app>"同意页。
+- 排查:`select is_third_party from applications where id='<appId>'`;为 `t` 即误建成第三方。
+- 修复:改回第一方 `update applications set is_third_party=false where id='<appId>'` → 重启 Logto →
+  清掉旧 Grant(`delete from oidc_model_instances where model_name='Grant' and payload::text like '%<appId>%'`)→
+  用户重新登录(无痕,避开缓存令牌)。
+
+## 权限位怎么通到后端(RBAC)
+1. API resource(indicator `https://api.venking.tech`)下建 scope `admin`。
+2. 建 User 类型角色 `admin`(**不是 M2M**;M2M 角色绑不到人类用户),勾上该 `admin` scope。
+3. 给用户分配 `admin` 角色。前端登录请求 `scopes:['admin']` + 该 resource → token.scope 含 `admin` → 后端 is_admin=true。
