@@ -341,15 +341,16 @@
 }
 
 // ========== C:文章卡顶部品牌化"封面"占位(无 cover 图时:靛紫渐变 + 羽毛水印)==========
+// C:文章卡顶部"封面"——华丽流动渐变(去掉羽毛水印),hover 渐变流动
 .vp-article-item {
   &::before {
-    content: ""; display: block; height: 84px; margin: -1.45rem -1.6rem 1.2rem;
-    background:
-      url("/feather-white.png") right 14px center / auto 118% no-repeat,
-      linear-gradient(120deg, rgb(94 106 210 / 0.5) 0%, rgb(139 108 248 / 0.3) 55%, rgb(94 106 210 / 0.12) 100%);
+    content: ""; display: block; height: 96px; margin: -1.45rem -1.6rem 1.25rem;
+    background: linear-gradient(120deg, #5e6ad2 0%, #8b6cf8 42%, #6d78dd 72%, #4d59c4 100%);
+    background-size: 220% 220%; background-position: 0% 50%;
     border-bottom: 1px solid var(--rn-surface-border);
-    opacity: 0.92;
+    transition: background-position 0.7s ease;
   }
+  &:hover::before { background-position: 100% 50%; }
 }
 
 // ---------- 博客首页文章卡片 ----------
@@ -364,20 +365,48 @@
   box-shadow: var(--rn-shadow);
 
   transition:
-    transform var(--vp-t-transform),
-    box-shadow var(--vp-t-transform),
-    background var(--vp-t-color);
+    transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.32s ease,
+    border-color 0.25s ease;
+
+  // 光泽扫过(hover 时一道高光斜扫过卡片)
+  &::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: linear-gradient(115deg, transparent 42%, rgb(255 255 255 / 0.07) 50%, transparent 58%);
+    transform: translateX(-130%); transition: transform 0.75s ease; z-index: 1;
+  }
 
   &:hover {
-    box-shadow: var(--rn-shadow-hover);
-    transform: translateY(-3px);
+    transform: translateY(-6px) scale(1.012);
+    box-shadow: 0 22px 54px rgb(94 106 210 / 0.30), 0 4px 14px rgb(0 0 0 / 0.3);
+    border-color: rgb(124 134 224 / 0.55);
   }
+  &:hover::after { transform: translateX(130%); }
 
   // 封面图跟随卡片圆角
   .vp-article-cover {
     border-top-left-radius: var(--rn-radius-card);
     border-top-right-radius: var(--rn-radius-card);
   }
+}
+
+// 标题放大 + 更有存在感(列表里标题是 .vp-article-item 的直接子 a.route-link);hover 转靛紫
+.vp-article-item > a.route-link,
+.vp-article-title {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 680;
+  letter-spacing: -0.022em;
+  line-height: 1.28;
+  margin-bottom: 0.5rem;
+  transition: color 0.2s ease;
+}
+.vp-article-item:hover > a.route-link,
+.vp-article-item:hover .vp-article-title { color: var(--vp-c-accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-article-item, .vp-article-item::before, .vp-article-item::after { transition: none; }
+  .vp-article-item:hover { transform: none; }
 }
 
 // 加大卡片之间的间距,更通透
