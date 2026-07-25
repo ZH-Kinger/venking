@@ -15,7 +15,7 @@
 
 ## 存放规则
 
-- 技术文章的事实源是私有 Obsidian vault 仓库 `github.com/ZH-Kinger/obisidian`;`blog/src/posts/` 由 `scripts/publish.mjs` 构建时生成,不入本仓库(gitignore)。发布流程见根 [`STRUCTURE.md`](../STRUCTURE.md#一键发布-scriptspublishmjs)。
+- 技术文章的事实源是私有 Obsidian vault 仓库 `github.com/ZH-Kinger/obisidian`;`blog/src/posts/` 与图片 `blog/src/.vuepress/public/assets/posts/`(含 `orig/` 原图与 1600px 显示版双层)由 `scripts/publish.mjs` 构建时生成,不入本仓库(gitignore)。发布流程与图片双层管线见根 [`STRUCTURE.md`](../STRUCTURE.md#一键发布-scriptspublishmjs)。
 - 项目内部的设计、决策、调研与部署记录放在本目录。
 - API Key、密码和服务器私钥只放 `.env` 或密钥管理服务，不写入 Markdown。
 - SQLite、Chroma、日志和反馈运行数据不进入 Git。
