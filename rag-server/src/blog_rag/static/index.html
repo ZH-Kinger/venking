@@ -623,9 +623,9 @@ function runQuery(q){
       const label=STAGE_LABEL[ev.stage]||'正在准备回答',text=content.querySelector('.thinking span:nth-child(2)');
       if(text)text.textContent=label;
     }
-    else if(ev.type==='error'){errorMessage=ev.msg||'服务暂时不可用，请稍后重试。';finish();}
-    else if(ev.type==='done'){done=ev;finish();}};
-  source.onerror=()=>{if(!finished){errorMessage='连接中断，请检查网络后重试。';finish();}};
+    else if(ev.type==='error'){errorMessage=ev.msg||'服务暂时不可用，请稍后重试。';setHealth(false,'对话失败——Agent 生成出错(见服务端日志,多为 LLM 端点/密钥问题)');finish();}
+    else if(ev.type==='done'){done=ev;setHealth(true,'服务正常');finish();}};
+  source.onerror=()=>{if(!finished){errorMessage='连接中断，请检查网络后重试。';setHealth(false,'连接中断');finish();}};
   function finish(){
     if(finished)return;finished=true;source.close();
     const m=c.msgs[bi];
@@ -643,13 +643,11 @@ function runQuery(q){
 }
 
 // 真健康检查：顶部状态来自后端，不显示静态假状态。
-// 用 /ready(校验 API key + 知识库 + 数据目录)比 /health(恒真)更能反映"能不能答"。
-// 只切换圆点颜色 + hover 提示,不显示文字。
-fetch('./ready',{cache:'no-store'}).then(r=>{
-  const h=$('#health');const ok=r.ok;
-  h.classList.toggle('ok',ok);h.classList.toggle('fail',!ok);
-  h.title=ok?'服务正常':'服务不可用(缺 API key / 知识库)';
-}).catch(()=>{const h=$('#health');h.classList.add('fail');h.title='服务不可用';});
+// 服务状态小圆点:启动先用 /ready(校验 key+知识库),之后每次对话的真实结果会覆盖它
+// (见 runQuery 里 setHealth 调用)——所以生成失败时会真的变红,不再"绿灯却答不了"。
+function setHealth(ok,msg){const h=$('#health');if(!h)return;h.classList.toggle('ok',ok);h.classList.toggle('fail',!ok);if(msg)h.title=msg;}
+fetch('./ready',{cache:'no-store'}).then(r=>setHealth(r.ok,r.ok?'服务正常':'服务不可用(缺 API key / 知识库)'))
+  .catch(()=>setHealth(false,'服务不可用'));
 
 // 桌面快捷键只负责新建会话，不侵占输入框内的常规按键。
 document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#newChat').click();}});
