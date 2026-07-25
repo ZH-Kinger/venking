@@ -9,6 +9,11 @@ node_modules/
 # 发布脱敏 denylist:含真实密钥/PII 明文,绝不入库
 scripts/.secrets-denylist
 
+# 博客文章源与图片:从私有 obisidian 仓库构建时生成,不入公开仓库(见 scripts/publish.mjs)。
+# 公开的 venking 不再存放文章原文;构建/RAG 入库时由 publish.mjs 从私有源拉取生成。
+blog/src/posts/
+blog/src/.vuepress/public/assets/posts/
+
 # Frontend build output and framework caches
 dist/
 .astro/
