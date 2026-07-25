@@ -3,6 +3,12 @@ node_modules/
 .npm/
 .pnpm-store/
 
+# 本地缓存:publish.mjs 克隆的私有 obisidian vault(不入库)
+.cache/
+
+# 发布脱敏 denylist:含真实密钥/PII 明文,绝不入库
+scripts/.secrets-denylist
+
 # Frontend build output and framework caches
 dist/
 .astro/

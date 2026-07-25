@@ -1,0 +1,99 @@
+// ============================================================
+// 一键发布闭环:私有 obisidian 仓库 → 博客 posts → RAG 索引 → 前端构建
+//
+// 用法(在仓库根运行):
+//   node scripts/publish.mjs               # 拉取 → 同步 → ingest → build(全自动)
+//   node scripts/publish.mjs --dry         # 只拉取 + 同步的 dry-run(看 diff,不写、不 ingest、不 build)
+//   node scripts/publish.mjs --no-pull     # 用现有 vault 缓存,不 git pull
+//   node scripts/publish.mjs --no-ingest   # 跳过 RAG 重建
+//   node scripts/publish.mjs --no-build    # 跳过前端构建
+//
+// 私有仓库鉴权:复用本机 git 凭据助手(keychain 里已存 token,clone 已验证可用)。
+// 全程 GIT_TERMINAL_PROMPT=0:token 失效时直接报错,而非挂起等输入。
+// 浅克隆(--depth 1):体积小、抗直连 GitHub 的偶发断连。文章日期靠同步脚本的「日期结转」
+// (从现有 posts 沿用),不依赖 git 历史;真·新增文章用单提交日/今天兜底,足够。
+// ============================================================
+import { existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, join, resolve } from "node:path";
+
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const REPO_URL = "https://github.com/ZH-Kinger/obisidian.git";
+const VAULT_DIR = join(REPO_ROOT, ".cache", "obsidian-vault");
+
+const DRY = process.argv.includes("--dry");
+const NO_PULL = process.argv.includes("--no-pull");
+const NO_INGEST = process.argv.includes("--no-ingest");
+const NO_BUILD = process.argv.includes("--no-build");
+
+const GIT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0" };
+// 关掉可能干扰 git 的代理(与本仓库既有 push 约定一致)
+const GIT_NOPROXY = ["-c", "http.proxy=", "-c", "https.proxy="];
+
+function run(cmd, args, opts = {}) {
+  console.log(`\n$ ${cmd} ${args.join(" ")}`);
+  const r = spawnSync(cmd, args, { cwd: REPO_ROOT, stdio: "inherit", ...opts });
+  if (r.status !== 0) {
+    console.error(`\n✗ 失败(exit ${r.status ?? "signal " + r.signal}):${cmd} ${args.join(" ")}`);
+    process.exit(r.status ?? 1);
+  }
+  return r;
+}
+
+// ① 拉取私有 obisidian 仓库到缓存目录(首次 clone,之后 pull)
+if (!NO_PULL) {
+  if (existsSync(join(VAULT_DIR, ".git"))) {
+    console.log("① git pull 更新 vault 缓存 …");
+    run("git", [...GIT_NOPROXY, "-C", VAULT_DIR, "pull", "--ff-only"], { env: GIT_ENV });
+  } else {
+    console.log("① 首次浅克隆 obisidian 私有仓库(--depth 1,抗断连)…");
+    run("git", [...GIT_NOPROXY, "clone", "--depth", "1", REPO_URL, VAULT_DIR], { env: GIT_ENV });
+  }
+} else {
+  console.log("①(--no-pull:用现有 vault 缓存)");
+  if (!existsSync(VAULT_DIR)) {
+    console.error(`✗ 缓存不存在:${VAULT_DIR};先不带 --no-pull 跑一次以完成首次 clone。`);
+    process.exit(1);
+  }
+}
+
+// ② 同步 vault → blog/src/posts(全量替换 + 日期结转)
+console.log(`\n② 同步 vault → blog/src/posts${DRY ? "(dry-run)" : ""} …`);
+run("node", ["scripts/sync-obsidian-to-vuepress.mjs", ...(DRY ? ["--dry"] : [])], {
+  env: { ...process.env, OBSIDIAN_VAULT: VAULT_DIR },
+});
+
+if (DRY) {
+  console.log("\n[dry-run] 未写文件。若执行,posts 会有如下变更(git status):");
+  run("git", ["status", "--short", "blog/src/posts"]);
+  console.log("\n确认无误后去掉 --dry 重跑,即执行真写入 + ingest + build。");
+  process.exit(0);
+}
+
+// ③ 重建 RAG 索引(LangChain Indexing API 幂等增量:只处理变化的 chunk)
+if (!NO_INGEST) {
+  console.log("\n③ 重建 RAG 索引(python -m blog_rag.ingest)…");
+  const venvPy = join(REPO_ROOT, "rag-server", ".venv", "bin", "python");
+  run(existsSync(venvPy) ? venvPy : "python3", ["-m", "blog_rag.ingest"], {
+    cwd: join(REPO_ROOT, "rag-server"),
+  });
+} else {
+  console.log("\n③(--no-ingest:跳过 RAG 重建)");
+}
+
+// ④ 重建博客前端
+if (!NO_BUILD) {
+  console.log("\n④ 重建博客前端(npm run docs:build)…");
+  run("npm", ["run", "docs:build"], { cwd: join(REPO_ROOT, "blog") });
+} else {
+  console.log("\n④(--no-build:跳过前端构建)");
+}
+
+// ⑤ 变更摘要(审阅后自行 commit;posts 受 git 跟踪,可回滚)
+console.log("\n⑤ posts 变更摘要(git status):");
+run("git", ["status", "--short", "blog/src/posts", "blog/src/.vuepress/public/assets/posts"]);
+console.log(
+  "\n✅ 闭环完成。检查无误后 commit & push(博客 CI 自动部署静态站);RAG 索引已在本地就地更新。" +
+    "\n   线上 RAG 生效仍需 rag-server/deploy.sh 把新 chroma 库推到服务器。",
+);

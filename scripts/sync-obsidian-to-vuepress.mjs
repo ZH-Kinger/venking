@@ -16,8 +16,18 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, copyFi
 import { join, relative, dirname, basename } from "node:path";
 import { execSync } from "node:child_process";
 
-const VAULT = "D:/obsidian workspace";
+// vault 路径:优先 CLI `--vault=<path>`,其次环境变量 OBSIDIAN_VAULT,最后默认克隆缓存目录。
+// 不再写死 D:/(换机即失效)。publish.mjs 会先把私有 obisidian 仓库 clone/pull 到该缓存目录。
+function argVal(flag) { const a = process.argv.find((s) => s.startsWith(flag + "=")); return a ? a.slice(flag.length + 1) : null; }
+const VAULT = argVal("--vault") || process.env.OBSIDIAN_VAULT || ".cache/obsidian-vault";
 const OUT = "blog/src/posts";                          // 博客已下沉到 blog/(结构规范化 2026-07-24)
+
+// 已知真密钥/PII 精确 denylist(gitignored,不入库;每行一条,# 注释)。
+// 用途:精确复现人工脱敏、且补上人工漏掉的位置。源头治理仍应回 Obsidian 改成占位 + 轮换密钥。
+const DENYLIST_FILE = "scripts/.secrets-denylist";
+const DENYLIST = existsSync(DENYLIST_FILE)
+  ? readFileSync(DENYLIST_FILE, "utf8").split("\n").map((s) => s.trim()).filter((s) => s && !s.startsWith("#"))
+  : [];
 const PUB_IMG = "blog/src/.vuepress/public/assets/posts";  // 图片落地(public 下)
 const IMG_URLBASE = "/blog/assets/posts";              // 引用绝对路径(URL,base=/blog/,不随目录改)
 const DRY = process.argv.includes("--dry");
@@ -79,6 +89,22 @@ function parseFrontmatter(raw) {
   return { fm, body: m[2] };
 }
 
+// 日期结转:清空 posts 前先记录现有文章「输出相对路径 → date」,重写时同一篇沿用旧日期。
+// obisidian 私有仓库可能只有浅历史(单提交)→ gitFirstDate 会把所有文章打成同一天;
+// 结转旧日期使日期稳定不塌,且未变文章 frontmatter 不变(避免 RAG 重复 embedding、烧额度)。
+function readExistingDates(dir, acc = {}) {
+  if (!existsSync(dir)) return acc;
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) readExistingDates(p, acc);
+    else if (e.name.endsWith(".md")) {
+      const { fm } = parseFrontmatter(readFileSync(p, "utf8"));
+      if (fm.date) acc[relative(OUT, p).replace(/\\/g, "/")] = fm.date;
+    }
+  }
+  return acc;
+}
+
 const TODAY = new Date().toISOString().slice(0, 10);
 function gitFirstDate(absPath) {
   try {
@@ -110,6 +136,34 @@ function yamlStr(s) {
   return `"${String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
+// —— 密钥脱敏(安全闸门)——
+// vault 是私有笔记,代码块里常留真实密钥;而博客是公开站(GitHub Pages)。
+// 这里在写入 posts 前扫描并打码,杜绝"私有笔记的密钥被同步进公开博客"。
+// 命中项会在末尾报告(供你回 Obsidian 源头也改成占位)。非阻塞:先保证发布安全,再清源头。
+const SECRET_ASSIGN =
+  /((?:dashscope\.)?\b(?:api[_-]?key|apikey|secret[_-]?key|secret|access[_-]?key[_-]?id|access[_-]?key[_-]?secret|password|passwd|pwd|app[_-]?id|mail[_-]?pass(?:word)?|smtp[_-]?pass(?:word)?)\b\s*[:=]\s*)(["'])(.*?)\2/gi;
+const PLACEHOLDER_RE = /^\s*$|YOUR|你的|有效API|xxx|<[^>]*>|example|changeme|placeholder|redacted|填|\*{3,}/i;
+function redactSecrets(body, rel, stats) {
+  let n = 0;
+  let out = body;
+  // ① 精确 denylist:scripts/.secrets-denylist(gitignored)里登记的已知真密钥/PII。
+  //    零误伤,能抓正文、代码、URL 任意位置——用于精确复现人工脱敏,并补上人工漏掉的处。
+  for (const lit of DENYLIST) {
+    const re = new RegExp(lit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+    out = out.replace(re, () => { n++; return "<REDACTED>"; });
+  }
+  // ② 赋值式兜底:api_key/password/app_id/... = "真值"。放过明显占位与过短值(玩具值如 1234/KEY/...)。
+  out = out.replace(SECRET_ASSIGN, (m, pre, q, val) => {
+    if (PLACEHOLDER_RE.test(val) || val.length < 10) return m;
+    n++;
+    return `${pre}${q}<REDACTED>${q}`;
+  });
+  // ③ 独立出现的 sk- 形态密钥(prose 里/未加引号)
+  out = out.replace(/\bsk-[A-Za-z0-9]{16,}\b/g, () => { n++; return "sk-<REDACTED>"; });
+  if (n) { stats.redacted += n; stats.redactedFiles.push(`${rel}(${n})`); }
+  return out;
+}
+
 function walk(dir, acc = []) {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, e.name);
@@ -122,7 +176,10 @@ function walk(dir, acc = []) {
 }
 
 // ============ 主流程 ============
-// 全量替换:先清空 src/posts(已在外部 git + _backup_posts_orig 双备份)
+// 日期结转表:必须在清空 OUT 之前读取现有文章日期(供上面循环沿用)。
+const priorDates = readExistingDates(OUT);
+
+// 全量替换:先清空 src/posts(posts 受 venking git 跟踪,可 git checkout 回滚)
 if (!DRY) {
   if (existsSync(OUT)) rmSync(OUT, { recursive: true, force: true });
   mkdirSync(OUT, { recursive: true });
@@ -130,7 +187,7 @@ if (!DRY) {
 }
 
 const files = walk(VAULT);
-const stats = { total: files.length, migrated: 0, hidden: 0, skipped: 0, images: 0, imgMissing: 0, byCategory: {}, skipReasons: {} };
+const stats = { total: files.length, migrated: 0, hidden: 0, skipped: 0, images: 0, imgMissing: 0, byCategory: {}, skipReasons: {}, redacted: 0, redactedFiles: [] };
 const seenPaths = new Set();
 const seenImg = new Set();     // 图片去重(同图多篇引用只拷一次)
 
@@ -152,9 +209,9 @@ for (const abs of files) {
   const category = CATEGORY_MAP[topDir] || topDir;
   const icon = CATEGORY_ICON[category] || "file-text";
   const hidden = isPlaceholder(fm, body);
-  const date = gitFirstDate(abs);
 
   let converted = convertSyntax(body).trim();
+  converted = redactSecrets(converted, rel, stats);   // 安全闸门:密钥不进公开博客
 
   // 输出路径:保留原目录层级 + 原文件名(不 slugify,中文 URL);仅顶层目录换成中文分类名
   const subDirs = parts.slice(1, -1);                       // 分类下的子目录(原样保留)
@@ -165,6 +222,10 @@ for (const abs of files) {
   seenPaths.add(join(outRelDir, outName));
   const outDir = join(OUT, outRelDir);
   const outPath = join(outDir, outName);
+
+  // 日期优先级:vault 笔记自带 date > 结转的旧日期 > git 首次提交日 > 今天
+  const outKey = join(outRelDir, outName).replace(/\\/g, "/");
+  const date = fm.date || priorDates[outKey] || gitFirstDate(abs);
 
   // 图片本地化到 public/assets/posts(绝对路径引用)。三基准定位 + 括号文件名正则。
   const mdDir = dirname(abs);
@@ -209,6 +270,12 @@ for (const abs of files) {
 console.log(`\n${DRY ? "[DRY RUN — 不写文件]" : "[已写入 " + OUT + "]"}`);
 console.log(`扫描 ${stats.total} 篇 → 迁移 ${stats.migrated}(其中隐藏占位 ${stats.hidden})、跳过 ${stats.skipped}`);
 console.log(`图片:拷贝 ${stats.images} 处引用、缺失 ${stats.imgMissing} 处`);
+if (stats.redacted) {
+  console.log(`\n🔒 已脱敏 ${stats.redacted} 处疑似密钥(未进公开博客)。建议回 Obsidian 源头也改成占位并轮换泄露的密钥:`);
+  for (const f of stats.redactedFiles) console.log(`   - ${f}`);
+} else {
+  console.log("\n🔒 未检出明文密钥。");
+}
 console.log("\n跳过原因:", stats.skipReasons);
 console.log("\n分类分布:");
 for (const [c, n] of Object.entries(stats.byCategory).sort((a, b) => b[1] - a[1])) console.log(`  ${c}: ${n}`);
