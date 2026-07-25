@@ -163,6 +163,9 @@
   .sources[open] summary .chev{transform:rotate(180deg)}
   .sources-body{padding:0 13px 11px;border-top:1px solid var(--line)}
   .sources .t{font-weight:600;margin:10px 0 6px;color:var(--ink)}.sources li{margin:5px 0}
+  /* 正文内联引用角标 [S1] 可点 */
+  a.cite{color:var(--accent-ink);text-decoration:none;font-weight:600;padding:0 2px;border-radius:4px;transition:background .15s}
+  a.cite:hover{background:var(--accent-soft)}
   /* 操作行:复制/反馈，统一为 Tabler 风格线性图标按钮 */
   .actrow{display:flex;align-items:center;gap:2px;margin-top:12px}
   .actbtn{display:grid;place-items:center;width:34px;height:34px;border:none;background:transparent;
@@ -494,7 +497,13 @@ function errorHtml(message,cid,idx){
   return `<div class="error-card" role="alert"><strong>回答未完整生成</strong>${esc(message||'连接中断，请稍后重试。')}<button class="error-retry" type="button" onclick="retryAnswer('${cid}',${idx})">${IC.retry}<span>重新生成</span></button></div>`;
 }
 function answerHtml(m,c,idx){
-  return md(m.content||'')+(m.error?errorHtml(m.error,c.id,idx):'');
+  let html=md(m.content||'');
+  // 正文里的 [S1]/[S2] 角标 → 可点链接,跳对应知识库文章原文(grounded 模式)
+  if((m.mode||'')==='grounded'&&(m.sources||[]).length){
+    const map={}; m.sources.forEach(s=>{if(s.sid!=null)map[String(s.sid)]=docUrl(s.doc_id||'');});
+    html=html.replace(/\[S(\d+)\]/g,(mm,n)=>{const u=map[n];return u?`<a class="cite" href="${u}" target="_blank" rel="noopener" title="跳到来源原文">[S${n}]</a>`:mm;});
+  }
+  return html+(m.error?errorHtml(m.error,c.id,idx):'');
 }
 
 // 反馈闭环:每条最终回答下的 👍👎 → POST /api/feedback → feedback.jsonl(字段对齐 golden,人工补 id 即可进评测集)
