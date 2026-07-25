@@ -320,6 +320,38 @@
   color: var(--vp-c-accent) !important;
 }
 
+// ========== A:首页 projects 卡统一靛紫(去 theme-hope 彩虹 .colorN)==========
+.vp-project-card {
+  background: var(--vp-c-bg-elv) !important;
+  border: 1px solid var(--rn-surface-border);
+  color: var(--vp-c-text) !important;
+  box-shadow: var(--rn-shadow);
+  transition: transform var(--vp-t-transform), box-shadow var(--vp-t-transform), border-color var(--vp-t-color);
+  &:hover { transform: translateY(-3px); border-color: rgb(94 106 210 / 45%); box-shadow: var(--rn-shadow-hover); }
+  .vp-project-name, .vp-project-desc { color: var(--vp-c-text); }
+  .vp-project-desc { color: var(--vp-c-text-mute, #9aa0aa); }
+  .vp-project-icon, svg, .vp-icon { color: var(--vp-c-accent) !important; }
+}
+
+// ========== B:文章卡摘要截断(统一高度、可扫读)==========
+.vp-article-excerpt {
+  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
+  -webkit-box-orient: vertical; overflow: hidden;
+  color: var(--vp-c-text-mute, #9aa0aa); font-size: 0.94rem; line-height: 1.7;
+}
+
+// ========== C:文章卡顶部品牌化"封面"占位(无 cover 图时:靛紫渐变 + 羽毛水印)==========
+.vp-article-item {
+  &::before {
+    content: ""; display: block; height: 84px; margin: -1.45rem -1.6rem 1.2rem;
+    background:
+      url("/feather-white.png") right 14px center / auto 118% no-repeat,
+      linear-gradient(120deg, rgb(94 106 210 / 0.5) 0%, rgb(139 108 248 / 0.3) 55%, rgb(94 106 210 / 0.12) 100%);
+    border-bottom: 1px solid var(--rn-surface-border);
+    opacity: 0.92;
+  }
+}
+
 // ---------- 博客首页文章卡片 ----------
 .vp-article-item {
   position: relative;
