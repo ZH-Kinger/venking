@@ -46,14 +46,14 @@ jobs:
             echo "::error::缺少 secret OBSIDIAN_DEPLOY_KEY(私有 obisidian 的 SSH deploy key 私钥)。在 Settings→Secrets and variables→Actions 添加后重跑。"
             exit 1
           fi
-          # 用 deploy key 经 SSH 全量 clone(保留历史以尽量取到文章日期)
+          # 用 deploy key 经 SSH 浅克隆(--depth 1 提速;文章日期由入库的 blog/.posts-dates.json 结转,不依赖历史)
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           # secret 存的是私钥的 base64(单行,避免换行/格式被破坏);这里解码还原
           echo "$OBSIDIAN_DEPLOY_KEY" | base64 -d > ~/.ssh/obisidian_key
           chmod 600 ~/.ssh/obisidian_key
           ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
           GIT_SSH_COMMAND="ssh -i ~/.ssh/obisidian_key -o IdentitiesOnly=yes" \
-            git clone --quiet git@github.com:ZH-Kinger/obisidian.git "$OBSIDIAN_VAULT"
+            git clone --quiet --depth 1 git@github.com:ZH-Kinger/obisidian.git "$OBSIDIAN_VAULT"
           # 可选:把精确 denylist 从 secret 落地,获得与本地一致的精确脱敏
           if [ -n "$SECRETS_DENYLIST" ]; then
             printf '%s\n' "$SECRETS_DENYLIST" > scripts/.secrets-denylist

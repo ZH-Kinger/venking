@@ -15,6 +15,17 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, copyFileSync, rmSync } from "node:fs";
 import { join, relative, dirname, basename } from "node:path";
 import { execSync } from "node:child_process";
+import { createHash } from "node:crypto";
+
+// 哈希化日期清单:blog/.posts-dates.json(**入库**,不含标题——键是输出路径的 sha1 前16位)。
+// 用途:CI 是全新环境、没有旧 posts 可结转日期,读此清单即可保住每篇真实日期;
+// 本地每次 sync 都据当前 posts 重写它。哈希键不暴露文章标题/结构。
+const MANIFEST = "blog/.posts-dates.json";
+const manifestDates = existsSync(MANIFEST)
+  ? JSON.parse(readFileSync(MANIFEST, "utf8"))
+  : {};
+const dateKey = (outKey) => createHash("sha1").update(outKey).digest("hex").slice(0, 16);
+const newManifest = {};
 
 // vault 路径:优先 CLI `--vault=<path>`,其次环境变量 OBSIDIAN_VAULT,最后默认克隆缓存目录。
 // 不再写死 D:/(换机即失效)。publish.mjs 会先把私有 obisidian 仓库 clone/pull 到该缓存目录。
@@ -225,7 +236,9 @@ for (const abs of files) {
 
   // 日期优先级:vault 笔记自带 date > 结转的旧日期 > git 首次提交日 > 今天
   const outKey = join(outRelDir, outName).replace(/\\/g, "/");
-  const date = fm.date || priorDates[outKey] || gitFirstDate(abs);
+  // 日期优先级:vault 自带 date > 本地旧 posts 结转 > 哈希清单(CI 用)> git 首次提交 > 今天
+  const date = fm.date || priorDates[outKey] || manifestDates[dateKey(outKey)] || gitFirstDate(abs);
+  newManifest[dateKey(outKey)] = date;   // 重建清单供下次/CI 用
 
   // 图片本地化到 public/assets/posts(绝对路径引用)。三基准定位 + 括号文件名正则。
   const mdDir = dirname(abs);
@@ -267,6 +280,9 @@ for (const abs of files) {
 }
 
 // ============ 报告 ============
+// 写回哈希日期清单(入库,供 CI/下次 sync 结转日期;DRY 不写)
+if (!DRY) writeFileSync(MANIFEST, JSON.stringify(newManifest) + "\n", "utf8");
+
 console.log(`\n${DRY ? "[DRY RUN — 不写文件]" : "[已写入 " + OUT + "]"}`);
 console.log(`扫描 ${stats.total} 篇 → 迁移 ${stats.migrated}(其中隐藏占位 ${stats.hidden})、跳过 ${stats.skipped}`);
 console.log(`图片:拷贝 ${stats.images} 处引用、缺失 ${stats.imgMissing} 处`);
