@@ -4,7 +4,7 @@ name: 部署文档
 # CI 流程:拉取私有文章源 → 同步生成 posts(含脱敏)→ 密钥闸门 → 构建 VuePress → 部署到 blog 分支。
 #
 # 需要在本仓库 Settings → Secrets and variables → Actions 配置:
-#   OBSIDIAN_DEPLOY_KEY (必填)私有 obisidian 仓库的 SSH deploy key **私钥**(该仓库 Deploy keys 加对应公钥,只读即可)
+#   OBSIDIAN_DEPLOY_KEY (必填)私有 obisidian 的 SSH deploy key 私钥的 **base64**(单行;该仓库 Deploy keys 加对应公钥,只读)
 #   SECRETS_DENYLIST    (可选)每行一条要额外精确脱敏的字面量,等同本地 scripts/.secrets-denylist
 #
 # 触发:push 到 main(改样式/配置时)、或手动 workflow_dispatch(改完文章后重建)。
@@ -48,7 +48,8 @@ jobs:
           fi
           # 用 deploy key 经 SSH 全量 clone(保留历史以尽量取到文章日期)
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
-          printf '%s\n' "$OBSIDIAN_DEPLOY_KEY" > ~/.ssh/obisidian_key
+          # secret 存的是私钥的 base64(单行,避免换行/格式被破坏);这里解码还原
+          echo "$OBSIDIAN_DEPLOY_KEY" | base64 -d > ~/.ssh/obisidian_key
           chmod 600 ~/.ssh/obisidian_key
           ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
           GIT_SSH_COMMAND="ssh -i ~/.ssh/obisidian_key -o IdentitiesOnly=yes" \
