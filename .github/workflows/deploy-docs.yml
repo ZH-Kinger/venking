@@ -4,8 +4,8 @@ name: 部署文档
 # CI 流程:拉取私有文章源 → 同步生成 posts(含脱敏)→ 密钥闸门 → 构建 VuePress → 部署到 blog 分支。
 #
 # 需要在本仓库 Settings → Secrets and variables → Actions 配置:
-#   OBSIDIAN_TOKEN   (必填)能读取私有 obisidian 仓库的 PAT(fine-grained:该仓库 Contents 只读即可)
-#   SECRETS_DENYLIST (可选)每行一条要额外精确脱敏的字面量,等同本地 scripts/.secrets-denylist
+#   OBSIDIAN_DEPLOY_KEY (必填)私有 obisidian 仓库的 SSH deploy key **私钥**(该仓库 Deploy keys 加对应公钥,只读即可)
+#   SECRETS_DENYLIST    (可选)每行一条要额外精确脱敏的字面量,等同本地 scripts/.secrets-denylist
 #
 # 触发:push 到 main(改样式/配置时)、或手动 workflow_dispatch(改完文章后重建)。
 # 说明:文章改动发生在私有 obisidian 仓库,不会自动触发本 CI;改完文章到 Actions 手动跑一次,
@@ -36,23 +36,31 @@ jobs:
           cache: npm
           cache-dependency-path: blog/package-lock.json
 
-      - name: 拉取私有文章源 + 同步生成 posts(含脱敏)
+      - name: 拉取私有文章源 + 同步生成 posts(含脱敏)+ 图片双层压缩
         env:
-          OBSIDIAN_TOKEN: ${{ secrets.OBSIDIAN_TOKEN }}
+          OBSIDIAN_DEPLOY_KEY: ${{ secrets.OBSIDIAN_DEPLOY_KEY }}
           SECRETS_DENYLIST: ${{ secrets.SECRETS_DENYLIST }}
           OBSIDIAN_VAULT: ${{ github.workspace }}/.cache/obsidian-vault
         run: |
-          if [ -z "$OBSIDIAN_TOKEN" ]; then
-            echo "::error::缺少 secret OBSIDIAN_TOKEN(需能读取私有 obisidian 仓库的 PAT)。在 Settings→Secrets and variables→Actions 添加后重跑。"
+          if [ -z "$OBSIDIAN_DEPLOY_KEY" ]; then
+            echo "::error::缺少 secret OBSIDIAN_DEPLOY_KEY(私有 obisidian 的 SSH deploy key 私钥)。在 Settings→Secrets and variables→Actions 添加后重跑。"
             exit 1
           fi
-          # 全量 clone(保留历史以尽量取到文章日期;token 由 Actions 自动打码,不落日志)
-          git clone --quiet "https://x-access-token:${OBSIDIAN_TOKEN}@github.com/ZH-Kinger/obisidian.git" "$OBSIDIAN_VAULT"
+          # 用 deploy key 经 SSH 全量 clone(保留历史以尽量取到文章日期)
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$OBSIDIAN_DEPLOY_KEY" > ~/.ssh/obisidian_key
+          chmod 600 ~/.ssh/obisidian_key
+          ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/obisidian_key -o IdentitiesOnly=yes" \
+            git clone --quiet git@github.com:ZH-Kinger/obisidian.git "$OBSIDIAN_VAULT"
           # 可选:把精确 denylist 从 secret 落地,获得与本地一致的精确脱敏
           if [ -n "$SECRETS_DENYLIST" ]; then
             printf '%s\n' "$SECRETS_DENYLIST" > scripts/.secrets-denylist
           fi
           node scripts/sync-obsidian-to-vuepress.mjs
+          # 图片双层压缩(CI 是 Linux,用 ImageMagick;本地是 sips)
+          sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick >/dev/null
+          node scripts/optimize-images.mjs
 
       - name: 密钥泄露闸门(检出即阻断部署)
         run: |
