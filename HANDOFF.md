@@ -1,90 +1,108 @@
-# 换机交接文档(2026-07-24)
+# 项目交接文档(2026-07-26)
 
-> 用云盘/U盘把整个 `ZH-Kinger` 目录拷到新电脑即可(所有改动都在文件夹里,不依赖 git 提交)。
-> 新电脑打开这个项目后,让 AI 先读这份 HANDOFF.md + `docs/collab/notes.md` 末尾的交接快照。
-
-> ⚠️ **结构已于 2026-07-24 规范化重组**:VuePress 博客从根 `src/` 下沉到 **`blog/src/`**,`astro-site/` 改名 **`homepage/`**,根 `package.json`/`tsconfig` 移入 `blog/`。**本文下面正文里的 `src/...`、`astro-site/...` 路径均为旧路径,请以 [`STRUCTURE.md`](STRUCTURE.md) 为准**(如 `src/.vuepress/` → `blog/src/.vuepress/`)。
+> 新电脑/新会话接手时,让 AI 先读这份 HANDOFF.md + [`STRUCTURE.md`](STRUCTURE.md) + `docs/collab/notes.md` 末尾快照。
+> 敏感信息(服务器 IP、密钥)**不写进本文/公开仓库**,用 `<SERVER>` 等占位;真实值在本机 gitignored 的 `.env`、`~/.ssh/`、以及各仓库的 GitHub Secrets 里。
 
 ---
 
-## 这个项目是什么
+## 一、这个项目是什么
 
-三个并存的子项目(在同一个 ZH-Kinger 目录下):
+个人技术站 monorepo,域名 `venking.tech`(**venking 仓库是 public**),品牌「Kinger」。
 
 | 子项目 | 是什么 | 位置 | 状态 |
 |---|---|---|---|
-| **VuePress 博客**(当前主线) | 你的技术博客,theme-hope 主题,功能齐全 | `src/` + `src/.vuepress/` | 构建通过并部署在 `/blog/` |
-| RAG AI 助手 | Agentic RAG + FastAPI/SSE 自定义前端 | `rag-server/` | 部署在 `/ai/`,容器 healthy |
-| Astro 主页 | 整站大首页 | `astro-site/` | 仅 `/` 使用;其中 Astro 博客实现已弃用 |
+| **blog** | 技术博客(VuePress2 + theme-hope) | `blog/` | ✅ 已上线 `/blog/` |
+| **homepage** | 落地页(Astro) | `homepage/` | ✅ 已上线 `/` |
+| **rag-server** | Agentic RAG AI 问答(FastAPI/LangGraph,前端在 static/) | `rag-server/` | ✅ 已上线 `/ai/` |
+| **admin-web** | 管理后台(React+Vite) | `admin-web/` | ⏸️ 待备案(依赖 Logto) |
+| **deploy/logto** | 自托管 Logto IAM(docker compose) | `deploy/logto/` | ⏸️ 待备案(强制 HTTPS) |
+
+品牌色:accent 靛紫 `#5e6ad2`、void `#08090a`。
 
 ---
 
-## ⚠️ 最重要:别重蹈覆辙
+## 二、内容发布管线(2025-07 重构,**最重要的变化**)
 
-**之前走的大弯路**:把"改样式"误解成"用 Astro 重写整个博客",做了半天最后放弃,回到原版 VuePress。
-**教训**:博客就用原版 **VuePress theme-hope**,只在 `src/` 和 `src/.vuepress/` 上改。**astro-site/ 是废弃品,不要在它上面做任何事。**
+**文章源在私有仓库 `github.com/ZH-Kinger/obisidian`(Obsidian vault),不在公开的 venking 仓库里。**
+- `blog/src/posts/` 与 `blog/src/.vuepress/public/assets/posts/` 已 **gitignore**,构建时才生成(本地磁盘有,不入公开仓)。
+- 曾发生密钥泄露(私有笔记代码块含明文 key/app_id 被同步进公开仓),已用 filter-repo 从全历史抹除 + 加脱敏闸门 + 轮换凭据。**详见 [[content-pipeline-desensitization]] 与 `scripts/sync-obsidian-to-vuepress.mjs` 的 `redactSecrets`。**
 
----
+### 本地一键发布 `scripts/publish.mjs`(在仓库根跑)
+```
+node scripts/publish.mjs [--no-pull] [--dry] [--no-ingest] [--no-build]
+```
+步骤:clone/pull 私有 obisidian → 同步生成 posts(**三层密钥脱敏**)→ **图片双层压缩** → RAG `ingest`(重建 Chroma)→ `docs:build`。
+- vault 路径走 `OBSIDIAN_VAULT` env(不再硬编码 `D:/`);缓存在 `.cache/obsidian-vault`(gitignored)。
+- 日期靠入库的 `blog/.posts-dates.json`(哈希键,不暴露标题)结转。
+- **⚠️ 不要本地推服务器**(已移除 `--deploy`):服务器只由 CI 部署,基线统一,否则会拖慢 CI。publish 只管本地同步/构建/RAG。
 
-## 当前进度:三入口均已上线
-
-### 已完成(都在 VuePress 原版上)
-1. **文章全量同步**:从 Obsidian vault(`D:/obsidian workspace`)同步了 529 篇进 `src/posts/`,10 个中文分类。脚本 `scripts/sync-obsidian-to-vuepress.mjs`(改了 Obsidian 内容后重跑它即可再同步)。
-   - ⚠️ **新电脑上 Obsidian vault 路径可能变**:脚本顶部 `const VAULT = "D:/obsidian workspace"` 要改成新机的实际路径。
-2. **深色科技风**:靛紫 #5e6ad2 主色,保留亮/暗切换按钮但首次默认深色。
-3. **重整分类**:navbar 用分类聚合页(零死链),sidebar 自动跟随目录。
-4. **交互修复 + 审美收敛**:切换流畅/顶栏配色/AI 悬浮球等。
-
-### 待办 / 未收尾清单(新电脑接着干,按优先级)
-
-**已完成的生产验证:**
-- [x] VuePress `docs:build` 成功,705 页面渲染完成
-- [x] `/`、`/blog/`、文章页、CSS/JS、`/ai/`、`/ai/health` 公网均返回 200
-- [x] Agent 深色自定义前端上线;容器仅绑定 `127.0.0.1:7860`
-- [x] M7/M8 生产路径 228 项测试全绿,Ruff 全绿
-- [x] SQLite checkpoint 关闭重开后同 thread 消息仍可继续追加
-
-**跨项目遗留:**
-- [ ] **备案后**:域名 venking.tech + HTTPS + nginx/caddy 反代 + AI 助手从跳转改 iframe 内嵌(等 ICP 审核,现在做不了)
-- [ ] RAG **M8 长期 Store**:短时 SQLite、黑板 State、追问改写已完成;用户画像长期记忆需先确定匿名浏览器 ID / 登录用户 ID
-- [ ] 配置备用 provider:`FALLBACK_BASE_URL` + `FALLBACK_MODEL`(+ 可选独立 key);代码与测试已完成,当前生产未配置
-- [ ] Git 已 init 但仍为 0 commits;提交前需再次做密钥扫描
-
-**诚实说明**:M8 尚未“全部完成”。短时多轮已完成并测试,长期跨会话用户画像仍未实现;备用 provider 也因缺少用户提供的配置而未启用。
+### 图片双层(清晰又快)
+`scripts/optimize-images.mjs`(接入 publish):`posts/orig/` 存全分辨率原图,`posts/` 存 1600px 显示版。内联用显示版(懒加载 + 模糊淡入,`html.img-fx` JS 门控无 JS 不隐身),**点击图片打开原图**。
 
 ---
 
-## 怎么在新电脑跑起来
+## 三、部署 & CI 自动发布(2026-07 跑通)
+
+**全部已上线,IP/HTTP(域名 + HTTPS 待 ICP 备案)。** 服务器 `<SERVER>`(CentOS Stream 9,2vCPU/1.8G;SSH key `~/.ssh/id_ed25519_zh_kinger`,非默认名要 `-i` 指定)。
+
+### 自动发布链路(改完笔记→自动上线,零闪断)
+```
+改 Obsidian → push 私有 obisidian
+   → obisidian 仓库 Action 发 repository_dispatch(obsidian-updated)  ← 需 secret VENKING_DISPATCH_TOKEN
+   → 触发 venking CI(.github/workflows/deploy-docs.yml):
+       用 deploy key 浅克隆 obisidian → sync 脱敏 → 图片双层 → 密钥闸门 → build
+       ├─ 部署 GitHub Pages(blog 分支,冗余镜像)
+       └─ rsync --link-dest 增量推服务器 → /root/blog-publish.sh 校验 → ln -sfn 原子软链切换
+```
+- **不主动拉 · CI 推 · 零闪断(原子软链)· 冗余(Pages + 3 次重试 + 校验才切 + 留 3 版回滚)**
+- 服务器结构:nginx `/blog` → 软链 `/var/www/blog-current` → `/var/www/blog-releases/<sha>`
+- 基线统一 imagemagick → 文字改动增量秒级;新增图片才传那一张
+- RAG `/ai/`、`/api/`、`/vendor/` 由 nginx 反代到本机容器(`rag-server/deploy.sh` 部署);nginx 已配 gzip + 静态长缓存
+
+### AI 知识库(RAG)更新是单独的
+CI 只同步博客网页。要让 AI 认识新文章:本地 `publish.mjs` 会 ingest 重建本地 Chroma → `cd rag-server && SERVER=<user@host> bash deploy.sh` 推新 chroma(先本地 VACUUM 去死页)。
+
+---
+
+## 四、本地怎么跑
 
 ```bash
-cd ZH-Kinger
-npm install              # 若 node_modules 没拷过来
-npm run docs:dev         # 起本地,访问 http://localhost:8080/blog/
-npm run docs:build       # 构建,产物在 src/.vuepress/dist/
+# 首次/换机:先发布一次,生成 posts(它们 gitignore、不随仓库)
+node scripts/publish.mjs --no-ingest --no-build    # 只 clone obisidian + 同步生成 posts
+
+cd blog && npm install && npm run docs:dev          # 博客本地预览 http://localhost:8080/blog/
+cd homepage && npm install && npm run dev           # 主页 http://localhost:4321
+# rag-server:配好 rag-server/.env(DASHSCOPE_API_KEY 等)后 uvicorn 起 :7860
 ```
-
-Node 版本:22。VuePress 2 rc.28 + theme-hope rc.106。
-
----
-
-## 拷贝前可选清理(减体积,新机会自动重建)
-
-这些不拷也行,新机 `npm install` / 重跑脚本能重建:
-- `node_modules/`(几百 MB,新机 npm install 重建)
-- `src/.vuepress/.cache/`、`.temp/`、`dist/`(构建缓存/产物)
-- `_backup_posts_orig/`(原 posts 备份,若已确认新文章无误可不拷)
-
-**必须拷的**:`src/`(含新文章+图片)、`src/.vuepress/`(配置+样式)、`scripts/`、`docs/`、`HANDOFF.md`、`package.json`、`.github/`。
+Node 22;VuePress 2 rc + theme-hope rc。博客首屏无闪只在生产构建体现(dev 由 JS 注入)。
+> git 中文文件名默认八进制转义,`grep`/`ls-files` 统计要加 `-c core.quotepath=false`。
 
 ---
 
-## 关键文件地图
+## 五、密钥/Secret 清单(名字,值不入本文)
 
-| 要改什么 | 改哪个文件 |
-|---|---|
-| 再同步 Obsidian 文章 | `scripts/sync-obsidian-to-vuepress.mjs`(改 VAULT 路径后重跑) |
-| 配色/深色 | `src/.vuepress/styles/{palette,config,index}.scss` |
-| 导航/分类 | `src/.vuepress/{navbar,sidebar}.ts` |
-| 主题开关/深色默认 | `src/.vuepress/theme.ts` + `config.ts`(head 脚本) |
-| AI 悬浮球 | `src/.vuepress/client.ts` |
-| 完整历史/决策 | `docs/collab/notes.md`(末尾是这次的交接快照) |
+| 位置 | 名字 | 用途 |
+|---|---|---|
+| 本机 `rag-server/.env` | `DASHSCOPE_API_KEY` 等 | RAG LLM/embedding |
+| 本机 `~/.ssh/id_ed25519_zh_kinger` | — | 你登服务器的 key |
+| venking 仓库 Secrets | `OBSIDIAN_DEPLOY_KEY` | CI 克隆私有 obisidian(SSH 私钥 base64) |
+| venking 仓库 Secrets | `SERVER_SSH_KEY` / `SERVER_SSH` | CI 推服务器(私钥 base64 / user@host) |
+| obisidian 仓库 Deploy keys | (公钥) | 对应 OBSIDIAN_DEPLOY_KEY |
+| obisidian 仓库 Secrets | `VENKING_DISPATCH_TOKEN` | push 时触发 venking CI(fine-grained PAT,venking Contents 写) |
+| 服务器 `/root/logto/.env` | `PG_PASSWORD` 等 | Logto(搁置中) |
+
+---
+
+## 六、待办(按前置)
+
+- [ ] **ICP 备案**(硬阻塞)→ 备案后:域名 `venking.tech` + HTTPS/443 + nginx 补 `/admin/` 与 auth 子域名反代 → **Logto `docker compose up -d`(数据卷保留)+ 建 SPA 拿 App ID → 部署 admin-web `/admin/` → 打通登录 + per-user AI 历史**。业务库(conversations/messages)`alembic upgrade head` 随此一起。
+- [ ] **主页个性化**:homepage 目前是骨架,待用户给自我介绍/头像/项目素材做真实内容。
+- [ ] (可选)把 RAG 重建也接进 CI(需在 CI 配 DashScope key)。
+
+---
+
+## 七、约束(硬)
+
+机密只在本地/服务器 `.env`(gitignore)+ GitHub Secrets;**公开仓不得暴露服务器 IP/root/端口/MaaS 实例 ID/密钥**。提交前源码改动派 tester、commit 前派 auditor;commit 尾加 `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`;push 直连 github、代理默认关(`-c http.proxy= -c https.proxy=`),网络抽风就重试。
+
+完整历史/决策见 `docs/collab/notes.md` 末尾。
