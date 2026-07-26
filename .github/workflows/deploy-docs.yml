@@ -95,7 +95,7 @@ jobs:
           npm run docs:build
           touch src/.vuepress/dist/.nojekyll
 
-      - name: 部署到 GitHub Pages(blog 分支,备用/预览)
+      - name: 部署到 GitHub Pages(blog 分支,备用/冗余镜像)
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -103,5 +103,26 @@ jobs:
           folder: blog/src/.vuepress/dist
           # 部署分支只保留单提交,不累积历史 —— 避免旧构建产物(含历史泄露)残留在 blog 分支。
           single-commit: true
-      # 注:生产服务器主站(在中国)由本地 scripts/publish.mjs 部署 —— 本地→服务器快,
-      # 且顺带更新 RAG 向量库。CI 跑在美国 Azure,直接 rsync 到中国服务器跨太平洋极慢,故不在 CI 做。
+
+      - name: 部署到生产服务器(rsync 增量 + 原子软链切换,零闪断)
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}   # CI→服务器 SSH 私钥的 base64(单行)
+          SERVER_SSH: ${{ secrets.SERVER_SSH }}           # user@host(敏感,放 secret)
+        run: |
+          if [ -z "$SERVER_SSH_KEY" ] || [ -z "$SERVER_SSH" ]; then
+            echo "::warning::未配置 SERVER_SSH_KEY / SERVER_SSH,跳过服务器部署(仅 GitHub Pages)。"; exit 0
+          fi
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          echo "$SERVER_SSH_KEY" | base64 -d > ~/.ssh/srv_key && chmod 600 ~/.ssh/srv_key
+          host="${SERVER_SSH#*@}"; ssh-keyscan -t ed25519,rsa "$host" >> ~/.ssh/known_hosts 2>/dev/null
+          SSH="ssh -i ~/.ssh/srv_key -o IdentitiesOnly=yes -o ConnectTimeout=20"
+          rel="r-${GITHUB_SHA::12}-$(date +%s)"
+          # rsync 到新 release 目录:--link-dest 让未变文件从当前版硬链(不传输/不占额外空间),只传改动 → 增量、快
+          # 重试 3 次抗跨洋抖动;--partial 断点续传
+          for i in 1 2 3; do
+            rsync -az --delete --partial --link-dest=/var/www/blog-current \
+              -e "$SSH" blog/src/.vuepress/dist/ "$SERVER_SSH:/var/www/blog-releases/$rel/" && break
+            echo "rsync 第 $i 次失败,重试…"; sleep 10
+          done
+          # 服务器端校验 + 原子软链切换(失败绝不碰活站)
+          $SSH "$SERVER_SSH" "/root/blog-publish.sh $rel"
