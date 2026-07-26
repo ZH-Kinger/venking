@@ -16,6 +16,9 @@ on:
     branches:
       - main
   workflow_dispatch: {}
+  # 私有 obisidian 仓库 push 后,经 repository_dispatch 自动触发本 CI(改完笔记就发,免手点)
+  repository_dispatch:
+    types: [obsidian-updated]
 
 # 新 push 自动取消同分支正在跑的旧运行(免得慢运行堆积)
 concurrency:
