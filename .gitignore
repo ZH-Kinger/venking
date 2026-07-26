@@ -58,3 +58,6 @@ rag-server/feedback.jsonl
 # Local source snapshots and large knowledge-source imports
 _backup_posts_orig/
 *.pdf
+
+# 部署目标(含服务器地址,不入公开仓)
+scripts/.deploy-target

@@ -17,6 +17,11 @@ on:
       - main
   workflow_dispatch: {}
 
+# 新 push 自动取消同分支正在跑的旧运行(免得慢运行堆积)
+concurrency:
+  group: deploy-docs-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -95,22 +100,5 @@ jobs:
           folder: blog/src/.vuepress/dist
           # 部署分支只保留单提交,不累积历史 —— 避免旧构建产物(含历史泄露)残留在 blog 分支。
           single-commit: true
-
-      - name: 同步到生产服务器(nginx,主站)
-        env:
-          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}   # CI→服务器 SSH 私钥的 base64(单行)
-          SERVER_SSH: ${{ secrets.SERVER_SSH }}           # 形如 user@host(服务器地址,敏感,故放 secret)
-        run: |
-          if [ -z "$SERVER_SSH_KEY" ] || [ -z "$SERVER_SSH" ]; then
-            echo "::warning::未配置 SERVER_SSH_KEY / SERVER_SSH,跳过服务器同步(仅部署到 GitHub Pages)。"
-            exit 0
-          fi
-          mkdir -p ~/.ssh && chmod 700 ~/.ssh
-          echo "$SERVER_SSH_KEY" | base64 -d > ~/.ssh/server_key
-          chmod 600 ~/.ssh/server_key
-          host="${SERVER_SSH#*@}"
-          ssh-keyscan -t ed25519,rsa "$host" >> ~/.ssh/known_hosts 2>/dev/null
-          # 增量同步博客构建产物到服务器 nginx 目录(rsync 只传改动;--delete 去掉已删文件)
-          rsync -az --delete -e "ssh -i ~/.ssh/server_key -o IdentitiesOnly=yes" \
-            blog/src/.vuepress/dist/ "$SERVER_SSH:/usr/share/nginx/html/blog/"
-          echo "✓ 已同步到生产服务器 /blog/"
+      # 注:生产服务器主站(在中国)由本地 scripts/publish.mjs 部署 —— 本地→服务器快,
+      # 且顺带更新 RAG 向量库。CI 跑在美国 Azure,直接 rsync 到中国服务器跨太平洋极慢,故不在 CI 做。

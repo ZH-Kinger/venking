@@ -13,7 +13,7 @@
 // 浅克隆(--depth 1):体积小、抗直连 GitHub 的偶发断连。文章日期靠同步脚本的「日期结转」
 // (从现有 posts 沿用),不依赖 git 历史;真·新增文章用单提交日/今天兜底,足够。
 // ============================================================
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
@@ -26,6 +26,7 @@ const DRY = process.argv.includes("--dry");
 const NO_PULL = process.argv.includes("--no-pull");
 const NO_INGEST = process.argv.includes("--no-ingest");
 const NO_BUILD = process.argv.includes("--no-build");
+const DEPLOY = process.argv.includes("--deploy");   // 构建后 rsync 博客到生产服务器(本地→服务器快)
 
 const GIT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0" };
 // 关掉可能干扰 git 的代理(与本仓库既有 push 约定一致)
@@ -94,10 +95,27 @@ if (!NO_BUILD) {
   console.log("\n④(--no-build:跳过前端构建)");
 }
 
-// ⑤ 变更摘要(审阅后自行 commit;posts 受 git 跟踪,可回滚)
-console.log("\n⑤ posts 变更摘要(git status):");
-run("git", ["status", "--short", "blog/src/posts", "blog/src/.vuepress/public/assets/posts"]);
+// ⑤ (可选)部署到生产服务器 —— 本地→服务器传输快(CI 跨太平洋到中国服务器极慢,故放本地)。
+//    服务器地址存 gitignored 的 scripts/.deploy-target(内容如 root@1.2.3.4),避免 IP 入公开仓。
+if (DEPLOY) {
+  const TARGET_FILE = "scripts/.deploy-target";
+  if (!existsSync(TARGET_FILE)) {
+    console.log(`\n⑤(--deploy 但缺 ${TARGET_FILE};新建它、内容填 user@host 再跑;或手动 rsync)`);
+  } else {
+    const target = readFileSync(TARGET_FILE, "utf8").trim();
+    console.log(`\n⑤ rsync 博客 → 服务器 ${target}:/usr/share/nginx/html/blog …`);
+    // 增量同步(只传改动);用户默认 SSH key 由 ssh 自行匹配(如需指定,配 ~/.ssh/config)
+    run("rsync", ["-az", "--delete", "blog/src/.vuepress/dist/", `${target}:/usr/share/nginx/html/blog/`]);
+    console.log("✅ 博客已同步到服务器。RAG 向量库若有更新:cd rag-server && SERVER=" + target + " bash deploy.sh");
+  }
+} else {
+  console.log("\n⑤(未加 --deploy:跳过服务器部署。加 --deploy 可 rsync 博客到服务器)");
+}
+
+// ⑥ 变更摘要(审阅后自行 commit;posts/图片已 gitignore)
+console.log("\n⑥ 变更摘要(git status):");
+run("git", ["status", "--short"]);
 console.log(
-  "\n✅ 闭环完成。检查无误后 commit & push(博客 CI 自动部署静态站);RAG 索引已在本地就地更新。" +
-    "\n   线上 RAG 生效仍需 rag-server/deploy.sh 把新 chroma 库推到服务器。",
+  "\n✅ 闭环完成。commit & push(触发 CI 部署 GitHub Pages);服务器主站已由 --deploy 同步(或手动)。" +
+    "\n   线上 RAG 生效:cd rag-server && SERVER=<user@host> bash deploy.sh(推新 chroma)。",
 );
