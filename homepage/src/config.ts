@@ -5,4 +5,6 @@ export const SITE = {
   // AI 助手由同站 Nginx 反代，避免额外暴露应用端口。
   aiUrl: "/ai/",
   yuque: "https://www.yuque.com/kinger-wwnro",
+  // ICP 备案号(2026-07 通过)。工信部要求首页底部展示,并超链到 beian.miit.gov.cn。
+  icp: "湘ICP备2026030935号",
 } as const;

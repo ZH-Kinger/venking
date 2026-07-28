@@ -139,7 +139,9 @@
   - 部署脚本 `deploy.sh`:`SERVER` 默认值去掉,改 `${SERVER:?...}` 必填;完成提示改经 Nginx 域名。
   - MaaS 实例 ID(`config.py` / `.env.example`):`ws-...maas` → `YOUR-MAAS-INSTANCE` 占位;真实值靠 `.env`(gitignore)覆盖。
   - 内部 docs(notes/部署.md/ADR-0017):IP → `SERVER_IP` 占位,MaaS 实例 → 占位。
-  - 复核:将跟踪文件里 `115.191.2.86` / `ws-iwb5x2xssjmnh9zy` / `root@115` 全部清零。
+  - 复核:将跟踪文件里的真实公网 IP / MaaS 实例 ID / `root@<IP>` 全部清零。
+    (本行原先把这三个真实值原样抄了进来 —— 一条"脱敏复盘"记录自身成了泄露源;
+     2026-07-27 审计发现并改为占位。教训:写复盘时描述**类别**,永远别复述值。)
 - **构建复验**:脱敏后 `docs:build` 仍 exit 0,705 页,成功。
 - **提交**:因首个 README-only 提交已含 IP,遂 `git commit --amend` 把脱敏后的全部 2070 文件并入唯一初始提交(`d84ed95`),force-push 覆盖,含 IP 的旧提交 `9911e11` 从分支移除(不可达待 GC)。远端 main 已确认 = d84ed95。
 - **代理**:全局 git 走 127.0.0.1:7890 但代理没开;本次 push 用 `-c http.proxy= -c https.proxy=` 直连(未改全局)。
@@ -239,3 +241,41 @@
 ### 五、纪律/约束(务必遵守)
 - 提交闸门=auditor 过;源码改动派 tester。commit 尾 `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`;push 用户手动。
 - 机密只在本地/服务器 .env(已 gitignore);公开仓不得暴露服务器 IP/root/端口/MaaS 实例 ID(脱敏为 venking.tech/占位)。
+
+---
+
+## 2026-07-27 交接快照:备案通过 → 域名 + HTTPS + Logto 上线
+
+**触发**:ICP 备案通过(湘ICP备2026030935号),此前所有卡在"无域名/无 HTTPS"的事项全部解锁。
+
+**已完成(全部线上实测)**
+- DNS:`venking.tech` / `www` / `auth` 三条 A 记录(火山引擎 DNS)→ 服务器;安全组放行 443(用户操作)。
+- 证书:Let's Encrypt `certonly --webroot -w /var/www/acme`,3 个 SAN,到期 2026-10-26。
+  `certbot-renew.timer` 已 enable + deploy hook 自动 `nginx -t && reload`;`renew --dry-run` 通过。SELinux 为 Disabled,无上下文问题。
+- nginx:新增 `00-http-shared.conf`(map + 限流 zone)、`00-default-catchall.conf`(裸 IP/未知 Host → 444)、
+  `venking-ssl.conf`(443 三个 server)、`venking-80-redirect.conf`(80→443,ACME 用 `^~` 优先放行)、
+  `tls-params.conf`(TLS1.2/1.3 + HSTS 1y includeSubDomains + nosniff + referrer-policy)。
+  映射关系见 `deploy/nginx/README.md`。
+- Logto:`deploy/logto/docker-compose.prod.yml` 上服务器,端口只绑 127.0.0.1,
+  `ENDPOINT=https://auth.venking.tech`、`ADMIN_ENDPOINT=http://localhost:3002`(管理台**不对公网暴露**,只走 SSH 隧道)。
+  1.41.0 起来,`issuer` 已正确签成 https(TRUST_PROXY_HEADER + X-Forwarded-Proto 链路通)。内存 255MB。
+- ICP 备案号已上 homepage 页脚(`SITE.icp`)与 blog 页脚,均超链 beian.miit.gov.cn。
+
+**[AUDIT] 域名+HTTPS 收口审计结论**:高危 2 / 中 5 / 低 12。已修:
+`notes.md:142` 公开仓泄露真实 IP + MaaS 实例 ID(一条"脱敏复盘"记录自身抄了真实值 —— 教训:复盘只描述类别,永不复述值;**git 历史仍有,本次只止血**);
+`cache.conf` 的 add_header 打断继承导致 `/_astro`、`/blog/assets` 全部丢 HSTS/nosniff/Referrer-Policy(实测确认后修复,并去掉 `expires` 与 `add_header` 双写的重复 Cache-Control);
+auth 端点补限流 `authlimit 10r/s burst=20` + `gzip off`(BREACH)+ `client_max_body_size 4m`;
+`Connection: upgrade` 恒置改 `map $connection_upgrade`;删空转的 DHE 套件;修过期注释。
+未修(有意):不加 `X-Frame-Options` —— Logto 自发 `frame-ancestors 'self' http://localhost:3002`,一刀切 DENY 会掐掉管理台自身 iframe。
+
+**遗留 / 待办**
+1. **ICP 号是否带 `-1` 后缀**待用户核对备案下发原文(管局按原文比对,少后缀判不合规)。
+2. **公安联网备案**:ICP 通过后 30 天内提交,批下来后公网安备号也要上页脚并链 www.beian.gov.cn。
+3. **HSTS 使证书续期成为单点**:过期后浏览器不给"继续访问"入口。到期告警未做。坚持不加 preload。
+   新增子域必须先进 certbot `-d` 列表 + `venking-80-redirect.conf` 的 server_name。
+4. Logto 管理员账号未建(DB users 表 0 行),等用户经 SSH 隧道 `http://localhost:3002` 创建;
+   之后配 API resource `https://api.venking.tech`、roles、两个 SPA 应用、登录方式、GitHub connector。
+5. 本地 colima 里那套 Logto 开发容器已 `docker stop`(卷 `logto_logto-db-data` 保留),
+   它之前一直占着 Mac 的 3001/3002 端口转发,是 SSH 隧道"连不上"的真因。
+6. soft-404(`try_files ... /index.html` 把未知路径兜成首页 200)未修 —— 域名+sitemap 刚上线,对 SEO 有实际负面。
+7. 仓库根两个游离未跟踪文件(`93bd14b3-….jpeg`、`logo.svg`,后者与 `homepage/public/logo.svg` 内容不同)未入库,勿用 `git add -A`。

@@ -4,7 +4,7 @@ import navbar from "./navbar.js";
 import sidebar from "./sidebar.js";
 
 export default hopeTheme({
-  // TODO: 部署后改成你的实际域名(影响 sitemap/SEO)
+  // 正式域名(2026-07 备案通过并上 HTTPS);影响 sitemap/canonical/SEO
   hostname: "https://venking.tech",
 
   author: {
@@ -30,7 +30,11 @@ export default hopeTheme({
   sidebar,
 
   // 页脚
-  footer: "© 2026 Kinger · AIOps & AI Infra · Built with VuePress",
+  // theme-hope 的 footer 走 innerHTML,支持 HTML;ICP 备案号必须超链到工信部备案系统。
+  // 年份取构建时的年,和 homepage 的 Footer.astro 保持一致(别硬编码,跨年就不一致了)。
+  footer:
+    `© ${new Date().getFullYear()} Kinger · AIOps & AI Infra · Built with VuePress · ` +
+    '<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">湘ICP备2026030935号</a>',
   displayFooter: true,
 
   // 博客相关

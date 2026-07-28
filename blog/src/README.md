@@ -40,4 +40,6 @@ projects:
     desc: 原始笔记与手册来源
     link: https://www.yuque.com/kinger-wwnro
 
-footer: © 2026 Kinger · AIOps & AI Infra · Built with VuePress
+# 不要在这里写 footer:frontmatter 的 footer 会**只覆盖首页**,导致首页与其余
+# 705 页不一致(2026-07 就是这么漏掉 ICP 备案号的 —— 文章页有、首页没有)。
+# 页脚的唯一来源是 .vuepress/theme.ts 的 footer 字段。

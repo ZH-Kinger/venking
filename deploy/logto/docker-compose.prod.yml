@@ -1,0 +1,57 @@
+# Logto 统一 IAM —— 生产编排(服务器 /root/logto/docker-compose.yml)
+#
+# 与本目录 docker-compose.yml(本地开发)的区别:
+#   1. 端口只绑 127.0.0.1 —— 公网入口一律经 nginx TLS 反代,容器不直面互联网
+#   2. 管理台(3002)**完全不对外**,只走 SSH 隧道访问:
+#        ssh -N -L 3002:127.0.0.1:3002 <user@host>
+#        然后浏览器开 http://localhost:3002
+#      localhost 在浏览器里属于 secure context,Logto 不会报 "Insecure context"。
+#      好处:管理台不暴露在公网 = 少一个被爆破/扫描的面。
+#   3. 内存/连接数按 2vCPU/1.8G 小机器收紧,并给 Node 堆设上限,避免和 rag 容器抢内存
+#
+# 起法(服务器上):
+#   cd /root/logto && docker compose up -d && docker compose logs -f logto
+# .env 需要:PG_PASSWORD / LOGTO_ENDPOINT / LOGTO_ADMIN_ENDPOINT(真实值只在服务器,不入库)
+
+services:
+  logto:
+    depends_on:
+      logto-db:
+        condition: service_healthy
+    image: svhd/logto:${LOGTO_TAG:-latest}
+    # --swe = skip when exists:seed 幂等,重建容器不会重复初始化
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
+    ports:
+      - "127.0.0.1:3001:3001"   # OIDC/登录端点 → nginx 反代 https://auth.venking.tech
+      - "127.0.0.1:3002:3002"   # 管理台 → 仅 SSH 隧道
+    environment:
+      # nginx 传 X-Forwarded-Proto/Host;不开这个 Logto 会把 issuer 签成 http://
+      - TRUST_PROXY_HEADER=1
+      - DB_URL=postgres://postgres:${PG_PASSWORD}@logto-db:5432/logto
+      - ENDPOINT=${LOGTO_ENDPOINT}
+      - ADMIN_ENDPOINT=${LOGTO_ADMIN_ENDPOINT}
+      # 小内存机器:给 V8 堆设上限,宁可 GC 勤一点也别把整机拖进 swap 抖动
+      - NODE_OPTIONS=--max-old-space-size=512
+    mem_limit: 1g
+    restart: unless-stopped
+
+  logto-db:
+    image: postgres:17-alpine
+    user: postgres
+    command: postgres -c shared_buffers=64MB -c max_connections=20 -c effective_cache_size=256MB
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: logto
+    volumes:
+      - logto-db-data:/var/lib/postgresql/data   # 身份数据,容器重建不丢
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 320m
+    restart: unless-stopped
+
+volumes:
+  logto-db-data:
