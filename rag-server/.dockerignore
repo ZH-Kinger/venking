@@ -8,6 +8,16 @@ tests/
 
 # 机密:.env 绝不进镜像层(运行时由 compose 挂载)
 .env
+.env.*
+
+# macOS 伴生垃圾:从 Mac tar 上来的 ._xxx 是二进制 AppleDouble,内含 null 字节。
+# 一旦被 COPY 进镜像,alembic 扫 versions/ 会把 ._xxx.py 当 Python 解析 →
+# "SyntaxError: source code string cannot contain null bytes",迁移直接挂。
+# 2026-07 就是这么让业务表建不出来的。
+._*
+**/._*
+.DS_Store
+**/.DS_Store
 
 # 数据:chroma/归档/投放/评测产物不进镜像(运行时挂载 ./data 卷)
 data/

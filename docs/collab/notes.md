@@ -279,3 +279,63 @@ auth 端点补限流 `authlimit 10r/s burst=20` + `gzip off`(BREACH)+ `client_ma
    它之前一直占着 Mac 的 3001/3002 端口转发,是 SSH 隧道"连不上"的真因。
 6. soft-404(`try_files ... /index.html` 把未知路径兜成首页 200)未修 —— 域名+sitemap 刚上线,对 SEO 有实际负面。
 7. 仓库根两个游离未跟踪文件(`93bd14b3-….jpeg`、`logo.svg`,后者与 `homepage/public/logo.svg` 内容不同)未入库,勿用 `git add -A`。
+
+[2026-07-28] [TESTER] rag-server 鉴权分流补测:tests/test_logto_auth.py 新增 21 例(15 pass + 6 xfail),全量 298 passed(基线 283)。发现未修源码 bug:`verify_bearer` 未接住 `jwt.DecodeError` —— 畸形 Bearer(`undefined`/`null`/截断)在 `get_signing_key_from_jwt` 内部 decode 阶段就抛 DecodeError(PyJWTError 而非 PyJWKClientError),穿透依赖层 → /api/me/* 返 **500**;且 `optional_user(_sse)` 只 catch HTTPException,`/api/chat?access_token=undefined` 会 500 打断**匿名**问答。已用 strict xfail 钉住,待 dev 修 src/blog_rag/logto_auth.py:60-68。
+[2026-07-28] [TESTER] 上条的 bug 已由 dev 修复并复验:xfail 全部去掉,新增 `_try_identity` 兜底层用例(非 HTTPException 意外异常降级为匿名 + warning 带 exc_info + BaseException 不被吞 + require_user 不被兜底静默)。全量 **319 passed / 0 failed**(基线 283)。真机 uvicorn 复验:`Bearer undefined|null|a.b|xx` → 401(修前 500),`/api/chat?access_token=undefined` → 200 匿名流(修前 500)。遗留:`src/blog_rag/logto_auth.py:133` 的 `# noqa: BLE001` 是**无效指令**(BLE001 未启用),`ruff check src/blog_rag/logto_auth.py` 报 RUF100 —— 该文件在 HEAD 基线是干净的,属本次新引入,建议去掉 noqa 只保留普通注释。
+[2026-07-28] [TESTER] 鉴权 401/503 分类三轮验收收口:全量 **343 passed + 1 xfailed**(基线 283;test_logto_auth.py 自身 84 例)。新增第 8 节用**真实 pyjwt + 本地 HTTP JWKS 端点**验收(替身只能证明"我们以为的库行为"),把 pyjwt 各种坏 JWKS 下的实际异常钉死。真机 uvicorn 复验:配置正确 + Logto 不通 → 畸形令牌 401 / 结构合法令牌 503 / 匿名 SSE 200;LOGTO_ENDPOINT 少写 scheme → 全部 503 + logger.exception 有栈(auditor 的事故场景已修)。**残留洞(xfail 钉住,未修)**:JWKS 可达但里面没有带 kid 的签名密钥时,pyjwt 抛 PyJWKClientError 而 `_jwks_reachable()` 只调 `get_jwk_set()`(这步成功)→ 仍误判 401 → 换 IdP/手搓 JWKS 会全站无限重登且零 error 日志;建议 `_jwks_reachable()` 改调 `get_signing_keys()`(同样走缓存,零额外网络)。**另一风险**:pyjwt 在 kid 未命中时强制 refresh(实测一次未知 kid = 2 次 JWKS 出站,绕过 300s 缓存),`/api/me/*` 没挂 guard 限流 → 随机 kid 可 1:1 放大成对 Logto 的出站请求。
+[2026-07-28] [TESTER] 洞 1 修复验收通过:全量 **347 passed / 0 failed / 0 xfail**(基线 283;test_logto_auth.py 87 例),ruff 干净。`_FakeJWKS` 加 `get_signing_keys()` + `no_signing_keys` 开关(单独表达"文档取得到但没有可用签名密钥"这一档);第 8 节真实 pyjwt 对照表已按新探活**重跑**,无一行分支回退,新增 use=enc / 无 keys 字段两行,并复核 kid 未命中仍是 2 次 JWKS 出站(探活命中缓存,未变 3 次)。真机复验:JWKS 里 key 全无 kid → 结构合法令牌 503 + 日志有栈、畸形令牌仍 401;JWKS 健康时有效令牌 200 / 未知 kid 401 / 畸形 401 / 匿名 SSE 200。**新发现(nginx,未改)**:`limit_req` 默认 `limit_req_status 503`,与我们刚区分出的"鉴权服务暂不可用 503"语义撞车 —— 被限流的坏令牌请求本该 401(提示重登)却返回 503(提示重试),正是这三轮在消灭的误导。建议在 `/api/` 加 `limit_req_status 429`。另:zone 键是 `$binary_remote_addr` 且全仓无 `set_real_ip_from`,若日后套 CDN 会退化成全站共用一个桶。
+
+## 2026-07-28 [AUDIT+TESTER] rag-server 接 Logto 上线:一个静默 404 牵出的连环问题
+
+**起点**:后端 Logto 鉴权代码(`logto_auth.py`/`me_routes.py`/`conversations`/`messages`)早已写好、283 测试全绿,但线上 `/api/me/*` 与 `/api/admin/*` **一直是 404**。
+根因:`Dockerfile` 装的是 `.[rag,agent,web,ingest,api]`,**漏了 admin**;而 `api.py` 是
+`try: import admin_routes/me_routes except ImportError: logger.info(...)` —— 依赖缺失不报错,
+只在没人看的 info 日志里留一行,功能静默消失。**教训:`except ImportError: pass` 会把部署配置错误
+变成静默功能缺失。** 已在 Dockerfile 加 `python -c "import sqlalchemy, alembic"` 构建期断言。
+
+**连带查出并修复(全部有线上实测证据)**:
+- `LOGTO_ENDPOINT=http://localhost:3001` 被推进生产 —— `deploy.sh` 把**本地开发 .env** 原样推服务器。
+  改为优先 `.env.production` + 正向断言 `^LOGTO_ENDPOINT=https://`(反向查 localhost 挡不住"根本没写"这种情况,
+  因为 config.py 的默认值就是 localhost)。
+- `deploy.sh` 把本地 `data/` 整个推上去**覆盖生产业务库**。已排除 `admin.sqlite*`/`checkpoints.sqlite*`(含 -wal/-shm)。
+  **此问题已造成实际影响:连续三次部署用本地 checkpoints 覆盖了生产的 LangGraph 对话检查点。**
+- macOS `._*`(AppleDouble,含 null 字节)被 `COPY alembic` 烤进镜像 → alembic 扫 versions 报
+  `SyntaxError: source code string cannot contain null bytes`,迁移失败。已加 `.dockerignore` + `COPYFILE_DISABLE=1`。
+- **管道吞退出码两次**:`if ssh ... | tail -5; then`(退出码来自 tail,恒 0)把迁移失败报成"✅ 完成";
+  改成 `mig_out=$(...)` 后又因 `set -e` 让错误分支变死代码。最终写法 `if ! out=$(...); then`。
+  (与更早那次 `grep -rl X | head && echo 泄露` 是同一类错误,**第三次踩**。)
+- `|| true` 绑定的是整条 AND 列表,会吞掉 tar 解包失败。
+
+**鉴权错误分类(三轮迭代才收敛)**:
+- 原始:`PyJWKClientError` 一律 503 → 坏令牌被判服务故障,前端不重登、会话永久卡死。
+- 一改:拆 `PyJWKClientConnectionError`→503 / 其余→401。tester 查出 **`jwt.DecodeError` 两支都接不住**:
+  畸形令牌(前端把 localStorage 的字符串 `"undefined"` 当令牌发上来)穿透成 **500**,
+  且因 `optional_user` 只 catch HTTPException,**连匿名问答都 500**。线上复现确认。
+- 二改:加 `jwt.PyJWTError`。auditor 查出**过宽** —— `PyJWKSetError`/`MissingCryptographyError`/
+  `LOGTO_ENDPOINT` 少写 scheme 全被判 401 且零日志 → 配置写错 = 全站无限重登、线上不可观测。
+- 三改(现状):按**谁的错**分。401 = `InvalidTokenError` + "JWKS 健康但此 kid 不在里面";
+  503 = 连接失败 / JWKS 不可解析 / `PyJWTError` 旁支 / 探活失败,全部 `logger.exception`。
+  歧义支靠 `_jwks_reachable()`(调 `get_signing_keys()`,**不靠英文报错串**——库改文案行为就翻转)。
+  tester 洞 1:探活原用 `get_jwk_set()`,"取得到但 key 全无 kid"会误判 401,故改 `get_signing_keys()`。
+
+**证据强度**:tester 起了本地 HTTP JWKS 端点让**真实 PyJWKClient** 去取,把 9 种坏 JWKS 的实际行为
+逐一钉成用例(替身只能证明"我们以为的库行为")。实测推翻了两个假设:pyjwt **不**包装 `ConnectionResetError`;
+`PyJWKSetError`/`InvalidTokenError`/`PyJWKClientError` 三族是**兄弟不是父子**。
+最终 **347 passed**,ruff 干净。
+
+**SSE 令牌泄露面**:`?access_token=`(EventSource 设不了 Authorization 头)被 nginx combined 格式与
+uvicorn access log 双双记进日志 —— 读得到日志 = 拿到有效 bearer。已:nginx `/api/` 换 `log_format noargs`
+(用 `$uri` 丢 query)+ uvicorn `--no-access-log`,历史日志已脱敏。线上 canary 验证两层皆 0 命中。
+
+**限流**:`/api/me/*` 无任何限流,而 pyjwt 在 kid 未命中时**强制 refresh 绕过缓存**重取 JWKS,
+随机 kid 可 1:1 放大成对 Logto 的出站请求 → 我方 IP 被限流 → 全站鉴权 503。已在 nginx `/api/` 加
+`limit_req`。tester 随即指出 **`limit_req` 默认返回 503,与后端"鉴权服务不可用"撞语义** ——
+坏令牌用户被限流时收 503 而非 401,前端仍不重登。已改 `limit_req_status 429`。
+60 并发实测:36×401 + 24×429。
+遗留:zone 键是 `$binary_remote_addr`,日后套 CDN 必须先配 `set_real_ip_from`/`real_ip_header`,否则全站共用一个桶。
+
+**业务库**:生产用 SQLite(`data/admin.sqlite`,随 compose 的 ./data 卷持久化),`DATABASE_URL` 有意留空。
+1.8G 的机器不值得为几张表再起一个 Postgres;模型两引擎通用,要换只是改一个环境变量 + 跑 alembic。
+
+**仍未验证(只能真人走)**:邮箱注册收验证码、GitHub 授权回跳、`/ai/callback` 前端能否接住。
+硬指标:Logto `default` 租户用户数从 0 变 1。

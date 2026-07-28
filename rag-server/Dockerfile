@@ -29,14 +29,26 @@ RUN mkdir -p src/blog_rag && echo "" > src/blog_rag/__init__.py
 #   frontmatter/langchain-text-splitters/markdownify/pyyaml(入库期包)。这是既存代码耦合,
 #   先装上跑通;把 loaders 改成延迟 import 以解耦、进一步瘦身,记 backlog。
 #   注:ingest 里的 pymupdf 是 loaders 函数内延迟 import,运行时不触发,但装上无害(无 torch)。
-RUN pip install --no-cache-dir -e ".[rag,agent,web,ingest,api]" \
+# 为什么带 admin:admin_routes/me_routes(管理后台 + 用户历史 API)顶层 import sqlalchemy,
+#   而 api.py 是 `try: import ... except ImportError: 跳过`。漏装 admin 不会报错,只会让
+#   /api/admin/* 与 /api/me/* **静默 404** —— 2026-07 就因此白部署了两周才发现。
+RUN pip install --no-cache-dir -e ".[rag,agent,web,ingest,api,admin]" \
     # 验证:torch 不该出现在部署镜像里(出现即说明依赖被污染,构建就该警觉)
     && (pip show torch >/dev/null 2>&1 \
         && echo "⚠️  WARN: torch 被拉进镜像了,检查依赖!" \
-        || echo "✅ OK: 镜像不含 torch(运行时纯 API 调用)")
+        || echo "✅ OK: 镜像不含 torch(运行时纯 API 调用)") \
+    # 验证:admin 组必须装上,否则后台/历史路由会静默消失
+    && python -c "import sqlalchemy, alembic" \
+    && echo "✅ OK: admin 依赖就位(sqlalchemy/alembic)"
 
 # ---------- 源码层(★改代码只重建这层,秒级;-e 装的是 /app/src 路径,真码在此覆盖占位)----------
 COPY src ./src
+
+# 数据库迁移脚本:业务表(audit_logs / conversations / messages)靠 alembic 建,
+# 代码里没有 create_all。不打进镜像就没法在容器内 `alembic upgrade head`,
+# 表建不出来 → /api/me/* 一查就 500。
+COPY alembic ./alembic
+COPY alembic.ini ./alembic.ini
 
 # 为什么放这里(而非顶部 ENV 块):editable 安装用占位 __init__.py 建的映射是"装机时快照",
 # 后加的 api.py 不被暴露 → 裸 `uvicorn blog_rag.api:app` 报 Could not import module。
@@ -48,4 +60,10 @@ EXPOSE 7860
 
 # data/(chroma)与 .env 由 compose 挂载到 /app/data 和 /app/.env
 # FastAPI + SSE(取代旧的 gradio app);PYTHONPATH 已含 /app/src,裸导入 blog_rag.api 即可。
-CMD ["uvicorn", "blog_rag.api:app", "--host", "0.0.0.0", "--port", "7860"]
+#
+# --no-access-log:SSE 端点用 `?access_token=` 兜底(浏览器 EventSource 设不了
+# Authorization 头),uvicorn 的 access log 会把**完整 JWT 连同 query 写进 stdout**,
+# 进而落到 docker logs 与任何日志采集里 —— 读得到日志的人就拿到了有效 bearer。
+# 访问日志由前面的 nginx 负责(且已配成不记 query,见 deploy/nginx/),这里是重复记录,
+# 关掉只丢冗余、不丢可观测性。应用自身的业务日志不受影响。
+CMD ["uvicorn", "blog_rag.api:app", "--host", "0.0.0.0", "--port", "7860", "--no-access-log"]
