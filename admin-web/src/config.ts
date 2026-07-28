@@ -15,16 +15,18 @@ export const postLogoutUri = () => `${window.location.origin}/admin/`;
 export const logtoConfig = {
   endpoint,
   appId,
-  // 只声明 API resource:换来的 access token 会自动带上用户在该 resource 下(经角色)获授的
-  // 全部 scope(含 admin 权限位),后端据此判 is_admin,前端不解释。
-  // 注意:不要在这里请求 profile/email 等用户 scope——一旦带上 resource,Logto(RFC 8707)
-  // 会按"该 resource 的 scope"校验,profile 不属于它 → invalid_scope 报错。展示信息以 /api/me
-  // 从 token 的 sub/claims 取;需要昵称/邮箱时另走 userinfo,不在登录请求里混。
+  // resources:声明要给哪个 API resource 换令牌。拿到的 access token 的 aud 即它,
+  // 后端按此校验(见 rag-server 的 logto_auth.verify_bearer)。
   resources: [API_RESOURCE],
-  // 用户资料(profile/email 供展示)+ 本 resource 的 admin 权限位(后端据此判 is_admin)。
-  // 前提:Logto 里这个应用必须是「第一方应用」(is_third_party=false);第三方应用不会自动
-  // 授予资源权限且会拒 profile/email → 登录后 is_admin 恒 false。建应用时选普通 SPA,勿选第三方。
-  scopes: ["profile", "email", "admin"],
+  // profile/email 用于展示;admin:all 是本 resource 上的管理员权限位,后端据此判 is_admin。
+  //
+  // ⚠️ 权限位名字必须与三处**逐字一致**,任何一处对不上都表现为"登录成功但一直 403":
+  //     ① Logto 里 API resource 的 scope 名(deploy/logto/setup.sh 建的是 admin:all)
+  //     ② 后端 LOGTO_ADMIN_SCOPE(config.py 默认 admin,生产 .env 必须覆盖成 admin:all)
+  //     ③ 这里请求的 scope
+  // ⚠️ 前提:该应用必须是「第一方应用」(is_third_party=false)。第三方应用不会自动授予
+  //    资源权限、且会拒 profile/email → is_admin 恒 false。建应用时选普通 SPA,勿选第三方。
+  scopes: ["profile", "email", "admin:all"],
 };
 
 export const isConfigured = Boolean(appId);

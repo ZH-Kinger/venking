@@ -132,7 +132,10 @@ class Settings(BaseSettings):
     # 后端按 OIDC 校验 Logto access token:issuer=ENDPOINT/oidc,aud=API resource indicator。
     logto_endpoint: str = Field(default="http://localhost:3001", validation_alias="LOGTO_ENDPOINT")
     logto_api_resource: str = Field(default="https://api.venking.tech", validation_alias="LOGTO_API_RESOURCE")
-    logto_admin_scope: str = Field(default="admin", validation_alias="LOGTO_ADMIN_SCOPE")  # API resource 上的管理员权限位
+    # API resource 上的管理员权限位。默认值必须与 deploy/logto/setup.sh 实际建的 scope
+    # 逐字一致 —— 名字对不上时 is_admin 恒为 false,表现是"登录成功但后台一直 403",
+    # 且没有任何报错指向真因。改这里必须同步 setup.sh 与 admin-web/src/config.ts。
+    logto_admin_scope: str = Field(default="admin:all", validation_alias="LOGTO_ADMIN_SCOPE")
     # 前端(admin-web + AI 静态页)共用的 Logto SPA 应用 App ID;经 /api/public-config 下发给静态页。
     # 是公开客户端标识(非机密),留空=前端不显示登录入口(仅匿名可用)。
     logto_app_id: str = Field(default="", validation_alias="LOGTO_APP_ID")
