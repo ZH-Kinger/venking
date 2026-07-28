@@ -28,7 +28,11 @@ async function apiGet(path) {
 window.KingerAuth = {
   isAuthed: () => state.authed,
   user: () => state.user,
-  login: () => state.client && state.client.signIn(`${location.origin}/`),
+  // 回调必须回到**本模块所在的页面** —— 下面 init() 是靠读当前页的 location.search
+  // 拿 code/state 的,而 auth.js 只在 /ai/ 加载。回到站点根(首页是 Astro,没加载本模块)
+  // 或回到 /ai/callback(该路径没有页面)都会让 code 无人接收,登录静默失败。
+  // 这两个 URI 必须与 Logto 应用里注册的 redirect/postLogout 列表逐字一致(含结尾斜杠)。
+  login: () => state.client && state.client.signIn(`${location.origin}/ai/`),
   logout: () => state.client && state.client.signOut(`${location.origin}/`),
   listConversations: () => apiGet("/api/me/conversations"),
   getConversation: (id) => apiGet(`/api/me/conversations/${encodeURIComponent(id)}`),
@@ -49,7 +53,7 @@ async function init() {
     scopes: ["profile", "email"],
   });
 
-  // 从 Logto 登录回跳(redirect uri = 站点根,带 ?code&state)→ 处理并清理地址栏。
+  // 从 Logto 登录回跳(redirect uri = 本页 /ai/,带 ?code&state)→ 处理并清理地址栏。
   const qs = new URLSearchParams(location.search);
   if (qs.has("code") && qs.has("state")) {
     try { await state.client.handleSignInCallback(location.href); }

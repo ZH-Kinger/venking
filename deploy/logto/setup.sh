@@ -99,19 +99,37 @@ grant_role user  chat:write history:read
 grant_role admin chat:write history:read admin:all
 
 # ── ④ SPA 应用 ─────────────────────────────────────────────────────
-# 回调同时留生产与本地开发两套,方便本地起 dev server 调登录。
-mk_spa() {  # mk_spa <name> <redirectUri...> ;最后一个参数当 postLogout
-  local name=$1; shift
+# 回调地址必须与前端代码里 signIn()/signOut() 传的**逐字一致**(含结尾斜杠),
+# 否则 Logto 直接拒绝 redirect_uri。AI 前端回跳到 /ai/ 本身 —— auth.js 是靠读
+# 当前页的 location.search 拿 code 的,回站点根或回 /ai/callback 都没人接。
+#
+# 幂等语义是「校正」而不是「存在就跳过」:前端改了回调地址、这里却不同步,
+# 会得到一个"配置看着都在、登录就是不通"的状态,极难排查。
+mk_spa() {  # mk_spa <name> <postLogoutUri> <redirectUri...>
+  local name=$1 post=$2; shift 2
+  local uris; uris=$(printf '%s\n' "$@" | jq -Rsc 'split("\n")|map(select(length>0))')
+  local meta; meta=$(jq -nc --argjson u "$uris" --arg p "$post" \
+    '{redirectUris:$u, postLogoutRedirectUris:[$p]}')
   local id
   id=$(api GET /api/applications | jq -r --arg n "$name" '.[]|select(.name==$n)|.id')
-  if [ -n "$id" ]; then echo "= 应用已存在: $name ($id)"; return; fi
-  local uris; uris=$(printf '%s\n' "$@" | jq -Rsc 'split("\n")|map(select(length>0))')
-  id=$(api POST /api/applications "$(jq -nc --arg n "$name" --argjson u "$uris" --arg s "$SITE" \
-    '{name:$n, type:"SPA", oidcClientMetadata:{redirectUris:$u, postLogoutRedirectUris:[$s]}}')" | jq -r .id)
-  echo "＋ 建 SPA 应用: $name → App ID $id"
+  if [ -z "$id" ]; then
+    id=$(api POST /api/applications "$(jq -nc --arg n "$name" --argjson m "$meta" \
+      '{name:$n, type:"SPA", oidcClientMetadata:$m}')" | jq -r .id)
+    echo "＋ 建 SPA 应用: $name → App ID $id"
+    return
+  fi
+  local cur; cur=$(api GET "/api/applications/$id" | jq -c '.oidcClientMetadata|{redirectUris,postLogoutRedirectUris}')
+  if [ "$cur" = "$meta" ]; then
+    echo "= 应用已存在且回调一致: $name ($id)"
+  else
+    api PATCH "/api/applications/$id" "$(jq -nc --argjson m "$meta" '{oidcClientMetadata:$m}')" >/dev/null
+    echo "↻ 校正应用回调: $name ($id)"
+    echo "    旧 $cur"
+    echo "    新 $meta"
+  fi
 }
-mk_spa "admin-web"   "$SITE/admin/callback" "http://localhost:5173/callback"
-mk_spa "ai-frontend" "$SITE/ai/callback"    "http://localhost:7860/callback"
+mk_spa "admin-web"   "$SITE/"     "$SITE/admin/callback" "http://localhost:5173/callback"
+mk_spa "ai-frontend" "$SITE/"     "$SITE/ai/"            "http://localhost:7860/ai/"
 
 # ── ⑤ 登录体验:邮箱+密码 + 开放注册 + 靛紫深色品牌 ──────────────────
 # 邮箱验证码依赖已配好的 163 SMTP connector(实测认证通过)。
