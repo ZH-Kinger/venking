@@ -127,8 +127,9 @@ Node 22;VuePress 2 rc + theme-hope rc。博客首屏无闪只在生产构建体�
 - [ ] **admin-web 接 `@logto/react`** 并部署到 `/admin/`(App ID 见第三节;nginx 需补 `/admin/` 路由)。
 - [ ] **per-user AI 历史**:`conversations`/`messages` 按 Logto `sub` 落库 + `/api/me/conversations`;
       未登录仍可匿名用(不落库)。业务库 `alembic upgrade head` 随此一起。这也是 M8 长期记忆的前置。
-- [ ] **公安联网备案**:ICP 通过后 30 天内提交,批下来后公网安备号也要上页脚并链 `www.beian.gov.cn`。
-- [ ] **核对 ICP 号是否带 `-1` 后缀**(管局按下发原文比对,少后缀判不合规)——翻备案通过短信/邮件原文。
+- [ ] **公安联网备案**:ICP 于 **2026-07-28 通过**,须在 **2026-08-27 前**到 `beian.gov.cn` 提交联网备案;
+      拿到「湘公网安备…号」后同样要上页脚并链 `beian.gov.cn`(通常带警徽图标)。
+      与工信部 ICP 是两套独立系统,ICP 通过不代表公安那边自动登记。
 - [ ] **证书到期告警**:HSTS 让续期失败变成全站硬故障,目前只有 certbot timer,没有失败通知。
 - [ ] (可选)GitHub 等社交登录:建 OAuth App → Logto 加 connector,**不需要改我方代码**。
 - [ ] **主页个性化**:homepage 目前是骨架,待用户给自我介绍/头像/项目素材做真实内容。
