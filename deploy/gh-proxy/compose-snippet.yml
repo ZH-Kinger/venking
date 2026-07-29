@@ -1,0 +1,48 @@
+# 追加到 /root/logto/docker-compose.yml 的 services: 下。
+# 作用:让 Logto 容器对 github.com 的出站流量经 WARP 走出去(详见本目录 README.md)。
+#
+# 为什么用**网络别名**而不是 extra_hosts:
+#   extra_hosts 要写死 IP,就得给容器分配静态 IP,而静态 IP 要求网络显式声明 subnet ——
+#   改动 networks 会让 docker 重建网络、连带重建 logto 与 postgres 容器。
+#   网络别名由 docker 内置 DNS 解析,零静态 IP、零网络改动,Logto 容器也不用改一行。
+#
+# 为什么要两跳:
+#   WARP 的 SOCKS5 只监听宿主 127.0.0.1,桥接网络里的容器够不着;
+#   而宿主的 443 被 nginx 的 `listen 443`(绑 0.0.0.0)占死,没法在宿主直接接 github.com:443。
+#   于是:桥接网里的 gh-proxy 占用**它自己命名空间里**空闲的 443,
+#        再交给 host 网络的 gh-tunnel(够得着 127.0.0.1:40000)去说 SOCKS5。
+#
+# 全程纯 TCP 盲隧道,不终止 TLS —— GitHub 的真实证书仍由 Logto 自己校验。
+
+  # ① 桥接网内:冒充 github.com,接 443
+  gh-proxy:
+    image: python:3.13-slim
+    container_name: gh-proxy
+    restart: unless-stopped
+    volumes:
+      - ./tcp2socks.py:/app/tcp2socks.py:ro
+    # 172.20.0.1 是 logto_default 网络的网关(= 宿主在该网段上的地址)
+    command: >
+      python /app/tcp2socks.py --plain
+      --listen 0.0.0.0:443 --target 172.20.0.1:18443
+    networks:
+      default:
+        aliases:
+          - github.com     # 同网络内的容器解析 github.com 即命中本容器
+    mem_limit: 64m
+
+  # ② host 网络:够得着 WARP 的 127.0.0.1:40000,说 SOCKS5 出去
+  gh-tunnel:
+    image: python:3.13-slim
+    container_name: gh-tunnel
+    restart: unless-stopped
+    network_mode: host        # 唯一目的:访问宿主回环上的 WARP SOCKS5
+    volumes:
+      - ./tcp2socks.py:/app/tcp2socks.py:ro
+    # 注意 --target 用**域名**:由 SOCKS5 那端(WARP)去解析,
+    # 避免本机被污染的 DNS 把我们导到错误地址。这里也不受 gh-proxy 别名影响
+    # (host 网络不走 docker 内置 DNS)。
+    command: >
+      python /app/tcp2socks.py
+      --listen 172.20.0.1:18443 --target github.com:443 --socks 127.0.0.1:40000
+    mem_limit: 64m
