@@ -106,6 +106,9 @@ def chat(
                 thread_id=thread or None,
                 show_reasoning=False,
                 request_id=request_id,
+                # 传身份而不是自己拼线程键:命名空间由 graph 层(checkpointer 的拥有者)
+                # 统一负责,新增调用方不会漏加前缀而重开跨用户串话的洞。
+                user_sub=identity.sub if identity is not None else None,
             ):
                 etype = ev.get("type")
                 if etype == "token":
@@ -113,6 +116,8 @@ def chat(
                 elif etype == "done":
                     done_mode = ev.get("mode")
                     done_sources = ev.get("sources", [])
+                    # graph 层保证这里已是不带命名空间的原始 id(前端会把它存进
+                    # localStorage 并下轮发回,带前缀会被二次加前缀而每轮换新线程)。
                     done_thread = ev.get("thread_id")
                 yield _sse(ev)
         except Exception:                            # 真实异常只进服务端日志,公网不泄露内部实现/key 路径

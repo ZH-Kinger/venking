@@ -210,10 +210,35 @@ def get_graph():
     return _COMPILED
 
 
+# checkpointer 只按 thread_id 存状态,**不认用户**。而前端的 thread_id 来自 localStorage
+# (每浏览器一个,不随账号变),同一浏览器换账号登录会复用同一个 id → 后登录者的提问
+# 带着前一个人的对话上下文。线上实测过:一个 thread 键下混着两个账号共 10 个 checkpoint。
+#
+# 命名空间**必须做在这一层**,不能留给调用方:checkpointer 归本模块所有,
+# 而调用入口会增加(非流式 /api/ask、MCP 工具、重试端点…),靠每个入口自觉记得加前缀,
+# 迟早有人漏 —— 那就是同一个洞的第二次泄露。这里由构造保证。
+_NS_SEP = "\x1f"   # 单元分隔符:不会出现在 sub 或前端生成的 id 里,拼接无歧义
+
+
+def _thread_key(thread_id: str, user_sub: str | None) -> str:
+    """把(用户, 会话)映射成 checkpointer 的键。匿名用户无身份可绑,原样使用。"""
+    return f"{user_sub}{_NS_SEP}{thread_id}" if user_sub else thread_id
+
+
+def strip_ns(thread_key: str) -> str:
+    """从 checkpointer 键还原出对外(前端)可见的 thread_id。
+
+    用 rsplit 取最后一段而非 split[1]:sub 自身若含分隔符也能正确还原。
+    对外暴露带前缀的键会出事 —— 前端把它存进 localStorage 下轮发回,
+    再加一次前缀就叠成 sub\x1fsub\x1fxxx,每轮换新线程、多轮记忆当场失效。
+    """
+    return thread_key.rsplit(_NS_SEP, 1)[-1]
+
+
 # ---------- 对外入口:契约同 rag_chain.answer ----------
 def answer_graph(query: str, *, stream: bool = True, show_reasoning: bool = False,
                  fusion: bool | None = None, web_mode: bool = False,
-                 thread_id: str | None = None) -> dict:
+                 thread_id: str | None = None, user_sub: str | None = None) -> dict:
     """跑图,返回与 answer() 同结构的 dict(run_eval/cli 零改动)。
 
     fusion → 映射为用户 flag deep_thinking(None=回落 config)。web_mode=强制联网。
@@ -224,7 +249,7 @@ def answer_graph(query: str, *, stream: bool = True, show_reasoning: bool = Fals
         "deep_thinking": fusion, "web_mode": bool(web_mode),
         "loop_step": 0, "max_retries": settings.max_retries,
     }
-    cfg = {"configurable": {"thread_id": thread_id or uuid4().hex},
+    cfg = {"configurable": {"thread_id": _thread_key(thread_id or uuid4().hex, user_sub)},
            "recursion_limit": settings.recursion_limit}
     final = get_graph().invoke(init, cfg)
     return {
@@ -239,7 +264,7 @@ def answer_graph(query: str, *, stream: bool = True, show_reasoning: bool = Fals
 
 def stream_answer(query: str, *, deep_thinking: bool | None = None, web_mode: bool = False,
                   length: str = "", thread_id: str | None = None, show_reasoning: bool = False,
-                  request_id: str | None = None):
+                  request_id: str | None = None, user_sub: str | None = None):
     """流式入口(UI 用):逐 token yield `{"type":"token","text":..}`,末尾 yield 一个
     `{"type":"done", ...}` 汇总(契约同 answer_graph:answer/mode/sources/retrieved_doc_ids/
     contexts/suggestions)。
@@ -257,7 +282,9 @@ def stream_answer(query: str, *, deep_thinking: bool | None = None, web_mode: bo
         "deep_thinking": deep_thinking, "web_mode": bool(web_mode), "length": length or "",
         "loop_step": 0, "max_retries": settings.max_retries,
     }
-    cfg = {"configurable": {"thread_id": thread_id},
+    # thread_id 对外始终是**不带命名空间**的原始值(见末尾 done 事件),
+    # 键只在这里参与 checkpointer 寻址,不外泄。
+    cfg = {"configurable": {"thread_id": _thread_key(thread_id, user_sub)},
            "recursion_limit": settings.recursion_limit}
     final: dict = {}
     trace: list[dict] = []
@@ -286,7 +313,10 @@ def stream_answer(query: str, *, deep_thinking: bool | None = None, web_mode: bo
         "contexts": final.get("contexts", []),
         "suggestions": final.get("suggestions", []),
         "request_id": request_id,
-        "thread_id": thread_id,
+        # 显式剥一次而不是"依赖上面没覆写 thread_id 这个局部变量" —— 那种保证是隐式的,
+        # 谁顺手写成 `thread_id = _thread_key(...)` 前缀就静默外泄给前端。
+        # 对裸值而言 strip_ns 是幂等的,所以这行只增加安全性、不改变行为。
+        "thread_id": strip_ns(thread_id),
         "trace": trace,
         "latency_ms": round((perf_counter() - started) * 1000, 1),
     }
