@@ -1,0 +1,74 @@
+---
+// 404 页。此前站点没有它,nginx 的 `error_page 404 /404.html` 是死配置,
+// 而 `try_files $uri $uri/ /index.html` 把任何不存在的路径都兜成主页(soft-404):
+//   · 对人:点到失效的博客链接会静默变成主页,不知道是链接坏了还是自己记错了
+//   · 对搜索引擎:sitemap 上线后会把无数垃圾路径当有效页面收录
+//   · 对扫描器:探 /.env、/adminer.php 都得到 200,以为路径存在,引来更多探测
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+---
+<BaseLayout title="页面不存在 · Kinger" theme="dark">
+  <Nav />
+  <main class="wrap">
+    <p class="code">404</p>
+    <h1>这个页面不存在</h1>
+    <p class="hint">链接可能已经失效,或者地址打错了。</p>
+    <div class="links">
+      <a class="primary" href="/">回首页</a>
+      <a href="/blog/">去博客</a>
+      <a href="/ai/">问 AI 助手</a>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 18vh 24px 12vh;
+    text-align: center;
+  }
+  .code {
+    margin: 0 0 8px;
+    font-size: clamp(64px, 14vw, 128px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    /* 品牌靛紫渐变,与首页 Hero 同一语言 */
+    background: linear-gradient(120deg, #5e6ad2 0%, #8b6cf8 60%, #6d78dd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  h1 {
+    margin: 0 0 10px;
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 640;
+    letter-spacing: -0.02em;
+  }
+  .hint {
+    margin: 0 0 28px;
+    color: var(--color-muted);
+    font-size: 15px;
+  }
+  .links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .links a {
+    padding: 9px 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    color: var(--color-fg);
+    font-size: 14px;
+    text-decoration: none;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .links a:hover { border-color: #5e6ad2; background: rgb(94 106 210 / 10%); }
+  .links a.primary { border-color: #5e6ad2; background: rgb(94 106 210 / 16%); }
+  @media (prefers-reduced-motion: reduce) { .links a { transition: none; } }
+</style>
