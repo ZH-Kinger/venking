@@ -95,6 +95,14 @@ jobs:
           npm run docs:build
           touch src/.vuepress/dist/.nojekyll
 
+      - name: 顶栏死链闸门(构建后比对产物)
+        run: |
+          # 2026-07 顶栏有四条死链在线上跑了一段时间没人发现:「AI 助手」被 base 加前缀成
+          # /blog/ai/,三个含 ASCII 字母的分类写成大写而 theme-hope 把聚合页 slugify 成小写。
+          # 那三个分类合计 312 篇 —— 占全站 59% 从顶栏点进去全是 404,而纯中文分类正常,
+          # "看着大部分能点"掩盖了问题。这类配置与产物结构的错配单元测试碰不到,只能构建后比对。
+          node scripts/check-navbar-links.mjs
+
       - name: 部署到 GitHub Pages(blog 分支,备用/冗余镜像)
         uses: JamesIves/github-pages-deploy-action@v4
         with:
