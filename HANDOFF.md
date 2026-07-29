@@ -1,4 +1,4 @@
-# 项目交接文档(2026-07-26)
+# 项目交接文档(2026-07-29)
 
 > 新电脑/新会话接手时,让 AI 先读这份 HANDOFF.md + [`STRUCTURE.md`](STRUCTURE.md) + `docs/collab/notes.md` 末尾快照。
 > 敏感信息(服务器 IP、密钥)**不写进本文/公开仓库**,用 `<SERVER>` 等占位;真实值在本机 gitignored 的 `.env`、`~/.ssh/`、以及各仓库的 GitHub Secrets 里。
@@ -14,7 +14,7 @@
 | **blog** | 技术博客(VuePress2 + theme-hope) | `blog/` | ✅ 已上线 `/blog/` |
 | **homepage** | 落地页(Astro) | `homepage/` | ✅ 已上线 `/` |
 | **rag-server** | Agentic RAG AI 问答(FastAPI/LangGraph,前端在 static/) | `rag-server/` | ✅ 已上线 `/ai/` |
-| **admin-web** | 管理后台(React+Vite) | `admin-web/` | ⏳ 未部署(Logto App ID 已就绪,可以开工) |
+| **admin-web** | 管理后台(React+Vite) | `admin-web/` | ✅ 已上线 `/admin/`(产物由 rag-server 同源提供) |
 | **deploy/logto** | 自托管 Logto IAM(docker compose) | `deploy/logto/` | ✅ 已上线 `https://auth.venking.tech` |
 
 品牌色:accent 靛紫 `#5e6ad2`、void `#08090a`。
@@ -63,7 +63,17 @@ node scripts/publish.mjs [--no-pull] [--dry] [--no-ingest] [--no-build]
   端口必须映射成 3002(`ADMIN_ENDPOINT` 就是它,换端口 console 内部跳转会飞)。
 - 租户配置由 `deploy/logto/setup.sh` **幂等**驱动(走 Management API,可反复重跑)。
   已建:API resource `https://api.venking.tech` + scopes `chat:write`/`history:read`/`admin:all`;
-  roles `user`/`admin`;两个 SPA 应用。登录方式=邮箱+密码+验证码,开放注册,靛紫深色。
+  roles `user`(**默认角色**,注册即得 chat/history)/`admin`(**手动授予**,含 `admin:all`);
+  两个 SPA 应用。登录方式=邮箱+密码+验证码 + GitHub + QQ,开放注册,靛紫深色。
+- 运维脚本(都在 `deploy/logto/`,服务器 `/root/logto/` 同步一份):`inspect.sh` 速查全貌、
+  `grant-role.sh` 授/撤角色(认邮箱)、`social.sh` 控制登录页入口开关、`set-default-role.sh`、
+  `mk-connector.sh` 预建 connector 拿回调地址(开放平台建应用要填它,鸡生蛋)。
+- ⚠️ **admin 权限位名字必须三处逐字一致**:setup.sh 建的 scope、后端 `LOGTO_ADMIN_SCOPE`、
+  admin-web 请求的 scope。对不上时 `is_admin` 恒 false,表现为「登录成功但后台一直 403」且无报错指向真因。
+- ⚠️ **角色变更后必须重新登录**才生效 —— 权限位签在 access token 里,旧 token 到期前仍是旧权限。
+- ⚠️ **绝不能把 admin 设为默认角色** —— 那等于任何人注册即管理员。改完看 `set-default-role.sh` 输出确认。
+- GitHub 登录依赖 `deploy/gh-proxy/`(WARP 两跳盲隧道):Logto 服务端换 token 要连 github.com,
+  国内间歇性完全不通。**该目录 README 有四跳排障步骤与完整拆除方法。**
 - **App ID(非机密,SPA 公开客户端)**:`admin-web` = `3xdc9pu40h0rok1jb5msn`,
   `ai-frontend` = `rzk7khvmf1rwtn2i8rmyq`。
 - 邮件验证码走已配好的 163 SMTP connector(2026-07-28 实测认证通过)。
@@ -114,27 +124,34 @@ Node 22;VuePress 2 rc + theme-hope rc。博客首屏无闪只在生产构建体�
 | venking 仓库 Secrets | `SERVER_SSH_KEY` / `SERVER_SSH` | CI 推服务器(私钥 base64 / user@host) |
 | obisidian 仓库 Deploy keys | (公钥) | 对应 OBSIDIAN_DEPLOY_KEY |
 | obisidian 仓库 Secrets | `VENKING_DISPATCH_TOKEN` | push 时触发 venking CI(fine-grained PAT,venking Contents 写) |
-| 服务器 `/root/logto/.env` | `PG_PASSWORD` 等 | Logto(搁置中) |
+| 服务器 `/root/logto/.env` | `PG_PASSWORD` 等 | Logto Postgres |
+| Logto 管理台(SSH 隧道) | GitHub / QQ connector 的 clientSecret | 社交登录;**只在管理台填,不进对话/仓库** |
 
 ---
 
 ## 六、待办(按前置)
 
-- [x] ~~ICP 备案~~ → 已通过,域名 + HTTPS + Logto 全部收口上线(见第三节)。
-- [ ] **rag-server 接 Logto 鉴权**:新 `logto_auth.py`(JWKS 验签 + `iss`/`aud`/`exp`,
-      `alg` 白名单防 `none`)→ `require_user` / `require_admin`;退役自建 `authn.py`/`auth_routes.py`/
-      `deps.py`/`cli_admin.py` 与 `User`/`Session`/`LoginEvent` 表。audience = `https://api.venking.tech`。
-- [ ] **admin-web 接 `@logto/react`** 并部署到 `/admin/`(App ID 见第三节;nginx 需补 `/admin/` 路由)。
-- [ ] **per-user AI 历史**:`conversations`/`messages` 按 Logto `sub` 落库 + `/api/me/conversations`;
-      未登录仍可匿名用(不落库)。业务库 `alembic upgrade head` 随此一起。这也是 M8 长期记忆的前置。
-- [ ] **公安联网备案**:ICP 于 **2026-07-28 通过**,须在 **2026-08-27 前**到 `beian.gov.cn` 提交联网备案;
+**已完成(2026-07-28/29 一轮做完,均经真人端到端验证,不只是 curl)**:
+ICP 备案 → 域名 + HTTPS 收口;Logto 上线 + 邮箱/GitHub 登录;rag-server 接 Logto 鉴权
+(退役自建 authn/User/Session);per-user AI 历史(按 `sub` 落 `conversations`/`messages`);
+admin-web 部署 `/admin/`;404 页 + soft-404 修复;GitHub 出站代理。测试 283 → 395。
+
+**待办**
+
+- [ ] **QQ 登录**:connector 已建、APP ID/Key 已填、已上登录页;等 QQ 互联审核通过。
+      回调 `https://auth.venking.tech/callback/6vd5zxf2z962`。审核中一般只放行开发者本人的 QQ。
+- [ ] **公安联网备案**:ICP 于 **2026-07-28 通过**,须在 **2026-08-27 前**到 `beian.gov.cn` 提交;
       拿到「湘公网安备…号」后同样要上页脚并链 `beian.gov.cn`(通常带警徽图标)。
       与工信部 ICP 是两套独立系统,ICP 通过不代表公安那边自动登记。
 - [ ] **证书到期告警**:HSTS 让续期失败变成全站硬故障,目前只有 certbot timer,没有失败通知。
-- [ ] (可选)GitHub 等社交登录:建 OAuth App → Logto 加 connector,**不需要改我方代码**。
 - [ ] **主页个性化**:homepage 目前是骨架,待用户给自我介绍/头像/项目素材做真实内容。
 - [ ] (可选)把 RAG 重建也接进 CI(需在 CI 配 DashScope key)。
-- [ ] soft-404:`try_files ... /index.html` 把未知路径兜成首页 200,sitemap 刚上线,对 SEO 有实际负面。
+- [ ] **M8 长期记忆**:地基已就位(稳定的 `sub` + 落库的对话),可以做跨会话用户画像了。
+- [ ] 小账:`static/index.html` 的 `readonly:true` 无人读取,「· 只读」云端会话其实能继续追问(文案不实);
+      `graph.strip_ns()` 目前只在 done 事件用一处,**别当死代码清掉** —— 它是防前缀外泄的显式保证。
+
+**知道但有意不做**:账号按邮箱自动关联。同一人用邮箱与 GitHub 登录会是**两个账号**
+(两边邮箱不同),AI 历史也分两份。个人站可接受;要合并得在 Logto 配账号关联策略。
 
 ---
 
