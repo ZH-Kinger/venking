@@ -229,6 +229,42 @@
   #send{flex:0 0 auto;width:40px;height:40px;border:none;border-radius:50%;cursor:pointer;
     background:var(--accent);color:#fff;font-size:18px;display:grid;place-items:center;transition:.15s}
   #send.stop{background:#c5221f}
+  /* 回形针进了输入框左侧,原本 18px 的左内边距要收掉,否则按钮离边太远 */
+  .inputbar:has(.attach-btn){padding-left:8px}
+  .attach-btn{flex:0 0 auto;width:36px;height:36px;margin-bottom:2px;border:none;border-radius:50%;
+    cursor:pointer;background:transparent;color:var(--ink-dim);display:grid;place-items:center;transition:.15s}
+  .attach-btn svg{width:20px;height:20px}
+  .attach-btn:hover{background:rgba(255,255,255,.07);color:var(--ink)}
+  .attach-btn:active{transform:scale(.92);transition:transform 80ms ease-out}
+  .attach-btn[disabled]{opacity:.4;cursor:not-allowed}
+  /* 缩略图条:横向可滚,不因图多而把输入框顶变形 */
+  .attachbar{display:flex;gap:8px;overflow-x:auto;padding:0 4px 10px;scrollbar-width:thin}
+  .attachbar[hidden]{display:none!important}
+  .thumb{position:relative;flex:0 0 auto;width:60px;height:60px;border-radius:10px;overflow:hidden;
+    border:1px solid var(--line-strong);background:rgba(255,255,255,.04)}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb .rm{position:absolute;top:2px;right:2px;width:18px;height:18px;border:none;border-radius:50%;
+    cursor:pointer;background:rgba(0,0,0,.66);color:#fff;font-size:12px;line-height:1;display:grid;place-items:center}
+  .thumb .rm:hover{background:#c5221f}
+  /* 上传中:压暗 + 转圈,让"还没传完不能发"这件事可见 */
+  .thumb.pending{opacity:.55}
+  .thumb.pending::after{content:"";position:absolute;inset:0;margin:auto;width:18px;height:18px;
+    border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+  .thumb.failed{border-color:#c5221f}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){.thumb.pending::after{animation:none}}
+  /* 消息气泡里的图片 */
+  .bubble-imgs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+  .bubble-imgs img{max-width:180px;max-height:180px;border-radius:10px;display:block;cursor:zoom-in}
+  /* 瞬时提示。用它而不是 alert():alert 阻塞交互且样式不可控;
+     也不复用 setHealth —— 那是服务健康指示器,语义不同,借用会让"红点"含义变模糊。 */
+  .toasts{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:60;
+    display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+  .toasts .t{max-width:min(92vw,420px);padding:9px 15px;border-radius:10px;font-size:13.5px;line-height:1.5;
+    background:rgba(28,31,38,.97);color:var(--ink);border:1px solid var(--line-strong);
+    box-shadow:var(--shadow);animation:toastIn .22s cubic-bezier(.16,1,.3,1) both}
+  @keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.toasts .t{animation:none}}
   #send:hover{background:var(--accent-hover);transform:scale(1.04)}
   #send:active{transform:scale(0.92);filter:brightness(0.95);transition:transform 80ms ease-out}
   @media(prefers-reduced-motion:reduce){#send:active{transition:none}}
@@ -320,7 +356,12 @@
           <button class="toggle" id="tWeb" type="button" title="强制联网搜索（需服务器可联网）" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg><span>联网搜索</span></button>
           <button class="toggle" id="tLen" type="button" title="点击切换回答长度：标准 / 简短 / 详细" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6h14M5 12h10M5 18h7"/></svg><span>回答长度：标准</span></button>
         </div>
+        <!-- 待发送附件的缩略图条:有图才显示(hidden 由 JS 切) -->
+        <div class="attachbar" id="attachBar" hidden aria-label="待发送的图片"></div>
         <div class="inputbar">
+          <!-- accept 只是给文件选择器的提示,真正的类型判断在服务端按魔数做(改扩展名无效) -->
+          <input type="file" id="fileInput" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden>
+          <button class="attach-btn" id="attachBtn" type="button" title="添加图片" aria-label="添加图片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.1l-8.5 8.5a5 5 0 0 1-7.1-7.1l8.1-8.1a3.3 3.3 0 0 1 4.7 4.7l-8.1 8.1a1.7 1.7 0 0 1-2.4-2.4l7.5-7.4"/></svg></button>
           <textarea id="q" rows="1" placeholder="问点什么…（Enter 发送，Shift+Enter 换行）"></textarea>
           <button id="send" title="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
         </div>
@@ -598,10 +639,11 @@ function renderChat(){
   const c=curConv();
   if(!c||!c.msgs.length){wrap.innerHTML=WELCOME;document.querySelectorAll('.chip').forEach(ch=>ch.onclick=()=>{qEl.value=ch.dataset.q||'';send();});return;}
   wrap.innerHTML=c.msgs.map((m,idx)=>m.role==='user'
-    ?`<div class="msg user"><div class="bubble">${esc(m.content)}</div></div>`
+    ?`<div class="msg user"><div class="bubble">${attImgsHtml(m.atts)}${esc(m.content)}</div></div>`
     :`<div class="msg bot"><div class="role"><span class="avatar">${AGENT_ICON}</span>Kinger Agent</div><div class="content">${(m.mode?`<span class="badge ${(MODE[m.mode]||MODE.general)[1]}">${(MODE[m.mode]||MODE.general)[0]}</span>`:'')+answerHtml(m,c,idx)+sourcesHtml(m)+fbBar(c,idx,m)}</div></div>`).join('');
   renderMermaid(wrap);                        // 历史消息重渲染时也把 mermaid 画成图
   highlightCode(wrap);
+  void hydrateAttImgs(wrap);                  // 附件占位 → 带鉴权取回后填 blob
   scroll();
 }
 
@@ -615,17 +657,26 @@ function runQuery(q){
   ensureConv();const c=curConv();
   if(c.msgs.length===0){c.title=q.slice(0,22);renderSide();}
   {const w=$('#welcome');if(w){w.style.opacity='0';w.style.transform='translateY(-8px)';setTimeout(()=>w.remove(),160);}}
-  c.msgs.push({role:'user',content:q});
+  // 附件:发送这一刻**快照**已上传成功的那些,然后清空待发区。
+  // 快照而不是引用 pend:发送是异步的,期间用户可能又加/删图,直接读 pend 会串。
+  const sentAtt=pend.filter(p=>p.state==='ok'&&p.id);
+  if(pend.some(p=>p.state==='up'))toast('有图片还在上传,已先发送其余内容');
+  pend.forEach(p=>{if(!sentAtt.includes(p))URL.revokeObjectURL(p.url);});
+  pend=[];renderAttach();
+
+  c.msgs.push({role:'user',content:q,atts:sentAtt.map(a=>a.id)});
   c.msgs.push({role:'bot',content:''});
   const bi=c.msgs.length-1;saveC();
-  wrap.insertAdjacentHTML('beforeend',`<div class="msg user"><div class="bubble">${esc(q)}</div></div>`);
+  wrap.insertAdjacentHTML('beforeend',`<div class="msg user"><div class="bubble">${attImgsHtml(sentAtt.map(a=>a.id))}${esc(q)}</div></div>`);
   wrap.insertAdjacentHTML('beforeend',`<div class="msg bot"><div class="role"><span class="avatar">${AGENT_ICON}</span>Kinger Agent</div><div class="content" aria-live="polite"><span class="thinking"><span class="thinking-icon">${AGENT_ICON}</span><span>正在准备回答</span><span class="thinking-dots" aria-hidden="true"><i></i><i></i><i></i></span></span></div></div>`);
   scroll();
   const content=wrap.lastElementChild.querySelector('.content');
   busy=true;sendBtn.classList.add('stop');sendBtn.innerHTML=IC.stop;
   let acc='',done=null,errorMessage='',finished=false;
   const tok=window.__accessToken?`&access_token=${encodeURIComponent(window.__accessToken)}`:'';  // 登录用户:后端按 sub 落库历史
-  const url=`/api/chat?q=${encodeURIComponent(q)}&thread=${encodeURIComponent(c.thread)}&deep=${deep}&web=${web}&length=${length}${tok}`;
+  // 只带**已上传成功**的 id;正在上传/失败的不发(服务端也会再校验一遍所有权)
+  const attParam=sentAtt.length?`&att=${encodeURIComponent(sentAtt.map(a=>a.id).join(','))}`:'';
+  const url=`/api/chat?q=${encodeURIComponent(q)}&thread=${encodeURIComponent(c.thread)}&deep=${deep}&web=${web}&length=${length}${tok}${attParam}`;
   const source=new EventSource(url);es=source;
   activeRun={cancel:()=>{errorMessage='已停止生成，可重新发送此问题。';finish();}};
   source.onmessage=e=>{let ev;try{ev=JSON.parse(e.data);}catch{return;}
@@ -666,11 +717,115 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 ensureConv();renderSide();renderChat();
 if(!narrow())qEl.focus({preventScroll:true});
 
+// ===== 图片附件(Gemini 风:回形针 + 输入框上方缩略图条)=====
+// 流程:选图 → 立刻上传拿 id → 缩略图转为就绪 → 发送时只把 id 串进 ?att=。
+// 为什么先上传:SSE 那条是 GET(EventSource 限制),传不了文件;分开还让同一张图能被多轮追问复用。
+// 附件仅登录可用 —— 匿名不落库,存了就无主、算不了配额也回收不掉。
+// 轻量 toast:2.6s 自动消失。aria-live 让读屏软件也能播报(不然视障用户完全收不到反馈)。
+function toast(msg){
+  let box=$('.toasts');
+  if(!box){box=document.createElement('div');box.className='toasts';
+    box.setAttribute('aria-live','polite');document.body.appendChild(box);}
+  const el=document.createElement('div');el.className='t';el.textContent=msg;
+  box.appendChild(el);
+  setTimeout(()=>{el.remove();if(!box.children.length)box.remove();},2600);
+}
+
+const attachBar=$('#attachBar'),attachBtn=$('#attachBtn'),fileInput=$('#fileInput');
+let pend=[];          // [{key, id|null, url(本地预览), state:'up'|'ok'|'err', name}]
+let authedNow=false;  // 由 kinger-auth 事件同步
+
+function renderAttach(){
+  attachBar.hidden=pend.length===0;
+  attachBar.innerHTML=pend.map(p=>{
+    const cls=p.state==='up'?' pending':(p.state==='err'?' failed':'');
+    const tip=p.state==='err'?'上传失败,点 ✕ 移除后重试':esc(p.name||'图片');
+    return `<div class="thumb${cls}" title="${escAttr(tip)}"><img src="${escAttr(p.url)}" alt=""><button class="rm" type="button" data-k="${escAttr(p.key)}" aria-label="移除">✕</button></div>`;
+  }).join('');
+}
+attachBar.addEventListener('click',e=>{
+  const b=e.target.closest('.rm');if(!b)return;
+  const p=pend.find(x=>x.key===b.dataset.k);
+  if(p)URL.revokeObjectURL(p.url);                  // 释放 blob,否则一直占内存
+  pend=pend.filter(x=>x.key!==b.dataset.k);renderAttach();
+});
+attachBtn.onclick=()=>{
+  if(!authedNow){toast('登录后才能发图片');return;}   // 不静默失败:说清为什么
+  fileInput.click();
+};
+fileInput.onchange=()=>{addFiles(fileInput.files);fileInput.value='';};  // 清空 value,同一文件可再选
+
+async function addFiles(files){
+  if(!authedNow){toast('登录后才能发图片');return;}
+  for(const f of Array.from(files||[])){
+    if(!f.type.startsWith('image/')){toast(`「${f.name}」不是图片`);continue;}
+    if(pend.length>=8){toast('一次最多 8 张');break;}
+    const item={key:Math.random().toString(36).slice(2),id:null,url:URL.createObjectURL(f),state:'up',name:f.name};
+    pend.push(item);renderAttach();
+    try{
+      const fd=new FormData();fd.append('file',f);
+      const headers={};
+      if(window.__accessToken)headers['Authorization']='Bearer '+window.__accessToken;
+      const r=await fetch('/api/me/attachments',{method:'POST',body:fd,headers});
+      if(!r.ok){
+        let msg='上传失败';
+        try{const j=await r.json();if(j&&j.detail)msg=j.detail;}catch{}
+        item.state='err';renderAttach();toast(msg);continue;   // 服务端的 413/415 文案直接给用户看
+      }
+      const j=await r.json();item.id=j.id;item.state='ok';renderAttach();
+    }catch{item.state='err';renderAttach();toast('上传失败,请检查网络');}
+  }
+}
+// 渲染消息里的附件图片。
+// 先输出**占位** <img data-att=id>,再异步用 fetch 带 Authorization 换 blob 塞回去 ——
+// 因为 <img src> 发不了请求头,而取回端点是要鉴权的(附件属于私人对话,不能放公开目录)。
+// 不走 `?access_token=` 那条路:那会把令牌写进 DOM 属性,而这里完全可以避开。
+function attImgsHtml(ids){
+  if(!ids||!ids.length)return '';
+  return `<div class="bubble-imgs">${ids.map(id=>`<img data-att="${escAttr(id)}" alt="附件图片">`).join('')}</div>`;
+}
+const attBlobs=new Map();     // id → blobURL,同一张图在多处渲染只取一次
+async function hydrateAttImgs(root){
+  for(const el of (root||document).querySelectorAll('img[data-att]:not([data-done])')){
+    el.dataset.done='1';
+    const id=el.dataset.att;
+    if(attBlobs.has(id)){el.src=attBlobs.get(id);continue;}
+    try{
+      const headers={};
+      if(window.__accessToken)headers['Authorization']='Bearer '+window.__accessToken;
+      const r=await fetch(`/api/me/attachments/${encodeURIComponent(id)}`,{headers});
+      if(!r.ok)throw new Error(String(r.status));
+      const u=URL.createObjectURL(await r.blob());
+      attBlobs.set(id,u);el.src=u;
+    }catch{
+      // 取不到就移除占位,不留裂图。常见于:换了账号(404)、附件被清理(410)、未登录。
+      el.remove();
+    }
+  }
+}
+// 粘贴与拖拽:和按钮同一条路径,不额外实现一套
+document.addEventListener('paste',e=>{
+  const imgs=Array.from(e.clipboardData?.items||[]).filter(i=>i.type.startsWith('image/'));
+  if(!imgs.length)return;
+  e.preventDefault();addFiles(imgs.map(i=>i.getAsFile()).filter(Boolean));
+});
+['dragover','drop'].forEach(t=>document.addEventListener(t,e=>{
+  if(!Array.from(e.dataTransfer?.types||[]).includes('Files'))return;
+  e.preventDefault();
+  if(t==='drop')addFiles(e.dataTransfer.files);
+}));
+
 // ===== Logto 终端用户登录 + 云端历史(与匿名流程解耦;由 /vendor/auth.js 模块驱动) =====
 const authBtn=$('#authBtn'),cloudBox=$('#cloudBox'),cloudList=$('#cloudList');
 function fmtTime(ts){if(!ts)return'';try{return new Date(ts).toLocaleDateString('zh-CN');}catch{return'';}}
 window.addEventListener('kinger-auth',ev=>{
   const d=ev.detail||{};
+  // 附件仅登录可用:未登录就把回形针置灰并说明原因,而不是让人点了才收到错误。
+  // 登出时清掉待发区 —— 那些 id 已不属于当前会话,发出去只会被服务端过滤。
+  authedNow=Boolean(d.authed);
+  attachBtn.disabled=!authedNow;
+  attachBtn.title=authedNow?'添加图片':'登录后可发送图片';
+  if(!authedNow&&pend.length){pend.forEach(p=>URL.revokeObjectURL(p.url));pend=[];renderAttach();}
   if(!d.configured){authBtn.hidden=true;cloudBox.classList.remove('show');return;}
   authBtn.hidden=false;
   if(d.authed){
@@ -696,7 +851,12 @@ window.openCloud=async id=>{
     const conv=await window.KingerAuth.getConversation(id);
     // 映射服务端消息(assistant→bot)到本地渲染模型;标记只读,不写 localStorage。
     const msgs=(conv.messages||[]).map(m=>({role:m.role==='assistant'?'bot':'user',content:m.content||'',
-      mode:m.mode,sources:m.sources||[],q:m.role==='assistant'?null:m.content}));
+      mode:m.mode,sources:m.sources||[],q:m.role==='assistant'?null:m.content,
+      // 服务端的 parts 是标准 OpenAI 结构,图片 url 形如 `attachment:<id>`(见 models.Message)。
+      // 老消息 parts 为 null → atts 为空,按纯文本渲染,两条路径都要能走。
+      atts:(m.parts||[]).filter(p=>p&&p.type==='image_url')
+        .map(p=>String(p.image_url&&p.image_url.url||'').replace(/^attachment:/,''))
+        .filter(Boolean)}));
     const c={id:'cloud_'+id,title:(conv.title||'云端对话')+' · 只读',thread:conv.thread_id||nid(),msgs,readonly:true};
     convs=convs.filter(x=>!String(x.id).startsWith('cloud_'));  // 只保留一个临时只读会话
     convs.unshift(c);cur=c.id;renderSide();renderChat();
