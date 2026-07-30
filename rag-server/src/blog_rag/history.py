@@ -28,14 +28,25 @@ def _get_or_create(db: DBSession, user_sub: str, thread_id: str, first_question:
 
 
 def record_turn(user_sub: str, thread_id: str, question: str, answer: str,
-                mode: str | None = None, sources: list | None = None) -> None:
-    """记录一轮问答(登录用户;失败静默——历史落库不应拖垮问答)。"""
+                mode: str | None = None, sources: list | None = None,
+                attachment_ids: list[str] | None = None) -> None:
+    """记录一轮问答(登录用户;失败静默——历史落库不应拖垮问答)。
+
+    带附件时给用户消息写 `parts_json`(标准 OpenAI parts 结构),`content` 仍存纯文本 ——
+    检索、摘要、导出、老数据都还靠 content,parts 只多带"图在哪个位置"这层信息。
+    url 用 `attachment:<id>` 自定义 scheme:真实路径会随存储布局变,且取回必须走鉴权端点。
+    """
     if not (user_sub and thread_id):
         return
     try:
         with session_scope() as db:
             conv = _get_or_create(db, user_sub, thread_id, question)
-            db.add(Message(conversation_id=conv.id, role="user", content=question))
+            parts = None
+            if attachment_ids:
+                parts = [{"type": "text", "text": question}]
+                parts += [{"type": "image_url", "image_url": {"url": f"attachment:{a}"}}
+                          for a in attachment_ids]
+            db.add(Message(conversation_id=conv.id, role="user", content=question, parts_json=parts))
             db.add(Message(conversation_id=conv.id, role="assistant", content=answer or "",
                            mode=mode, sources_json=sources))
             conv.title = conv.title or (question or "").strip()[:60] or None
@@ -68,6 +79,9 @@ def get_conversation(db: DBSession, user_sub: str, conv_id: str) -> dict | None:
         "id": str(conv.id), "thread_id": conv.thread_id, "title": conv.title,
         "messages": [{
             "role": m.role, "content": m.content, "mode": m.mode,
+            # parts 仅在含附件时非空;前端据它渲染图文顺序,为空则按 content 纯文本渲染。
+            # 老消息 parts_json 是 NULL,这里原样回 None —— 前端两条路径都要能走。
+            "parts": m.parts_json,
             "sources": m.sources_json, "created_at": m.created_at.isoformat() if m.created_at else None,
         } for m in conv.messages],
     }

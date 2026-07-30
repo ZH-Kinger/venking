@@ -63,8 +63,9 @@ echo "==> 推送代码 + chroma 库(约 33M)…"
 # 解包后服务器上会多出一堆 ._* 垃圾(2026-07 清过 97 个)。这个变量让它别干这事。
 #
 # ⚠️ data/ 下的**运行时状态库绝不能从本地推上去覆盖生产** —— 那是用户数据,不是代码:
-#     admin.sqlite       业务库(conversations/messages/audit_logs),由 alembic 在服务器上建
+#     admin.sqlite       业务库(conversations/messages/audit_logs/attachments),由 alembic 在服务器上建
 #     checkpoints.sqlite LangGraph 对话检查点(短期记忆)
+#     attachments/       用户上传的图片(内容寻址落盘)
 #     *-wal / *-shm      SQLite 的 WAL 与共享内存,漏排会让库不一致
 #   2026-07 就因为漏排,连着三次部署用本地 checkpoints 覆盖了生产的。
 #   该推的只有 chroma 向量库与 record_manager —— 它们是"内容",由本地 ingest 产出。
@@ -82,6 +83,7 @@ tar czf - \
   --exclude='data/inbox' \
   --exclude='data/admin.sqlite*' \
   --exclude='data/checkpoints.sqlite*' \
+  --exclude='data/attachments' \
   --exclude='.git' \
   src pyproject.toml Dockerfile docker-compose.yml .dockerignore "$ENV_FILE" alembic alembic.ini data \
   | ssh $SSH_OPTS "$SERVER" "set -e

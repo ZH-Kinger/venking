@@ -12,7 +12,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Annotated, Literal
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -72,6 +72,9 @@ def chat(
     web: bool = False,
     length: Literal["", "short", "detailed"] = "",
     thread: Annotated[str, Query(max_length=128, pattern=r"^[A-Za-z0-9_-]*$")] = "",
+    # 附件 id(逗号分隔)。上传是**独立的 POST**,这里只引用 —— EventSource 只能发 GET,
+    # 为了传文件把整条 SSE 改成 POST 不值得,而且分开还让同一张图能被多轮追问复用。
+    att: Annotated[str, Query(max_length=512, pattern=r"^[0-9a-fA-F,-]*$")] = "",
 ):
     """SSE 流式问答:逐 token 推 {type:token} + 末尾推 {type:done}(含 mode/sources/suggestions)。
 
@@ -91,6 +94,26 @@ def chat(
         identity = optional_user_sse(request)
     except ImportError:
         pass
+
+    # 附件:只认**本人拥有**的 id。逐个校验 owner_sub —— 否则拿到别人的 id 就能把
+    # 他人的图带进自己的对话历史(而且以后接 VL 时等于能读别人的图)。
+    # 匿名恒为空:匿名不落库,也不该能引用任何附件。
+    att_ids: list[str] = []
+    if att and identity is not None:
+        try:
+            from blog_rag.db import session_scope
+            from blog_rag.models import Attachment
+            wanted = [s for s in att.split(",") if s][:8]     # 上限 8 张,防一次塞几十张
+            with session_scope() as db:
+                for s in wanted:
+                    try:
+                        a = db.get(Attachment, UUID(s))
+                    except (ValueError, AttributeError):
+                        continue                              # 非法 uuid:忽略,不报错打断问答
+                    if a is not None and a.owner_sub == identity.sub:
+                        att_ids.append(str(a.id))
+        except ImportError:
+            pass
 
     def gen():
         answer_parts: list[str] = []
@@ -135,6 +158,7 @@ def chat(
                 history.record_turn(
                     identity.sub, thread or done_thread or "", question,
                     "".join(answer_parts), mode=done_mode, sources=done_sources,
+                    attachment_ids=att_ids or None,
                 )
             except ImportError:
                 pass

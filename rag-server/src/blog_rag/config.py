@@ -140,6 +140,13 @@ class Settings(BaseSettings):
     # 是公开客户端标识(非机密),留空=前端不显示登录入口(仅匿名可用)。
     logto_app_id: str = Field(default="", validation_alias="LOGTO_APP_ID")
 
+    # ---- 附件上传(见 storage.py / models.Attachment)----
+    # 开放注册 + 图片上传 = 潜在的免费图床,服务器只有 ~27G 可用盘,所以配额是必须项而非可选。
+    # 单文件 5MB、单用户 100MB:100 个用户全打满也只 10G。超限返回 413。
+    # **匿名一律不允许上传** —— 匿名不落库,存了就无主、无法算配额也无法回收。
+    upload_max_bytes: int = Field(default=5 * 1024 * 1024, validation_alias="UPLOAD_MAX_BYTES")
+    upload_quota_bytes: int = Field(default=100 * 1024 * 1024, validation_alias="UPLOAD_QUOTA_BYTES")
+
     # ---------- 校验 ----------
     @field_validator("embedding_dim")
     @classmethod
@@ -196,6 +203,15 @@ class Settings(BaseSettings):
     @property
     def feedback_dir(self) -> Path:
         return self.data_dir / "feedback"
+
+    @property
+    def attachments_dir(self) -> Path:
+        """用户上传的附件,内容寻址(sha256 前两位分子目录,避免单目录几万文件)。
+
+        ⚠️ 这是**用户数据**,不是内容产物 —— deploy.sh 必须排除它,别用本地的覆盖生产
+        (2026-07 就用本地 checkpoints 覆盖过生产库)。同理它不进镜像,靠 ./data 卷持久化。
+        """
+        return self.data_dir / "attachments"
 
     @property
     def checkpoint_db(self) -> Path:

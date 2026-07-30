@@ -25,7 +25,11 @@ web = ["ddgs", "tavily-python"]   # 联网搜索:ddgs 免key起步 / tavily 精�
 eval = []
 obs = ["langfuse>=4"]                       # 在线追踪看板,延后到 M6
 ui = ["gradio>=5"]                          # M6.1 Gradio 对话界面(已被 api+自定义前端取代,保留备用)
-api = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]  # M6.2 FastAPI + SSE 流式后端(配自定义 Gemini 风格前端)
+# python-multipart:FastAPI 处理 multipart/form-data(附件上传)必需的运行时依赖。
+# 缺了它 me_routes 里带 UploadFile 的路由在**导入期**就 RuntimeError —— 而 api.py 是
+# `try: import ... except ImportError: pass`,所以缺依赖会表现为 /api/me/* 整段静默 404
+# (2026-07 漏装 admin extra 就是这么坏的,查了很久)。Dockerfile 有构建期 import 断言兜这类事。
+api = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "python-multipart>=0.0.9"]
 # 管理后台 + 用户历史:业务数据落 PostgreSQL(本地开发 SQLite 亦可,模型可移植);
 # 身份/登录交给 Logto,后端用 pyjwt[crypto] 按 JWKS 校验 access token(见 logto_auth.py)。
 admin = ["sqlalchemy>=2", "alembic>=1.13", "psycopg[binary]>=3.1", "pyjwt[crypto]>=2.8"]

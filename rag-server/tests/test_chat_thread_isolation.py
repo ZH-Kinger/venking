@@ -79,8 +79,19 @@ class _RecordSpy:
     def __init__(self):
         self.calls: list[tuple] = []
 
-    def __call__(self, user_sub, thread_id, question, answer, mode=None, sources=None):
+    # ⚠️ 必须收 **kw:签名与真函数不符时 TypeError 发生在 SSE 生成器内部,
+    #    被那里的 except Exception 吞成一个 error 事件 → 流看起来是空的,
+    #    14 个用例一起挂在 `evs[-1]` IndexError 上,完全看不出真因是签名。
+    #    (这也说明真实的 record_turn 抛异常会让整条流静默变空,不只是测试问题。)
+    def __call__(self, user_sub, thread_id, question, answer, mode=None, sources=None, **kw):
         self.calls.append((user_sub, thread_id, question, answer, mode, sources))
+        self.extra: list[dict] = getattr(self, "extra", [])
+        self.extra.append(kw)
+
+    @property
+    def attachment_ids(self) -> list[list[str] | None]:
+        """每次调用带的 attachment_ids(供附件相关用例断言)。"""
+        return [k.get("attachment_ids") for k in getattr(self, "extra", [])]
 
     @property
     def thread_ids(self) -> list[str]:
