@@ -53,6 +53,16 @@ node scripts/publish.mjs [--no-pull] [--dry] [--no-ingest] [--no-build]
   deploy hook 续期后自动 `nginx -t && reload`。**HSTS 已开(1y + includeSubDomains)**,
   所以证书过期 = 全站硬故障(浏览器不给"继续访问")。新增子域必须先进 certbot `-d` 列表。
 - nginx 配置全部版本化在 `deploy/nginx/`,**映射关系与两个反复踩的坑见 `deploy/nginx/README.md`**。
+- ⚠️ **nginx 配置不在 `rag-server/deploy.sh` 里** —— 它只发前后端,完全不碰 `/etc/nginx/`。
+  改了 `deploy/nginx/*.conf` 必须手动发,而且要**先于**前后端发布:
+  ```
+  scp deploy/nginx/zh-kinger.conf <SERVER>:/etc/nginx/default.d/
+  ssh <SERVER> 'nginx -t && systemctl reload nginx'
+  ```
+  顺序反了的具体后果(附件上传这次就是):nginx 默认 `client_max_body_size` 是 1m,
+  应用写着 5MB 上限,于是所有超过 1MB 的图(= 手机拍照的绝大多数)被 nginx 挡在应用之外,
+  返回的还是它自己的英文 413 页,前端解析不出 `detail`,用户只看到一句无信息的"上传失败"。
+  本机没装 nginx,`nginx -t` **只能在服务器上跑**,这一步不能跳。
 - 裸 IP / 未知 Host → 444(顺带隔离"别人把未备案域名解析到本机"的备案风险)。
   调试用 `curl --resolve venking.tech:443:<IP> https://venking.tech/`。
 

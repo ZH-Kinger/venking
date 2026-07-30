@@ -146,6 +146,10 @@ class Settings(BaseSettings):
     # **匿名一律不允许上传** —— 匿名不落库,存了就无主、无法算配额也无法回收。
     upload_max_bytes: int = Field(default=5 * 1024 * 1024, validation_alias="UPLOAD_MAX_BYTES")
     upload_quota_bytes: int = Field(default=100 * 1024 * 1024, validation_alias="UPLOAD_QUOTA_BYTES")
+    # 全站水位:**per-user 配额挡不住"用户数增长"** —— 开放注册下 100MB×N 个账号
+    # 迟早打满 27G 盘,而磁盘满会同时打死业务库与 checkpoints(不只是传不了图)。
+    # 达到水位后新上传返回 507,已有数据不受影响。
+    upload_total_bytes: int = Field(default=5 * 1024 * 1024 * 1024, validation_alias="UPLOAD_TOTAL_BYTES")
 
     # ---------- 校验 ----------
     @field_validator("embedding_dim")

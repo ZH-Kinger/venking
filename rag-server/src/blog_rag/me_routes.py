@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import uuid
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
@@ -73,16 +74,32 @@ async def upload_attachment(user: UserDep, db: DbDep, file: Annotated[UploadFile
 
     # 同一用户重复上传同一内容 → 复用既有记录,不重复占配额(唯一索引也不允许重复插)
     att = storage.find_by_sha(db, user.sub, stored.sha256)
+    reused = att is not None
     if att is None:
         att = Attachment(
             owner_sub=user.sub, kind="image", mime=stored.mime, bytes=stored.size,
-            sha256=stored.sha256, filename=(file.filename or None),
+            # 按列宽截断。**SQLite 不校验 String(255) 的长度,PostgreSQL 会** ——
+            # 本地和 CI 全绿,生产则 `value too long for character varying(255)` → 上传 500。
+            # 这类"只在生产炸"的差异必须在写入侧堵死,不能指望被测出来。
+            sha256=stored.sha256, filename=((file.filename or "")[:255] or None),
         )
         db.add(att)
         db.commit()
         db.refresh(att)
+    # deduped 必须由**本人是否已有记录**决定,不能用 stored.deduped ——
+    # 后者是"blob 文件已存在",而 blob 路径是全局的(attachments/<sha[:2]>/<sha>),
+    # 别人传过同一张图也会命中。那样这个字段就成了跨用户存在性 oracle:
+    # 新账号传一张自己从没传过的图却收到 deduped=true ⇒ 站上有别人持有完全相同的文件。
+    # 这正是设计注释里声称要避免的"上传某文件看是否秒传"探测。
+    #
+    # ⚠️ 这个字段还是**安全相关**的:前端缩略图的 ✕ 只对 `deduped === false` 发 DELETE
+    # (见 static/index.html 的 attachBar 点击处理),因为 true 意味着返回的是本人此前
+    # 那条**可能已被历史消息引用**的旧记录。两个方向的破坏不对称:
+    #   · 错报 true  → 前端不删 → 只是配额泄漏(fail-safe);
+    #   · 错报 false → 删掉被引用的行 → 历史消息的图当场 404,**数据丢失**(fail-dangerous)。
+    # 任何让 find_by_sha 漏命中的改动(改唯一约束、改查询范围、加软删过滤)都会翻到危险那侧。
     return {"id": str(att.id), "mime": att.mime, "bytes": att.bytes,
-            "filename": att.filename, "deduped": stored.deduped}
+            "filename": att.filename, "deduped": reused}
 
 
 @router.get("/attachments/{att_id}")
@@ -107,10 +124,11 @@ def get_attachment(user: UserDep, db: DbDep, att_id: str):
     return FileResponse(
         path, media_type=att.mime,
         headers={
-            # 私有内容:禁止任何共享缓存留存(nginx/CDN/代理)
-            "Cache-Control": "private, max-age=86400",
-            # 图片以附件名下载时用原始名;inline 让浏览器直接渲染
-            "Content-Disposition": f'inline; filename="{_safe_name(att.filename)}"',
+            # 私有内容:no-store 而不是 private+max-age —— 后者没有 Vary,同一浏览器换账号后
+            # 若知道对方 id 有可能命中本地缓存拿到上一账号的图。前端本来就按 id 缓存 blob,
+            # 不走 HTTP 缓存也没有性能损失。
+            "Cache-Control": "no-store",
+            **_disposition(att.filename),
             # 兜底:即使 mime 被绕过,也不让浏览器把它当脚本执行
             "X-Content-Type-Options": "nosniff",
         },
@@ -125,11 +143,59 @@ def _as_uuid(value: str) -> uuid.UUID | None:
         return None
 
 
-def _safe_name(name: str | None) -> str:
-    """文件名只用于 Content-Disposition 展示。
+@router.delete("/attachments/{att_id}", status_code=204)
+def delete_attachment(user: UserDep, db: DbDep, att_id: str):
+    """删除自己的附件,释放配额。
 
-    去掉引号、反斜杠与控制字符 —— 它们能截断/注入响应头。
-    文件名**从不参与路径拼接**(落盘走 sha256),所以这里只需防头部注入。
+    没有这个端点的话配额只增不减 —— 而超限时的提示恰恰是"请先删除一些旧附件",
+    等于指了一个做不到的动作;用户把 100MB 用完就永久发不了图,零恢复路径。
+
+    删 blob 前必须按 sha256 做**跨全表**引用计数(实现见
+    `storage.delete_blob_if_unreferenced` —— blob 的布局只有 storage 知道,
+    路由层不该自己拼 sha 的 SQL 再去猜文件在哪)。
+
+    ⚠️ **本端点不检查 `messages.parts` 里的引用** —— 删一个已被历史消息引用的附件是
+    允许的,那条消息的图之后会 404 → 前端显示"图片已不可用"。防误删完全靠前端:
+    缩略图的 ✕ 只对 `deduped === false`(= 刚新建的行)发 DELETE。所以那个字段
+    是**安全相关**的,不只是信息性的,别顺手改它的语义(见 upload_attachment)。
+    要硬保证得在这里查引用或改软删。
     """
+    aid = _as_uuid(att_id)
+    att = db.get(Attachment, aid) if aid is not None else None
+    if att is None or att.owner_sub != user.sub:
+        raise HTTPException(status_code=404, detail="附件不存在")
+    sha = att.sha256
+    # 先校验 sha 合法(会在非法时抛),**再**删记录:守卫放在 commit 之后的话,
+    # 坏 sha 的后果就从"500 但数据完好"变成"记录已删、blob 成孤儿"——
+    # 而这道守卫存在的理由恰恰是防未来的导入/迁移脚本,那正是可能有坏 sha 的场景。
+    storage.blob_path_of(att)
+    # 先删记录并提交,再数引用 —— 顺序反了会把自己算进去,于是永远不回收磁盘。
+    db.delete(att)
+    db.commit()
+    storage.delete_blob_if_unreferenced(db, sha)
+
+
+def _disposition(name: str | None) -> dict[str, str]:
+    """构造 Content-Disposition。
+
+    ⚠️ **响应头只能是 latin-1**(starlette 用 `v.encode("latin-1")`),而中文文件名
+    在中文站是**默认情况**不是边缘情况(「屏幕截图 2026-07-30.png」)。直接把原名塞进去
+    会让取回端点每次都 500,而且名字存在库里 → 那张图**永久**不可见;
+    前端拿到非 200 会静默移除占位,用户只看到图凭空消失、控制台无错。
+    所以按 RFC 5987 双写:`filename=` 给 ASCII 兜底(老客户端),`filename*=` 给真名。
+    """
+    raw = (name or "attachment")[:100]
+    # 剥掉能截断/注入响应头的字符;isprintable() 已排除 CR/LF/U+2028 等
+    cleaned = "".join(ch for ch in raw if ch.isprintable() and ch not in '"\\\r\n') or "attachment"
+    # ASCII 兜底:非 latin-1 字符换成下划线,保证一定能编码
+    ascii_name = cleaned.encode("ascii", "replace").decode("ascii").replace("?", "_")
+    value = f'inline; filename="{ascii_name}"'
+    if ascii_name != cleaned:
+        value += f"; filename*=UTF-8''{quote(cleaned, safe='')}"
+    return {"Content-Disposition": value}
+
+
+def _safe_name(name: str | None) -> str:
+    """仅保留给测试/日志用的清洗函数;响应头请用 _disposition()。"""
     base = (name or "attachment")[:100]
     return "".join(ch for ch in base if ch.isprintable() and ch not in '"\\\r\n') or "attachment"

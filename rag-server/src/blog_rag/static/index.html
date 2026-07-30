@@ -232,13 +232,15 @@
   /* 回形针进了输入框左侧,原本 18px 的左内边距要收掉,否则按钮离边太远 */
   .inputbar:has(.attach-btn){padding-left:8px}
   .attach-btn{flex:0 0 auto;width:36px;height:36px;margin-bottom:2px;border:none;border-radius:50%;
-    cursor:pointer;background:transparent;color:var(--ink-dim);display:grid;place-items:center;transition:.15s}
+    cursor:pointer;background:transparent;color:var(--sub);display:grid;place-items:center;transition:.15s}
   .attach-btn svg{width:20px;height:20px}
   .attach-btn:hover{background:rgba(255,255,255,.07);color:var(--ink)}
   .attach-btn:active{transform:scale(.92);transition:transform 80ms ease-out}
   .attach-btn[disabled]{opacity:.4;cursor:not-allowed}
   /* 缩略图条:横向可滚,不因图多而把输入框顶变形 */
-  .attachbar{display:flex;gap:8px;overflow-x:auto;padding:0 4px 10px;scrollbar-width:thin}
+  .attachbar{padding:0 4px 10px}
+  .attachbar .row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin}
+  .attach-note{font-size:12px;color:var(--sub);padding:0 2px 6px}
   .attachbar[hidden]{display:none!important}
   .thumb{position:relative;flex:0 0 auto;width:60px;height:60px;border-radius:10px;overflow:hidden;
     border:1px solid var(--line-strong);background:rgba(255,255,255,.04)}
@@ -256,6 +258,15 @@
   /* 消息气泡里的图片 */
   .bubble-imgs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
   .bubble-imgs img{max-width:180px;max-height:180px;border-radius:10px;display:block;cursor:zoom-in}
+  /* 确定取不到的图(换账号 404 / 文件丢了 410):给一个说明性占位。
+     不 remove —— 图凭空消失比一个灰框难排查得多,用户只会以为自己记错了。 */
+  .img-gone,.bubble-imgs img:not([src]){display:grid;place-items:center;flex:0 0 auto;
+    width:120px;height:80px;border-radius:10px;box-sizing:border-box;
+    border:1px dashed var(--line-strong);color:var(--muted);font-size:11.5px;
+    background:rgba(255,255,255,.02);text-align:center;padding:0 6px;line-height:1.4;cursor:default}
+  /* 还没取到的 <img>(首屏无令牌 / 暂时性失败待重试)同样渲染成占位框。
+     不这么做的话它只有 alt 没有 src,浏览器会把「附件图片」当一行文字塞进气泡里。
+     必须保持是 <img> 而不是换成 div:重试靠选择器 img[data-att],换了就选不中。 */
   /* 瞬时提示。用它而不是 alert():alert 阻塞交互且样式不可控;
      也不复用 setHealth —— 那是服务健康指示器,语义不同,借用会让"红点"含义变模糊。 */
   .toasts{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:60;
@@ -659,15 +670,22 @@ function runQuery(q){
   {const w=$('#welcome');if(w){w.style.opacity='0';w.style.transform='translateY(-8px)';setTimeout(()=>w.remove(),160);}}
   // 附件:发送这一刻**快照**已上传成功的那些,然后清空待发区。
   // 快照而不是引用 pend:发送是异步的,期间用户可能又加/删图,直接读 pend 会串。
+  // 仍在上传中的**留在 pend 里**继续传完 —— 踢出去的话它的 fetch 还在飞,
+  // 成功后会写进一个已脱离 UI 的对象:DB 行和 blob 都建了,却看不到、发不出、删不掉,
+  // 每次「图还在转圈就按回车」都漏一份配额。
   const sentAtt=pend.filter(p=>p.state==='ok'&&p.id);
-  if(pend.some(p=>p.state==='up'))toast('有图片还在上传,已先发送其余内容');
-  pend.forEach(p=>{if(!sentAtt.includes(p))URL.revokeObjectURL(p.url);});
-  pend=[];renderAttach();
+  const stillUp=pend.filter(p=>p.state==='up');
+  if(stillUp.length)toast(`${stillUp.length} 张还在上传,已先发送其余内容`);
+  pend.filter(p=>p.state==='err').forEach(p=>URL.revokeObjectURL(p.url));
+  // 本地预览的 blob 直接**复用**成该 id 的缓存:省一次带鉴权取回,也不白留一个 blob。
+  sentAtt.forEach(p=>attBlobs.set(p.id,p.url));
+  pend=stillUp;renderAttach();
 
   c.msgs.push({role:'user',content:q,atts:sentAtt.map(a=>a.id)});
   c.msgs.push({role:'bot',content:''});
   const bi=c.msgs.length-1;saveC();
   wrap.insertAdjacentHTML('beforeend',`<div class="msg user"><div class="bubble">${attImgsHtml(sentAtt.map(a=>a.id))}${esc(q)}</div></div>`);
+  void hydrateAttImgs(wrap);   // 否则刚发出的这条只显示 alt 文字,要切走会话再切回来才出现
   wrap.insertAdjacentHTML('beforeend',`<div class="msg bot"><div class="role"><span class="avatar">${AGENT_ICON}</span>Kinger Agent</div><div class="content" aria-live="polite"><span class="thinking"><span class="thinking-icon">${AGENT_ICON}</span><span>正在准备回答</span><span class="thinking-dots" aria-hidden="true"><i></i><i></i><i></i></span></span></div></div>`);
   scroll();
   const content=wrap.lastElementChild.querySelector('.content');
@@ -732,23 +750,71 @@ function toast(msg){
 }
 
 const attachBar=$('#attachBar'),attachBtn=$('#attachBtn'),fileInput=$('#fileInput');
-let pend=[];          // [{key, id|null, url(本地预览), state:'up'|'ok'|'err', name}]
+let pend=[];          // [{key, id|null, url(本地预览), state:'up'|'ok'|'err', name, deduped}]
 let authedNow=false;  // 由 kinger-auth 事件同步
 
+// 配额信息(used/quota/max_file)。单文件上限**从服务端取**而不是前端写死 5MB ——
+// 写死就是同一个数字存在两处,改了 UPLOAD_MAX_BYTES 之后前端还按旧值放行,
+// 用户白传一遍才收到 413。取不到时才回落常量。
+let quotaInfo=null;
+const FALLBACK_MAX=5*1024*1024;
+const mb=n=>(n/1048576).toFixed(n>=10*1048576?0:1);
+async function refreshQuota(){
+  if(!authedNow||!window.__accessToken)return null;
+  try{
+    const r=await fetch('/api/me/attachments/quota',
+      {headers:{Authorization:'Bearer '+window.__accessToken}});
+    if(r.ok)quotaInfo=await r.json();
+  }catch{}
+  // 只更新那一行文字,**不重建整个 attachBar**:innerHTML 重建会让上传中的转圈动画
+  // 跳回 0°,还会把所有预览 <img src="blob:"> 重新解码(8 张 5MB × 8 次成功回调,
+  // 手机上是实打实的卡顿)。
+  const note=$('.attach-note');
+  if(note)note.textContent=attachNote();
+  return quotaInfo;
+}
+
+function attachNote(){
+  // 诚实提示:图片目前只保存进历史,**不参与回答**(VL 还没接)。
+  // 不说的话用户会以为模型看了图并采信答案 —— 那比不支持更糟。
+  // 顺带把已用配额显示出来:超限文案让人"删旧附件",不给用量他无从判断。
+  const q=quotaInfo?` · 已用 ${mb(quotaInfo.used_bytes)}/${mb(quotaInfo.quota_bytes)}MB`:'';
+  return `图片会保存在对话记录里,但暂不参与 AI 回答${q}`;
+}
 function renderAttach(){
   attachBar.hidden=pend.length===0;
-  attachBar.innerHTML=pend.map(p=>{
+  const note=pend.length?`<div class="attach-note">${esc(attachNote())}</div>`:'';
+  attachBar.innerHTML=note+'<div class="row">'+pend.map(p=>{
     const cls=p.state==='up'?' pending':(p.state==='err'?' failed':'');
     const tip=p.state==='err'?'上传失败,点 ✕ 移除后重试':esc(p.name||'图片');
     return `<div class="thumb${cls}" title="${escAttr(tip)}"><img src="${escAttr(p.url)}" alt=""><button class="rm" type="button" data-k="${escAttr(p.key)}" aria-label="移除">✕</button></div>`;
-  }).join('');
+  }).join('')+'</div>';
 }
 attachBar.addEventListener('click',e=>{
   const b=e.target.closest('.rm');if(!b)return;
   const p=pend.find(x=>x.key===b.dataset.k);
-  if(p)URL.revokeObjectURL(p.url);                  // 释放 blob,否则一直占内存
+  if(p){
+    URL.revokeObjectURL(p.url);                     // 释放 blob,否则一直占内存
+    // 移除待发图时**同时删服务端记录**。少了这一步配额就只增不减:上传成功后点 ✕,
+    // 库里的行和 blob 都留着继续吃 100MB,而 UI 里再没有任何入口能删它 ——
+    // 超限时那句"请先删除一些旧附件"就成了一个做不到的动作,用户零自救路径。
+    // ⚠️ 只删 deduped===false 的:命中去重时返回的是**本人此前上传过**的旧 id,
+    // 很可能已被历史消息引用,删掉会把过去那条消息的图一起打掉(静默数据丢失)。
+    if(p.state==='ok'&&p.id&&!p.deduped)void deleteAtt(p.id);
+  }
   pend=pend.filter(x=>x.key!==b.dataset.k);renderAttach();
 });
+async function deleteAtt(id){
+  if(!window.__accessToken)return;     // 没令牌就别白跑一趟发出字面量 `Bearer undefined`
+  try{
+    const r=await fetch(`/api/me/attachments/${encodeURIComponent(id)}`,
+      {method:'DELETE',headers:{Authorization:'Bearer '+window.__accessToken}});
+    // 缩略图已经无条件移除了,所以删失败必须说出来:否则配额没释放、用户不知道,
+    // 而 UI 里没有附件管理页,他没有任何重试入口。
+    if(!r.ok)toast('删除失败,这张图仍占用配额');
+  }catch{toast('删除失败,这张图仍占用配额');}
+  void refreshQuota();
+}
 attachBtn.onclick=()=>{
   if(!authedNow){toast('登录后才能发图片');return;}   // 不静默失败:说清为什么
   fileInput.click();
@@ -757,10 +823,22 @@ fileInput.onchange=()=>{addFiles(fileInput.files);fileInput.value='';};  // 清�
 
 async function addFiles(files){
   if(!authedNow){toast('登录后才能发图片');return;}
+  // **同步取上限,不 await。** await 一整个 /quota 往返才建第一个缩略图的话,
+  // 慢网或后端冷启动时用户选完图界面什么都不发生、超时更是整批卡死且零反馈。
+  // 回落值就是服务端的默认值,拿错的代价只是少拦一次 —— 而后端 413 + 状态码映射
+  // 已经能给出准话。顺便预热,给下一批用。
+  const lim=(quotaInfo&&quotaInfo.max_file_bytes)||FALLBACK_MAX;
+  void refreshQuota();
   for(const f of Array.from(files||[])){
     if(!f.type.startsWith('image/')){toast(`「${f.name}」不是图片`);continue;}
+    // **本地先拦体积。** 不拦的话手机原图(8~12MB 很常见)会白传一遍,而且根本到不了应用:
+    // nginx 的 client_max_body_size 6m 先返回它**自己的英文 413 HTML**(没有 detail 字段),
+    // 前端解析不出 detail 就只能说"上传失败";更糟的是 nginx 拒绝时 lingering close,
+    // 部分浏览器直接报成网络错误 → toast 出"请检查网络",把"图太大"说成网络问题。
+    // 移动网络下白传 10MB 也是实打实的代价。
+    if(f.size>lim){toast(`「${f.name}」${mb(f.size)}MB,超过 ${mb(lim)}MB 上限`);continue;}
     if(pend.length>=8){toast('一次最多 8 张');break;}
-    const item={key:Math.random().toString(36).slice(2),id:null,url:URL.createObjectURL(f),state:'up',name:f.name};
+    const item={key:Math.random().toString(36).slice(2),id:null,url:URL.createObjectURL(f),state:'up',name:f.name,deduped:false};
     pend.push(item);renderAttach();
     try{
       const fd=new FormData();fd.append('file',f);
@@ -768,11 +846,32 @@ async function addFiles(files){
       if(window.__accessToken)headers['Authorization']='Bearer '+window.__accessToken;
       const r=await fetch('/api/me/attachments',{method:'POST',body:fd,headers});
       if(!r.ok){
-        let msg='上传失败';
+        // 先按状态码给准话,再让服务端的 detail 覆盖它。反过来写(默认"上传失败" + 尝试
+        // 读 detail)在**非 JSON 响应**上就退化成一句无信息的"上传失败" ——
+        // 而 nginx 的 413 恰恰是 HTML。
+        let msg=({413:'文件太大,超过上限',415:'只支持 jpeg/png/gif/webp 图片',
+                  401:'登录已过期,请重新登录',429:'操作太频繁,请稍后再试',
+                  507:'站点存储已满,暂时无法上传'})[r.status]||`上传失败(${r.status})`;
         try{const j=await r.json();if(j&&j.detail)msg=j.detail;}catch{}
-        item.state='err';renderAttach();toast(msg);continue;   // 服务端的 413/415 文案直接给用户看
+        item.state='err';renderAttach();toast(msg);continue;   // 服务端的 413/415 文案优先给用户看
       }
-      const j=await r.json();item.id=j.id;item.state='ok';renderAttach();
+      const j=await r.json();
+      // **同一张图在一次 compose 里被选两次**:第二次会命中服务端去重,返回**同一个 id**。
+      // 不查重会出两个独立且都糟的后果:
+      //   ① 点掉其中 deduped===false 那个 → DELETE 真删 → 另一个 thumb 仍照常发出,
+      //      被服务端的 owner 校验静默过滤;而预览 blob 已按这个 id 缓存进 attBlobs,
+      //      所以**发出去当时看起来完全正常**,刷新后才变「图片已不可用」——
+      //      "发出去了、当时能看见、过一会儿没了"是最难自证的一类 bug。
+      //   ② 就算不点 ✕,两个都发 → att=<id>,<id> → parts 里两条一样的 image_url
+      //      → 气泡里同一张图渲染两遍,而且**云端历史里永久如此**。
+      // 所以在这里按 id 查重,而不是去动 deduped 标记(后者只堵①不堵②)。
+      if(pend.some(x=>x!==item&&x.id===j.id)){
+        URL.revokeObjectURL(item.url);
+        pend=pend.filter(x=>x!==item);
+        renderAttach();toast('这张图已在待发区');continue;
+      }
+      item.id=j.id;item.deduped=Boolean(j.deduped);item.state='ok';
+      renderAttach();void refreshQuota();
     }catch{item.state='err';renderAttach();toast('上传失败,请检查网络');}
   }
 }
@@ -782,26 +881,69 @@ async function addFiles(files){
 // 不走 `?access_token=` 那条路:那会把令牌写进 DOM 属性,而这里完全可以避开。
 function attImgsHtml(ids){
   if(!ids||!ids.length)return '';
-  return `<div class="bubble-imgs">${ids.map(id=>`<img data-att="${escAttr(id)}" alt="附件图片">`).join('')}</div>`;
+  return `<div class="bubble-imgs">${ids.map(id=>`<img data-att="${escAttr(id)}" alt="图片加载中…">`).join('')}</div>`;
 }
-const attBlobs=new Map();     // id → blobURL,同一张图在多处渲染只取一次
+// attBlobs: id → blobURL **或**正在取的 Promise<blobURL>。
+// 存 in-flight promise 而不只存结果:data-done 只在**当前**元素上、fetch 前打,后面 N−1 个
+// 元素在第一次 await 期间还没标记 —— 8 张图的下载时间里任何 renderChat(切会话)或 runQuery
+// 都会启动第二趟 hydrate,同一 id 就被下两次,两个 createObjectURL 里前一个**永久泄漏**。
+// 按 id 缓存 promise,全局每个 id 只下一次。
+const attBlobs=new Map();
 async function hydrateAttImgs(root){
-  for(const el of (root||document).querySelectorAll('img[data-att]:not([data-done])')){
+  const els=[...(root||document).querySelectorAll('img[data-att]:not([data-done])')];
+  if(!els.length)return;
+  // **没令牌就原样留着,不 fetch、不打 data-done**,等 kinger-auth 到了会再调一次。
+  // 曾经在这里直接 fetch,结果是刷新页面后历史里的图全部凭空消失:
+  // 这段是内联经典脚本、解析期同步跑完(renderChat 在文件末尾就调了),
+  // 而 /vendor/auth.js 是 type="module"(defer)且取令牌本身还是异步的 ——
+  // 所以首屏 hydrate 时 __accessToken **必然**是 undefined → 不带 Authorization → 401
+  // → 旧代码 el.remove() 把占位删掉,catch 又吞了错误,控制台干净得像没事发生。
+  // 而 data-done 是在 fetch **之前**打的,所以再调 hydrate 也不会重试 —— 静默且不可恢复。
+  if(!window.__accessToken)return;
+  for(const el of els){
+    // 上一次 await 期间 renderChat() 可能已经换掉 wrap.innerHTML,手里这批就成了
+    // 脱离文档的节点 —— 继续下完只是把几 MB 赋给看不见的元素,移动网络下是白烧流量。
+    // 用 continue 而非 return:今天 renderChat 是整块替换,所以"一个脱离 ⇒ 整批脱离",
+    // 但那是**隐式前提**(finish() 就已经在就地局部重渲染 bot 那半边了)。哪天加
+    // "编辑这条提问"去就地重渲染 user 气泡,前提一破,return 会让其余图静默不加载、
+    // 无报错、也不重试(连 data-done 都没打上,只有下次整体重渲染才被捡起)。
+    // continue 的成本只是最多 8 次 isConnected 判断 —— 零 fetch、零副作用。
+    if(!el.isConnected)continue;
     el.dataset.done='1';
     const id=el.dataset.att;
-    if(attBlobs.has(id)){el.src=attBlobs.get(id);continue;}
     try{
-      const headers={};
-      if(window.__accessToken)headers['Authorization']='Bearer '+window.__accessToken;
-      const r=await fetch(`/api/me/attachments/${encodeURIComponent(id)}`,{headers});
-      if(!r.ok)throw new Error(String(r.status));
-      const u=URL.createObjectURL(await r.blob());
-      attBlobs.set(id,u);el.src=u;
-    }catch{
-      // 取不到就移除占位,不留裂图。常见于:换了账号(404)、附件被清理(410)、未登录。
-      el.remove();
+      if(!attBlobs.has(id))attBlobs.set(id,fetchAtt(id));
+      const u=await attBlobs.get(id);
+      if(el.isConnected)el.src=u;
+    }catch(e){
+      // 404(不属于本账号)/410(记录在、文件没了)是**确定**取不到 → 换成永久的"没了"占位。
+      // 其余(401 令牌刚过期、429、5xx)可能只是暂时的 → **保持这个 <img> 不动**,
+      // 只清 data-done,下次 hydrate(令牌到手/切会话)会重试。
+      // 关键:不能把暂时性失败也 replaceWith 成 div —— 选择器是 img[data-att],
+      // 换成 div 就再也选不中,等于亲手掐断刚做好的重试路径。
+      // 无 src 的 <img> 由 CSS(.bubble-imgs img:not([src]))渲染成虚线占位框,
+      // 不会把 alt 文本裸露成气泡里的一行字。
+      attBlobs.delete(id);                          // 失败的 promise 不留在缓存里
+      if(!el.isConnected)continue;
+      if(e&&e.gone)el.replaceWith(imgBox('img-gone','图片已不可用'));
+      else delete el.dataset.done;
     }
   }
+}
+async function fetchAtt(id){
+  const r=await fetch(`/api/me/attachments/${encodeURIComponent(id)}`,
+    {headers:{Authorization:'Bearer '+window.__accessToken}});
+  if(!r.ok){
+    const e=new Error(String(r.status));
+    e.gone=(r.status===404||r.status===410);        // 确定取不到,区别于暂时性失败
+    throw e;
+  }
+  return URL.createObjectURL(await r.blob());
+}
+function imgBox(cls,text){
+  const d=document.createElement('div');
+  d.className=cls;d.textContent=text;
+  return d;
 }
 // 粘贴与拖拽:和按钮同一条路径,不额外实现一套
 document.addEventListener('paste',e=>{
@@ -826,6 +968,23 @@ window.addEventListener('kinger-auth',ev=>{
   attachBtn.disabled=!authedNow;
   attachBtn.title=authedNow?'添加图片':'登录后可发送图片';
   if(!authedNow&&pend.length){pend.forEach(p=>URL.revokeObjectURL(p.url));pend=[];renderAttach();}
+  // 登出/换账号:把已取回的图 blob 全部释放、清缓存,并把 DOM 里的 <img> 退回占位。
+  // ① 与取回端点选 `Cache-Control: no-store` 想挡的是**同一类**威胁(同标签换账号后
+  //    看到上一账号的图)。今天不可达只是因为 logout 是整页导航、页面随之销毁 ——
+  //    那是巧合而非设计。所以这里连 DOM 一起复位:光清 map 是不够的,`blob:` URL 一旦
+  //    赋进 src,撤销之后图**仍然显示在屏幕上**(已解码的位图不会因 revoke 消失)。
+  // ② attBlobs 从不 revoke,而发送时还把**原图预览** blob(可达 5MB/张)长期挂进去,
+  //    一次会话看几十张图就是几百 MB 常驻。
+  // 注意用 Promise.resolve 统一处理:map 里存的可能是 string(本地预览)也可能是
+  //    **已 resolve 的 Promise**(经 fetchAtt 取回的,成功后没换回字符串)——
+  //    只判 `typeof v==='string'` 会漏掉后者,也就是漏掉**全部**从服务端取回的图。
+  if(!authedNow){
+    attBlobs.forEach(v=>{Promise.resolve(v).then(u=>URL.revokeObjectURL(u),()=>{});});
+    attBlobs.clear();quotaInfo=null;
+    wrap.querySelectorAll('img[data-att]').forEach(el=>{
+      el.removeAttribute('src');delete el.dataset.done;   // 退回 :not([src]) 占位,可重新 hydrate
+    });
+  }
   if(!d.configured){authBtn.hidden=true;cloudBox.classList.remove('show');return;}
   authBtn.hidden=false;
   if(d.authed){
@@ -833,6 +992,11 @@ window.addEventListener('kinger-auth',ev=>{
     authBtn.textContent=name;authBtn.title='点击退出登录';
     authBtn.onclick=()=>{if(confirm('退出登录?'))window.KingerAuth.logout();};
     cloudBox.classList.add('show');renderCloud();
+    // 令牌到手才补一次 hydrate:首屏 renderChat() 跑在这之前,那时没令牌,
+    // 历史消息里的图只是**留着占位**(见 hydrateAttImgs)。没有这一行,
+    // 刷新页面后图要等切走会话再切回来才出现。
+    void hydrateAttImgs(wrap);
+    void refreshQuota();
   }else{
     authBtn.textContent='登录';authBtn.title='登录以跨设备同步历史';
     authBtn.onclick=()=>window.KingerAuth.login();

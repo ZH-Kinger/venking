@@ -21,6 +21,8 @@
 from __future__ import annotations
 
 import hashlib
+import re
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import BinaryIO
@@ -41,6 +43,9 @@ _MAGIC: list[tuple[bytes, str]] = [
 ]
 
 CHUNK = 64 * 1024
+# 判类型需要的最少字节:webp 要看到偏移 8..12 的 "WEBP" 标记,所以 12 起;取 16 留余量。
+HEAD_BYTES = 16
+_SHA_RE = re.compile(r"[0-9a-f]{64}")
 
 
 class UploadError(Exception):
@@ -78,7 +83,22 @@ def used_bytes(db: Session, owner_sub: str) -> int:
     ) or 0
 
 
+def total_bytes(db: Session) -> int:
+    """全站已占用字节数。per-user 配额挡不住用户数增长,所以还需要一道全局水位。
+
+    注意这是 **DB 里 bytes 之和,不等于磁盘占用**:
+    - 跨用户共享同一 blob 时它会**高于**真实占用(偏保守,方向安全);
+    - 写盘成功但建库失败留下的孤儿 blob 不计入,这部分会让它**低于**真实占用
+      (已知缺口,见 tests 里的 xfail;真要当磁盘用量读请用 shutil.disk_usage)。
+    """
+    return db.scalar(select(func.coalesce(func.sum(Attachment.bytes), 0))) or 0
+
+
 def _blob_path(sha256: str) -> Path:
+    # 断言而非信任:今天只有 digest.hexdigest() 能喂到这里,但任何新写入路径
+    # (导入、迁移、修复脚本)若传进带 ../ 的串就是任意文件写。一行成本挡死这类未来事故。
+    if not _SHA_RE.fullmatch(sha256):
+        raise ValueError(f"非法 sha256:{sha256!r}")
     return settings.attachments_dir / sha256[:2] / sha256
 
 
@@ -90,11 +110,25 @@ def store_stream(src: BinaryIO, *, owner_sub: str, db: Session) -> StoredFile:
     max_bytes = settings.upload_max_bytes
     quota = settings.upload_quota_bytes
     already = used_bytes(db, owner_sub)
+    # 全站水位:磁盘满会连带打死业务库与 checkpoints,不只是"传不了图"。
+    # 507 Insufficient Storage 语义准确,且能和"你个人超配额"的 413 区分开 ——
+    # 前者用户删自己的图也没用,得管理员处理。
+    #
+    # 这是**软**上界,别当硬保证读:
+    # ① 判据是 `>=` 且不含本次体积,所以最后一次上传总能越线;
+    # ② 检查在写盘之前,并发 N 个请求最多超出 N × upload_max_bytes;
+    # ③ 水位命中后,连"纯 dedup、零新增磁盘"的重传也会被拒 —— 因为此刻还没算出 sha,
+    #    store_stream 无从知道会不会命中去重。把配额/水位判定挪到算完 sha 之后能一并解决
+    #    这条和"满配额重传旧文件误 413",但那会打开配额 TOCTOU 窗口,要连同
+    #    `async def` → 线程池那件事一起改。
+    if total_bytes(db) >= settings.upload_total_bytes:
+        raise UploadError(507, "站点存储已满,暂时无法上传;请稍后再试或联系管理员")
 
     tmp_dir = settings.attachments_dir / "_tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
-    # 临时名用随机 uuid,避免并发上传同一内容时互相覆盖到写了一半的文件
-    tmp = tmp_dir / f"up-{hashlib.sha256(f'{owner_sub}{id(src)}'.encode()).hexdigest()[:16]}"
+    # 真·随机名。曾写成 sha256(owner_sub + id(src)) 并在注释里号称"随机 uuid" ——
+    # 那依赖 CPython 的 id() 对活对象互异这一实现细节,注释与实现也对不上。
+    tmp = tmp_dir / f"up-{uuid.uuid4().hex}"
 
     digest = hashlib.sha256()
     size = 0
@@ -105,8 +139,11 @@ def store_stream(src: BinaryIO, *, owner_sub: str, db: Session) -> StoredFile:
                 chunk = src.read(CHUNK)
                 if not chunk:
                     break
-                if not head:
-                    head = chunk[:16]
+                # **累积**到够长再判类型,不能只取第一个 chunk:分块/慢速上传时首个 chunk
+                # 可能只有几字节,而 PNG 魔数就要 8 字节 —— 那样合法图片会被误拒 415。
+                # 12 字节足够(webp 要看到偏移 8..12 的 "WEBP" 标记)。
+                if len(head) < HEAD_BYTES:
+                    head += chunk[: HEAD_BYTES - len(head)]
                 size += len(chunk)
                 if size > max_bytes:
                     raise UploadError(413, f"单个文件不能超过 {max_bytes // 1024 // 1024}MB")
@@ -148,3 +185,22 @@ def find_by_sha(db: Session, owner_sub: str, sha256: str) -> Attachment | None:
 
 def blob_path_of(att: Attachment) -> Path:
     return _blob_path(att.sha256)
+
+
+def delete_blob_if_unreferenced(db: Session, sha256: str) -> bool:
+    """没有任何记录再引用这个内容时回收磁盘;返回是否真的删了文件。
+
+    **必须跨全表数**,不能只看本人:blob 路径是全局的(`attachments/<sha[:2]>/<sha>`),
+    别的用户可能持有同一内容的记录,直接 unlink 会把他们的图一起打掉(静默数据丢失)。
+    调用方要先 delete + commit 掉自己那行,否则会把自己算进引用里、永远不回收。
+
+    放在 storage 而不是路由层:blob 的布局(两级子目录、sha 命名)只有这里知道,
+    路由层不该自己拼 `Attachment.sha256` 的 SQL 再去猜文件在哪。
+    """
+    others = db.scalar(
+        select(func.count()).select_from(Attachment).where(Attachment.sha256 == sha256)
+    )
+    if others:
+        return False
+    _blob_path(sha256).unlink(missing_ok=True)
+    return True
