@@ -1,0 +1,66 @@
+import{n as e,r as t}from"./app-BoaHcSM-.js";import{t as n}from"./plugin-vue_export-helper-BBNlaSNf.js";var r=JSON.parse(`{"path":"/posts/%E9%9D%A2%E8%AF%95/%E5%AD%97%E8%8A%82%E9%9D%A2%E8%AF%95/AI%E7%9F%A5%E8%AF%86.html","title":"AI知识","lang":"zh-CN","frontmatter":{"title":"AI知识","icon":"clipboard-text","date":"2026-07-23T00:00:00.000Z","category":["面试"],"description":"梓涵，既然我们要把 MCP（Model Context Protocol）写进博客，就不能只写干巴巴的定义。我们要从一个运维开发者的视角，把它描述成解决 AI 落地“最后一公里”的神器。 这篇 1000 字左右的深度技术博文，你可以直接作为你博客的《核心技术篇》。 ​从“封闭大脑”到“万能接口”：深度拆解 MCP 协议及其在 AIOps 中的实战价值 ...","head":[["script",{"type":"application/ld+json"},"{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Article\\",\\"headline\\":\\"AI知识\\",\\"image\\":[\\"\\"],\\"datePublished\\":\\"2026-07-23T00:00:00.000Z\\",\\"dateModified\\":null,\\"author\\":[{\\"@type\\":\\"Person\\",\\"name\\":\\"Kinger\\",\\"url\\":\\"https://www.yuque.com/kinger-wwnro\\"}]}"],["meta",{"property":"og:url","content":"https://venking.tech/blog/posts/%E9%9D%A2%E8%AF%95/%E5%AD%97%E8%8A%82%E9%9D%A2%E8%AF%95/AI%E7%9F%A5%E8%AF%86.html"}],["meta",{"property":"og:site_name","content":"Kinger 的技术博客"}],["meta",{"property":"og:title","content":"AI知识"}],["meta",{"property":"og:description","content":"梓涵，既然我们要把 MCP（Model Context Protocol）写进博客，就不能只写干巴巴的定义。我们要从一个运维开发者的视角，把它描述成解决 AI 落地“最后一公里”的神器。 这篇 1000 字左右的深度技术博文，你可以直接作为你博客的《核心技术篇》。 ​从“封闭大脑”到“万能接口”：深度拆解 MCP 协议及其在 AIOps 中的实战价值 ..."}],["meta",{"property":"og:type","content":"article"}],["meta",{"property":"og:locale","content":"zh-CN"}],["meta",{"property":"article:published_time","content":"2026-07-23T00:00:00.000Z"}]]},"git":{},"readingTime":{"minutes":4.37,"words":1310},"filePathRelative":"posts/面试/字节面试/AI知识.md","excerpt":"<p>梓涵，既然我们要把 MCP（Model Context Protocol）写进博客，就不能只写干巴巴的定义。我们要从一个<strong>运维开发者</strong>的视角，把它描述成解决 AI 落地“最后一公里”的神器。</p>\\n<p>这篇 1000 字左右的深度技术博文，你可以直接作为你博客的《核心技术篇》。</p>\\n<hr>\\n<h1>​从“封闭大脑”到“万能接口”：深度拆解 MCP 协议及其在 AIOps 中的实战价值</h1>\\n<h2>一、 引言：AI 运维的“最后一公里”困境</h2>\\n<p>在折腾 OpenClaw 和各种大模型的过程中，我一直在思考一个问题：为什么 AI 模型（如 Qwen 或 GPT）明明博学多才，却连我本地服务器上的一个日志文件都读不到？</p>","autoDesc":true}`),i={name:`AI知识.md`},a=[`innerHTML`];function o(n,r,i,o,s,c){return t(),e(`div`,{class:`vp-migrated-content`,innerHTML:`<div><p>梓涵，既然我们要把 MCP（Model Context Protocol）写进博客，就不能只写干巴巴的定义。我们要从一个<strong>运维开发者</strong>的视角，把它描述成解决 AI 落地“最后一公里”的神器。</p>
+<p>这篇 1000 字左右的深度技术博文，你可以直接作为你博客的《核心技术篇》。</p>
+<hr>
+<h1 id="​从-封闭大脑-到-万能接口-深度拆解-mcp-协议及其在-aiops-中的实战价值" tabindex="-1"><a class="header-anchor" href="#​从-封闭大脑-到-万能接口-深度拆解-mcp-协议及其在-aiops-中的实战价值"><span>​从“封闭大脑”到“万能接口”：深度拆解 MCP 协议及其在 AIOps 中的实战价值</span></a></h1>
+<h2 id="一、-引言-ai-运维的-最后一公里-困境" tabindex="-1"><a class="header-anchor" href="#一、-引言-ai-运维的-最后一公里-困境"><span>一、 引言：AI 运维的“最后一公里”困境</span></a></h2>
+<p>在折腾 OpenClaw 和各种大模型的过程中，我一直在思考一个问题：为什么 AI 模型（如 Qwen 或 GPT）明明博学多才，却连我本地服务器上的一个日志文件都读不到？</p>
+<p>这就是 AI 运维的“最后一公里”难题：<strong>大脑在云端，手脚在本地，但它们之间缺乏一套通用的、安全的协议。</strong> 传统的做法是为每个 AI 助手硬编码（Hard-code）各种工具（Skills），但这导致了严重的碎片化。直到 <strong>MCP（Model Context Protocol）</strong> 的出现，运维领域才真正迎来了“标准化”的曙光。</p>
+<hr>
+<h2 id="二、-什么是-mcp-ai-界的-usb-c-接口" tabindex="-1"><a class="header-anchor" href="#二、-什么是-mcp-ai-界的-usb-c-接口"><span>二、 什么是 MCP？AI 界的“USB-C 接口”</span></a></h2>
+<p><strong>MCP（模型上下文协议）</strong> 是由 Anthropic 公司发起的开放标准。它的核心思想极其简单且精妙：<strong>将“AI 宿主（Host）”与“工具/数据源（Server）”彻底解耦。</strong></p>
+<p>如果把 AI 模型比作一个功能强大的电脑，那么 MCP 就是那个通用的 <strong>USB-C 接口</strong>。</p>
+<ul>
+<li><strong>过去</strong>：你想接个鼠标，得拆开主机焊死在主板上（硬编码 Skill）。</li>
+<li><strong>现在</strong>：你只需要买一个标准的鼠标（MCP Server），往接口上一插（在配置文件里配置一下），电脑瞬间就获得了控制光标的能力。</li>
+</ul>
+<hr>
+<h2 id="三、-mcp-的三层物理架构-它们到底是怎么干活的" tabindex="-1"><a class="header-anchor" href="#三、-mcp-的三层物理架构-它们到底是怎么干活的"><span>三、 MCP 的三层物理架构：它们到底是怎么干活的？</span></a></h2>
+<p>理解 MCP，必须理清它内部的三个关键角色：</p>
+<h3 id="_1-mcp-host-宿主-网关" tabindex="-1"><a class="header-anchor" href="#_1-mcp-host-宿主-网关"><span>1. MCP Host（宿主/网关）</span></a></h3>
+<p>在我的 Rocky Linux 实验中，<strong>OpenClaw Gateway</strong> 就充当了 Host。它是大脑居住的“公寓”，负责鉴权、路由和管理对话上下文。</p>
+<h3 id="_2-mcp-server-工具小程序" tabindex="-1"><a class="header-anchor" href="#_2-mcp-server-工具小程序"><span>2. MCP Server（工具小程序）</span></a></h3>
+<p>这是 MCP 的灵魂。它是一个<strong>独立的本地进程</strong>，可以用 Python 或 Node.js 编写。它就像是一个带着“说明书”的特种兵。它并不产生智能，它只负责两件事：</p>
+<ol>
+<li><strong>宣称技能</strong>：告诉 Host，“我能查内存，我能查负载”。</li>
+<li><strong>执行动作</strong>：当 Host 发来指令，它去运行 <code v-pre>ps</code> 或 <code v-pre>top</code> 命令，并把结果翻译成 AI 懂的 JSON 格式传回去。</li>
+</ol>
+<h3 id="_3-mcp-client-连接桥" tabindex="-1"><a class="header-anchor" href="#_3-mcp-client-连接桥"><span>3. MCP Client（连接桥）</span></a></h3>
+<p>它是 Host 内部的一个逻辑模块，负责通过标准的传输协议（通常是 <code v-pre>stdio</code> 标准输入输出或 <code v-pre>SSE</code> 网页流）与 Server 握手。</p>
+<hr>
+<h2 id="四、-mcp-的三大核心资产-resources-prompts-and-tools" tabindex="-1"><a class="header-anchor" href="#四、-mcp-的三大核心资产-resources-prompts-and-tools"><span>四、 MCP 的三大核心资产：Resources, Prompts, and Tools</span></a></h2>
+<p>一个标准的 MCP Server 能够为 AI 提供三类“超能力”：</p>
+<ol>
+<li><strong>Resources (静态资源)</strong>：允许 AI “看”数据。例如读取 <code v-pre>/var/log/messages</code>。AI 可以像翻阅图书一样读取这些预定义的数据源。</li>
+<li><strong>Tools (动态工具)</strong>：允许 AI “做”动作。这是运维的核心。比如执行 <code v-pre>restart_nginx</code>，这就是我们常说的 <strong>Skill</strong>。</li>
+<li><strong>Prompts (提示词模板)</strong>：允许 AI “学”经验。你可以把“如何排查 CPU 100%”的 SOP 写成模板，AI 在调用时会自动加载这些专家经验。</li>
+</ol>
+<hr>
+<h2 id="五、-实战演练-如何在-openclaw-中挂载我的自研技能" tabindex="-1"><a class="header-anchor" href="#五、-实战演练-如何在-openclaw-中挂载我的自研技能"><span>五、 实战演练：如何在 OpenClaw 中挂载我的自研技能？</span></a></h2>
+<p>在我的项目中，我编写了一个简单的 <strong>Python MCP Server</strong> 来解决 4B 小模型无法精准获取 <strong>RES（驻留内存）</strong> 的问题。</p>
+<p><strong>具体逻辑如下：</strong></p>
+<ol>
+<li>我编写了一个 <code v-pre>memory_server.py</code>，里面定义了一个名为 <code v-pre>get_top_res_process</code> 的工具。</li>
+<li>在 <code v-pre>openclaw.json</code> 中，我加入了以下配置：</li>
+</ol>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>"mcpServers": {</span></span>
+<span class="line"><span>  "my-ops-helper": {</span></span>
+<span class="line"><span>    "command": "python3",</span></span>
+<span class="line"><span>    "args": ["/home/wang/mcp/memory_server.py"]</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><ol start="3">
+<li><strong>魔法发生了</strong>：当我启动 OpenClaw 时，网关自动运行该脚本。我问 AI：“谁在吃内存？”，AI 瞬间识别出这个新技能，并调用脚本返回了精准的物理内存占用数据。</li>
+</ol>
+<hr>
+<h2 id="六、-为什么运维人必须拥抱-mcp" tabindex="-1"><a class="header-anchor" href="#六、-为什么运维人必须拥抱-mcp"><span>六、 为什么运维人必须拥抱 MCP？</span></a></h2>
+<ol>
+<li><strong>跨平台复用</strong>：我在 Rocky Linux 上写好的巡检 MCP Server，可以直接拿去给 Windows 下的 AI 助手用，无需修改任何代码逻辑。</li>
+<li><strong>安全围栏</strong>：AI 并不直接拥有 Root 权限。所有的操作都被限制在 MCP Server 这个“沙盒”里。它只能做我允许它做的那些 <code v-pre>if...else</code> 逻辑。</li>
+<li><strong>分布式潜力</strong>：通过 SSE（Server-Sent Events）协议，我可以让 A 机器上的 AI 助手，去调用 B 机器上的 MCP 技能。这为大规模服务器集群的“统一 AI 指令集”奠定了基础。</li>
+</ol>
+<hr>
+<h2 id="七、-结语-迈向真正的语义运维" tabindex="-1"><a class="header-anchor" href="#七、-结语-迈向真正的语义运维"><span>七、 结语：迈向真正的语义运维</span></a></h2>
+<p>MCP 的出现，标志着 AI 运维从“玩具”走向了“工业级工具”。它不再是一个只会聊天的机器人，而是一个插上各种标准插件后，能文能武、懂业务、有权限的“数字运维专家”。</p>
+<p>对于我们这些在校大学生或初级运维来说，掌握 MCP，意味着你不仅在学习 AI 的应用，更在参与构建下一代 IT 基础设施的标准。</p>
+<hr>
+</div>`},null,8,a)}var s=n(i,[[`render`,o]]);export{r as _pageData,s as default};

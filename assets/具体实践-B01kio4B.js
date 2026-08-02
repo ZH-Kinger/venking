@@ -1,0 +1,11 @@
+import{n as e,r as t}from"./app-BoaHcSM-.js";import{t as n}from"./plugin-vue_export-helper-BBNlaSNf.js";var r=JSON.parse(`{"path":"/posts/AIOps%E5%B9%B3%E5%8F%B0/%E5%85%B7%E4%BD%93%E5%AE%9E%E8%B7%B5/%E5%85%B7%E4%BD%93%E5%AE%9E%E8%B7%B5.html","title":"具体实践","lang":"zh-CN","frontmatter":{"title":"具体实践","icon":"settings","date":"2026-07-23T00:00:00.000Z","category":["AIOps平台"],"article":false,"description":"具体实践 待补充 子文档 数据流 Claude配置 OpenClaw的定位 安全机制 熔断保护","head":[["script",{"type":"application/ld+json"},"{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"WebPage\\",\\"name\\":\\"具体实践\\",\\"description\\":\\"具体实践 待补充 子文档 数据流 Claude配置 OpenClaw的定位 安全机制 熔断保护\\"}"],["meta",{"property":"og:url","content":"https://venking.tech/blog/posts/AIOps%E5%B9%B3%E5%8F%B0/%E5%85%B7%E4%BD%93%E5%AE%9E%E8%B7%B5/%E5%85%B7%E4%BD%93%E5%AE%9E%E8%B7%B5.html"}],["meta",{"property":"og:site_name","content":"Kinger 的技术博客"}],["meta",{"property":"og:title","content":"具体实践"}],["meta",{"property":"og:description","content":"具体实践 待补充 子文档 数据流 Claude配置 OpenClaw的定位 安全机制 熔断保护"}],["meta",{"property":"og:type","content":"website"}],["meta",{"property":"og:locale","content":"zh-CN"}],["meta",{"property":"article:published_time","content":"2026-07-23T00:00:00.000Z"}]]},"git":{},"readingTime":{"minutes":0.15,"words":45},"filePathRelative":"posts/AIOps平台/具体实践/具体实践.md","excerpt":"\\n<p>待补充</p>\\n<h2>子文档</h2>\\n<ul>\\n<li>数据流</li>\\n<li>Claude配置</li>\\n<li>OpenClaw的定位</li>\\n<li>安全机制</li>\\n<li>熔断保护</li>\\n</ul>\\n","autoDesc":true}`),i={name:`具体实践.md`},a=[`innerHTML`];function o(n,r,i,o,s,c){return t(),e(`div`,{class:`vp-migrated-content`,innerHTML:`<div><h1 id="具体实践" tabindex="-1"><a class="header-anchor" href="#具体实践"><span>具体实践</span></a></h1>
+<p>待补充</p>
+<h2 id="子文档" tabindex="-1"><a class="header-anchor" href="#子文档"><span>子文档</span></a></h2>
+<ul>
+<li>数据流</li>
+<li>Claude配置</li>
+<li>OpenClaw的定位</li>
+<li>安全机制</li>
+<li>熔断保护</li>
+</ul>
+</div>`},null,8,a)}var s=n(i,[[`render`,o]]);export{r as _pageData,s as default};

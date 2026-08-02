@@ -1,0 +1,16 @@
+import{n as e,r as t}from"./app-BoaHcSM-.js";import{t as n}from"./plugin-vue_export-helper-BBNlaSNf.js";var r=JSON.parse(`{"path":"/posts/%E9%9D%A2%E8%AF%95/%E5%AD%97%E8%8A%82%E9%9D%A2%E8%AF%95/AI%E7%9F%A5%E8%AF%86/ReAct_%E6%A1%86%E6%9E%B6.html","title":"ReAct_框架","lang":"zh-CN","frontmatter":{"title":"ReAct_框架","icon":"clipboard-text","date":"2026-07-23T00:00:00.000Z","category":["面试"],"description":"推理范式：ReAct 框架 (Reasoning + Acting) 为什么 OpenClaw 能够“先思考再查内存”？因为它运行在 ReAct 框架上。 传统模型：像一个背书的学生，问它问题，它直接吐出一段话（经常幻读）。 ReAct Agent：像一个工作的工程师。它的思维链条是： Thought (思考)：我需要知道内存状态，应该用什么工具？ A...","head":[["script",{"type":"application/ld+json"},"{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Article\\",\\"headline\\":\\"ReAct_框架\\",\\"image\\":[\\"\\"],\\"datePublished\\":\\"2026-07-23T00:00:00.000Z\\",\\"dateModified\\":null,\\"author\\":[{\\"@type\\":\\"Person\\",\\"name\\":\\"Kinger\\",\\"url\\":\\"https://www.yuque.com/kinger-wwnro\\"}]}"],["meta",{"property":"og:url","content":"https://venking.tech/blog/posts/%E9%9D%A2%E8%AF%95/%E5%AD%97%E8%8A%82%E9%9D%A2%E8%AF%95/AI%E7%9F%A5%E8%AF%86/ReAct_%E6%A1%86%E6%9E%B6.html"}],["meta",{"property":"og:site_name","content":"Kinger 的技术博客"}],["meta",{"property":"og:title","content":"ReAct_框架"}],["meta",{"property":"og:description","content":"推理范式：ReAct 框架 (Reasoning + Acting) 为什么 OpenClaw 能够“先思考再查内存”？因为它运行在 ReAct 框架上。 传统模型：像一个背书的学生，问它问题，它直接吐出一段话（经常幻读）。 ReAct Agent：像一个工作的工程师。它的思维链条是： Thought (思考)：我需要知道内存状态，应该用什么工具？ A..."}],["meta",{"property":"og:type","content":"article"}],["meta",{"property":"og:locale","content":"zh-CN"}],["meta",{"property":"article:published_time","content":"2026-07-23T00:00:00.000Z"}]]},"git":{},"readingTime":{"minutes":0.6,"words":181},"filePathRelative":"posts/面试/字节面试/AI知识/ReAct_框架.md","excerpt":"<h2>推理范式：ReAct 框架 (Reasoning + Acting)</h2>\\n<p>为什么 OpenClaw 能够“先思考再查内存”？因为它运行在 <strong>ReAct 框架</strong>上。</p>\\n<ul>\\n<li><strong>传统模型</strong>：像一个背书的学生，问它问题，它直接吐出一段话（经常幻读）。</li>\\n<li><strong>ReAct Agent</strong>：像一个工作的工程师。它的思维链条是：</li>\\n</ul>\\n<ol>\\n<li><strong>Thought (思考)</strong>：我需要知道内存状态，应该用什么工具？</li>\\n<li><strong>Action (行动)</strong>：决定调用 <code>shell</code> 工具执行 <code>free -h</code>。</li>\\n<li><strong>Observation (观察)</strong>：看到输出结果。</li>\\n<li><strong>Final Answer (总结)</strong>：基于观察到的数据给出结论。</li>\\n</ol>","autoDesc":true}`),i={name:`ReAct_框架.md`},a=[`innerHTML`];function o(n,r,i,o,s,c){return t(),e(`div`,{class:`vp-migrated-content`,innerHTML:`<div><h2 id="推理范式-react-框架-reasoning-acting" tabindex="-1"><a class="header-anchor" href="#推理范式-react-框架-reasoning-acting"><span>推理范式：ReAct 框架 (Reasoning + Acting)</span></a></h2>
+<p>为什么 OpenClaw 能够“先思考再查内存”？因为它运行在 <strong>ReAct 框架</strong>上。</p>
+<ul>
+<li><strong>传统模型</strong>：像一个背书的学生，问它问题，它直接吐出一段话（经常幻读）。</li>
+<li><strong>ReAct Agent</strong>：像一个工作的工程师。它的思维链条是：</li>
+</ul>
+<ol>
+<li><strong>Thought (思考)</strong>：我需要知道内存状态，应该用什么工具？</li>
+<li><strong>Action (行动)</strong>：决定调用 <code v-pre>shell</code> 工具执行 <code v-pre>free -h</code>。</li>
+<li><strong>Observation (观察)</strong>：看到输出结果。</li>
+<li><strong>Final Answer (总结)</strong>：基于观察到的数据给出结论。</li>
+</ol>
+<ul>
+<li><strong>核心点</strong>：如果 AI 报错了，它是通过这个循环发现错误并自动纠错的。</li>
+</ul>
+</div>`},null,8,a)}var s=n(i,[[`render`,o]]);export{r as _pageData,s as default};

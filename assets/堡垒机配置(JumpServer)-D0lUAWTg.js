@@ -1,0 +1,61 @@
+import{n as e,r as t}from"./app-BoaHcSM-.js";import{t as n}from"./plugin-vue_export-helper-BBNlaSNf.js";var r=JSON.parse(`{"path":"/posts/%E8%BF%90%E7%BB%B4/web%E9%9B%86%E7%BE%A4/web%E9%9B%86%E7%BE%A4%E9%A1%B9%E7%9B%AE/%E4%BA%8C%E3%80%81%E6%90%AD%E5%BB%BA%E5%9F%BA%E7%A1%80DMC%E9%9B%86%E7%BE%A4(%E5%86%85%E7%BD%91%E7%8E%AF%E5%A2%83)/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer).html","title":"堡垒机配置(JumpServer)","lang":"zh-CN","frontmatter":{"title":"堡垒机配置(JumpServer)","icon":"server","date":"2026-07-23T00:00:00.000Z","category":["运维"],"description":"docker下载 因为 JumpServer 是多组件复杂系统，官方只提供 Docker 一键部署方式： Docker 能把所有依赖、环境打包好，不用手动配环境 装完 Docker 才能运行 JumpServer 镜像，所以必须先装 Docker 配置docker 镜像加速器 为了防止后面下载 JumpServer 的几十个镜像（Images）时再次失...","head":[["script",{"type":"application/ld+json"},"{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Article\\",\\"headline\\":\\"堡垒机配置(JumpServer)\\",\\"image\\":[\\"https://venking.tech/blog/blog/assets/posts/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer\\",\\"https://venking.tech/blog/blog/assets/posts/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer\\",\\"https://venking.tech/blog/blog/assets/posts/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer\\",\\"https://venking.tech/blog/blog/assets/posts/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer\\"],\\"datePublished\\":\\"2026-07-23T00:00:00.000Z\\",\\"dateModified\\":null,\\"author\\":[{\\"@type\\":\\"Person\\",\\"name\\":\\"Kinger\\",\\"url\\":\\"https://www.yuque.com/kinger-wwnro\\"}]}"],["meta",{"property":"og:url","content":"https://venking.tech/blog/posts/%E8%BF%90%E7%BB%B4/web%E9%9B%86%E7%BE%A4/web%E9%9B%86%E7%BE%A4%E9%A1%B9%E7%9B%AE/%E4%BA%8C%E3%80%81%E6%90%AD%E5%BB%BA%E5%9F%BA%E7%A1%80DMC%E9%9B%86%E7%BE%A4(%E5%86%85%E7%BD%91%E7%8E%AF%E5%A2%83)/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer).html"}],["meta",{"property":"og:site_name","content":"Kinger 的技术博客"}],["meta",{"property":"og:title","content":"堡垒机配置(JumpServer)"}],["meta",{"property":"og:description","content":"docker下载 因为 JumpServer 是多组件复杂系统，官方只提供 Docker 一键部署方式： Docker 能把所有依赖、环境打包好，不用手动配环境 装完 Docker 才能运行 JumpServer 镜像，所以必须先装 Docker 配置docker 镜像加速器 为了防止后面下载 JumpServer 的几十个镜像（Images）时再次失..."}],["meta",{"property":"og:type","content":"article"}],["meta",{"property":"og:image","content":"https://venking.tech/blog/blog/assets/posts/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer"}],["meta",{"property":"og:locale","content":"zh-CN"}],["meta",{"property":"article:published_time","content":"2026-07-23T00:00:00.000Z"}]]},"git":{},"readingTime":{"minutes":1.53,"words":459},"filePathRelative":"posts/运维/web集群/web集群项目/二、搭建基础DMC集群(内网环境)/堡垒机配置(JumpServer).md","excerpt":"<h2>docker下载</h2>\\n<p>因为 JumpServer 是<strong>多组件复杂系统</strong>，官方只提供 <strong>Docker 一键部署</strong>方式：</p>\\n<ul>\\n<li>Docker 能把所有依赖、环境打包好，<strong>不用手动配环境</strong></li>\\n<li>装完 Docker 才能运行 JumpServer 镜像，所以必须先装 Docker</li>\\n</ul>\\n<div class=\\"language-plain line-numbers-mode\\" data-highlighter=\\"shiki\\" data-ext=\\"plain\\" style=\\"--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34\\"><pre class=\\"shiki shiki-themes one-light one-dark-pro vp-code\\"><code class=\\"language-plain\\"><span class=\\"line\\"><span># 1. 卸载旧版本（如果有）</span></span>\\n<span class=\\"line\\"><span>yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine</span></span>\\n<span class=\\"line\\"><span></span></span>\\n<span class=\\"line\\"><span># 2. 安装必要工具</span></span>\\n<span class=\\"line\\"><span>yum install -y yum-utils device-mapper-persistent-data lvm2</span></span>\\n<span class=\\"line\\"><span></span></span>\\n<span class=\\"line\\"><span># 3. 添加阿里云的 Docker 源 (比官方快得多)</span></span>\\n<span class=\\"line\\"><span>yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span></span>\\n<span class=\\"line\\"><span></span></span>\\n<span class=\\"line\\"><span># 4. 安装 Docker 引擎</span></span>\\n<span class=\\"line\\"><span>yum install -y docker-ce docker-ce-cli containerd.io</span></span>\\n<span class=\\"line\\"><span></span></span>\\n<span class=\\"line\\"><span># 5. 启动并设置开机自启</span></span>\\n<span class=\\"line\\"><span>systemctl start docker</span></span>\\n<span class=\\"line\\"><span>systemctl enable docker</span></span></code></pre>\\n<div class=\\"line-numbers\\" aria-hidden=\\"true\\" style=\\"counter-reset:line-number 0\\"><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div></div></div>","autoDesc":true}`),i={name:`堡垒机配置(JumpServer).md`},a=[`innerHTML`];function o(n,r,i,o,s,c){return t(),e(`div`,{class:`vp-migrated-content`,innerHTML:`<div><h2 id="docker下载" tabindex="-1"><a class="header-anchor" href="#docker下载"><span>docker下载</span></a></h2>
+<p>因为 JumpServer 是<strong>多组件复杂系统</strong>，官方只提供 <strong>Docker 一键部署</strong>方式：</p>
+<ul>
+<li>Docker 能把所有依赖、环境打包好，<strong>不用手动配环境</strong></li>
+<li>装完 Docker 才能运行 JumpServer 镜像，所以必须先装 Docker</li>
+</ul>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span># 1. 卸载旧版本（如果有）</span></span>
+<span class="line"><span>yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 2. 安装必要工具</span></span>
+<span class="line"><span>yum install -y yum-utils device-mapper-persistent-data lvm2</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 3. 添加阿里云的 Docker 源 (比官方快得多)</span></span>
+<span class="line"><span>yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 4. 安装 Docker 引擎</span></span>
+<span class="line"><span>yum install -y docker-ce docker-ce-cli containerd.io</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 5. 启动并设置开机自启</span></span>
+<span class="line"><span>systemctl start docker</span></span>
+<span class="line"><span>systemctl enable docker</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="配置docker-镜像加速器" tabindex="-1"><a class="header-anchor" href="#配置docker-镜像加速器"><span>配置docker 镜像加速器</span></a></h2>
+<p>为了防止后面下载 JumpServer 的几十个镜像（Images）时再次失败，请配置阿里云或华为云的加速器：</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>mkdir -p /etc/docker</span></span>
+<span class="line"><span>tee /etc/docker/daemon.json &#x3C;&#x3C;-'EOF'</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  "registry-mirrors": [</span></span>
+<span class="line"><span>    "https://do.nark.eu.org",</span></span>
+<span class="line"><span>    "https://dc.jessestuart.com",</span></span>
+<span class="line"><span>    "https://docker.m.daocloud.io",</span></span>
+<span class="line"><span>    "https://auth.docker.nanoda.net",</span></span>
+<span class="line"><span>    "https://dockerhub.timeweb.cloud"</span></span>
+<span class="line"><span>  ]</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span>EOF</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 重启 Docker 生效</span></span>
+<span class="line"><span>systemctl daemon-reload</span></span>
+<span class="line"><span>systemctl restart docker</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>​</p>
+<h2 id="下载jumpserver" tabindex="-1"><a class="header-anchor" href="#下载jumpserver"><span>下载jumpserver</span></a></h2>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span># 创建安装目录</span></span>
+<span class="line"><span>mkdir -p /opt/jumpserver</span></span>
+<span class="line"><span>cd /opt/jumpserver</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 下载并运行在线安装脚本</span></span>
+<span class="line"><span>curl -sSL https://resource.fit2cloud.com/jumpserver/jumpserver/releases/latest/download/quick_start.sh | bash</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="安装完成" tabindex="-1"><a class="header-anchor" href="#安装完成"><span>安装完成</span></a></h2>
+<figure><img src="/blog/assets/posts/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer)-1.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<figure><img src="/blog/assets/posts/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer)-2.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<h3 id="首次登录与初始化设置" tabindex="-1"><a class="header-anchor" href="#首次登录与初始化设置"><span>首次登录与初始化设置</span></a></h3>
+<ol>
+<li><strong>访问地址</strong>：打开浏览器，输入 <code v-pre>http://192.168.31.136:80</code>。</li>
+<li><strong>默认账号</strong>：<code v-pre>admin</code></li>
+<li><strong>默认密码</strong>：<code v-pre>ChangeMe</code></li>
+<li><strong>改密与 MFA</strong>：首次登录会强制要求修改密码，并强烈建议绑定 <strong>MFA (手机验证码)</strong>，这是堡垒机的“灵魂”。</li>
+</ol>
+<figure><img src="/blog/assets/posts/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer)-3.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<h3 id="登录后会提示修改密码-修改密码后重新登录" tabindex="-1"><a class="header-anchor" href="#登录后会提示修改密码-修改密码后重新登录"><span>登录后会提示修改密码，修改密码后重新登录</span></a></h3>
+<figure><img src="/blog/assets/posts/%E5%A0%A1%E5%9E%92%E6%9C%BA%E9%85%8D%E7%BD%AE(JumpServer)-4.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+</div>`},null,8,a)}var s=n(i,[[`render`,o]]);export{r as _pageData,s as default};

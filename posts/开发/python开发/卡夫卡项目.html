@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="generator" content="VuePress 2.0.0-rc.28" />
+    <meta name="theme" content="VuePress Theme Hope 2.0.0-rc.106" />
+    <style>
+      :root {
+        --vp-c-bg: #fff;
+      }
+
+      [data-theme="dark"] {
+        --vp-c-bg: #1b1b1f;
+      }
+
+      html,
+      body {
+        background: var(--vp-c-bg);
+      }
+    </style>
+    <script>
+      const userMode = localStorage.getItem("vuepress-theme-hope-scheme");
+      const systemDarkMode =
+        window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+      if (userMode === "dark" || (userMode !== "light" && systemDarkMode)) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    </script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"卡夫卡项目","image":["https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-%E7%99%BD%E6%9D%BF-1.svg","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-1.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-2.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-3.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-%E7%99%BD%E6%9D%BF-2.svg","https://cdn.nlark.com/yuque/0/2026/jpeg/62301513/1768206496384-714b60be-8753-417a-9347-add4ab7765b9.jpeg","https://cdn.nlark.com/yuque/0/2026/jpeg/62301513/1768206511355-abe64513-b838-493f-a2c5-0e3cc3c22659.jpeg","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-4.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-5.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-6.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-7.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-8.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-9.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-10.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-11.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-12.png","https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-13.png"],"datePublished":"2026-07-23T00:00:00.000Z","dateModified":null,"author":[{"@type":"Person","name":"Kinger","url":"https://www.yuque.com/kinger-wwnro"}]}</script><meta property="og:url" content="https://venking.tech/blog/posts/%E5%BC%80%E5%8F%91/python%E5%BC%80%E5%8F%91/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE.html"><meta property="og:site_name" content="Kinger 的技术博客"><meta property="og:title" content="卡夫卡项目"><meta property="og:description" content="4c Apache Kafka（常被称为 &quot;卡夫卡&quot;）是Apache 软件基金会的开源分布式流处理平台，最初由 LinkedIn 开发，2011 年捐赠给 Apache 并成为顶级项目，名称取自捷克小说家弗兰兹・卡夫卡（Franz Kafka）。它本质上是一个分布式、分区化、多副本的日志提交服务，核心定位是 &quot;高吞吐量的分..."><meta property="og:type" content="article"><meta property="og:image" content="https://venking.tech/blog/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-%E7%99%BD%E6%9D%BF-1.svg"><meta property="og:locale" content="zh-CN"><meta property="article:published_time" content="2026-07-23T00:00:00.000Z"><link rel="icon" type="image/png" href="/feather-indigo.png"><meta name="referrer" content="no-referrer"><script>(function(){try{var k='vuepress-theme-hope-scheme',v=localStorage.getItem(k);if(v===null){v='dark';}if(v.charAt(0)==='"'){try{v=JSON.parse(v);}catch(e){}}if(v==='auto'){v=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}v=v==='light'?'light':'dark';localStorage.setItem(k,v);document.documentElement.setAttribute('data-theme',v);}catch(e){}})();</script><style>html{background-color:#08090a;color-scheme:dark}html[data-theme="light"]{background-color:#f7f8fa;color-scheme:light}</style><title>卡夫卡项目 | Kinger 的技术博客</title><meta name="description" content="4c Apache Kafka（常被称为 &quot;卡夫卡&quot;）是Apache 软件基金会的开源分布式流处理平台，最初由 LinkedIn 开发，2011 年捐赠给 Apache 并成为顶级项目，名称取自捷克小说家弗兰兹・卡夫卡（Franz Kafka）。它本质上是一个分布式、分区化、多副本的日志提交服务，核心定位是 &quot;高吞吐量的分...">
+    <link rel="preload" href="/blog/assets/style-DD3vnvUw.css" as="style"><link rel="stylesheet" href="/blog/assets/style-DD3vnvUw.css">
+    <link rel="modulepreload" href="/blog/assets/app-BoaHcSM-.js"><link rel="modulepreload" href="/blog/assets/卡夫卡项目-Dct_jxGR.js"><link rel="modulepreload" href="/blog/assets/plugin-vue_export-helper-BBNlaSNf.js">
+    <link rel="prefetch" href="/blog/assets/README-DhNpjMEN.js" as="script"><link rel="prefetch" href="/blog/assets/intro-BR7d4_-M.js" as="script"><link rel="prefetch" href="/blog/assets/项目描述-DBxrF7Pl.js" as="script"><link rel="prefetch" href="/blog/assets/项目架构-iA0C82iu.js" as="script"><link rel="prefetch" href="/blog/assets/AI是一个五层蛋糕-NK9_N2iC.js" as="script"><link rel="prefetch" href="/blog/assets/Agent应用开发-CmincKDl.js" as="script"><link rel="prefetch" href="/blog/assets/NVIDIA_GTC(2026)-DQ7ZEPbq.js" as="script"><link rel="prefetch" href="/blog/assets/GIT_的使用-C1nfXO2y.js" as="script"><link rel="prefetch" href="/blog/assets/VuePress创建blog-CWgpW8FA.js" as="script"><link rel="prefetch" href="/blog/assets/go语言基础-D8Z-uP8y.js" as="script"><link rel="prefetch" href="/blog/assets/创建项目-s7bHx4Mp.js" as="script"><link rel="prefetch" href="/blog/assets/项目常见命令-DmHaahUa.js" as="script"><link rel="prefetch" href="/blog/assets/项目环境配置-D2fHNuF8.js" as="script"><link rel="prefetch" href="/blog/assets/项目结构分析-CmjT3e8m.js" as="script"><link rel="prefetch" href="/blog/assets/数据库-Deq5vD-D.js" as="script"><link rel="prefetch" href="/blog/assets/Spine-Leaf（叶脊网络）-J9l9htk6.js" as="script"><link rel="prefetch" href="/blog/assets/python开发-Cft0-Blv.js" as="script"><link rel="prefetch" href="/blog/assets/web集群-BoWBD-lb.js" as="script"><link rel="prefetch" href="/blog/assets/web项目-nKrYrGg-.js" as="script"><link rel="prefetch" href="/blog/assets/数据库-FHcYfp0s.js" as="script"><link rel="prefetch" href="/blog/assets/网络的概念-D1Zcuw4b.js" as="script"><link rel="prefetch" href="/blog/assets/字节面试-Zc8xSEZW.js" as="script"><link rel="prefetch" href="/blog/assets/NLB-Ci20uelR.js" as="script"><link rel="prefetch" href="/blog/assets/Oauth-BYtKJYHS.js" as="script"><link rel="prefetch" href="/blog/assets/Terraform-C2MpAbx1.js" as="script"><link rel="prefetch" href="/blog/assets/Volcano-rd653Ol8.js" as="script"><link rel="prefetch" href="/blog/assets/学习计划-B5djeRQ2.js" as="script"><link rel="prefetch" href="/blog/assets/Claude配置-CbqWGa-y.js" as="script"><link rel="prefetch" href="/blog/assets/OpenClaw的定位-BSYJ18jP.js" as="script"><link rel="prefetch" href="/blog/assets/具体实践-B01kio4B.js" as="script"><link rel="prefetch" href="/blog/assets/安全机制-BtHKJH7B.js" as="script"><link rel="prefetch" href="/blog/assets/数据流-DpA8W0aI.js" as="script"><link rel="prefetch" href="/blog/assets/AI_Infra(AI基础设施)-CIi7SyMC.js" as="script"><link rel="prefetch" href="/blog/assets/MCP(_AI_连接数据的方式都不一样)-BhpfLNNr.js" as="script"><link rel="prefetch" href="/blog/assets/OpenClaw-B-HBHmpr.js" as="script"><link rel="prefetch" href="/blog/assets/RAG_Agent-BB1hJ6X0.js" as="script"><link rel="prefetch" href="/blog/assets/Transformer架构-Cc-PWHpj.js" as="script"><link rel="prefetch" href="/blog/assets/ollama-BzZg_Aag.js" as="script"><link rel="prefetch" href="/blog/assets/多智能体协作_(Multi-Agent_Systems)-Ce-Otif2.js" as="script"><link rel="prefetch" href="/blog/assets/大模型的安全问题-XuYWPeVE.js" as="script"><link rel="prefetch" href="/blog/assets/深度学习和机器学习究竟是什么怎么用-BPSAWJzA.js" as="script"><link rel="prefetch" href="/blog/assets/私有化部署_微调-pIJU3tZT.js" as="script"><link rel="prefetch" href="/blog/assets/API调用-DkmvHIXb.js" as="script"><link rel="prefetch" href="/blog/assets/Agent框架-CieZH_JQ.js" as="script"><link rel="prefetch" href="/blog/assets/Multi-Agent-D2kZ3s3y.js" as="script"><link rel="prefetch" href="/blog/assets/代码执行与接口调用-Bfd6vBFw.js" as="script"><link rel="prefetch" href="/blog/assets/学习计划-DBmF8nEv.js" as="script"><link rel="prefetch" href="/blog/assets/深度学习与机器学习-B0LHifA4.js" as="script"><link rel="prefetch" href="/blog/assets/阿里云百炼-B_gW16_A.js" as="script"><link rel="prefetch" href="/blog/assets/ACR的使用-BV2ER7Dh.js" as="script"><link rel="prefetch" href="/blog/assets/Docker中的一些进程-DsZ987g9.js" as="script"><link rel="prefetch" href="/blog/assets/docker部署-C-t2OdtG.js" as="script"><link rel="prefetch" href="/blog/assets/网络故障排查-D4RefDG1.js" as="script"><link rel="prefetch" href="/blog/assets/python开发-Ba1NM45n.js" as="script"><link rel="prefetch" href="/blog/assets/修改openclaw配置降低token消耗-Dp2AfAVj.js" as="script"><link rel="prefetch" href="/blog/assets/基于OpenClaw新一代AiOps平台-hnkvTWRB.js" as="script"><link rel="prefetch" href="/blog/assets/MySQL(关系型数据库)-CoY-Nxrt.js" as="script"><link rel="prefetch" href="/blog/assets/Redis(非关系型数据库)-B0Cenh0_.js" as="script"><link rel="prefetch" href="/blog/assets/RAG_Agent-Bqiglpen.js" as="script"><link rel="prefetch" href="/blog/assets/提示词工程_本地部署_Function_Calling-suPlVpJZ.js" as="script"><link rel="prefetch" href="/blog/assets/私有化部署_微调-DPx8HA_z.js" as="script"><link rel="prefetch" href="/blog/assets/ACR的使用-C8fBimhu.js" as="script"><link rel="prefetch" href="/blog/assets/Docker中的一些进程-CZ9ahOUn.js" as="script"><link rel="prefetch" href="/blog/assets/K8s-CyXMQlMK.js" as="script"><link rel="prefetch" href="/blog/assets/docker部署-C5m4t-lq.js" as="script"><link rel="prefetch" href="/blog/assets/监控-prometheus-DTaoxBeS2.js" as="script"><link rel="prefetch" href="/blog/assets/网络故障排查-BrWE1PzZ2.js" as="script"><link rel="prefetch" href="/blog/assets/golang-Wtv0NF1C.js" as="script"><link rel="prefetch" href="/blog/assets/python基础-CrMUpCsB.js" as="script"><link rel="prefetch" href="/blog/assets/卡夫卡项目-Bl71tMBX.js" as="script"><link rel="prefetch" href="/blog/assets/nginx理论知识-CWA9vaZa.js" as="script"><link rel="prefetch" href="/blog/assets/web集群项目-DviTGXrg.js" as="script"><link rel="prefetch" href="/blog/assets/互联网的介绍-DXHEMel8.js" as="script"><link rel="prefetch" href="/blog/assets/前端-PQziIg5s.js" as="script"><link rel="prefetch" href="/blog/assets/后端开发-Ch3G7sD3.js" as="script"><link rel="prefetch" href="/blog/assets/MySQL(关系型数据库)-sFoLzytD.js" as="script"><link rel="prefetch" href="/blog/assets/Redis(非关系型数据库)-BP7CrGaX.js" as="script"><link rel="prefetch" href="/blog/assets/DHCP协议-CNTkC61N.js" as="script"><link rel="prefetch" href="/blog/assets/DNS-iegmRu4x.js" as="script"><link rel="prefetch" href="/blog/assets/NAT-DMlPDQAJ.js" as="script"><link rel="prefetch" href="/blog/assets/OSI_7层模型_Tcp-ip协议-DwXtDG1w.js" as="script"><link rel="prefetch" href="/blog/assets/firewalld(防火墙)-CRUil96N.js" as="script"><link rel="prefetch" href="/blog/assets/https证书验证过程-Dfqq7DC0.js" as="script"><link rel="prefetch" href="/blog/assets/ip包头的格式(帧的格式)-X3ckOthX.js" as="script"><link rel="prefetch" href="/blog/assets/ip地址的分类-50853b8n.js" as="script"><link rel="prefetch" href="/blog/assets/三层交换机-BVmTLGxR.js" as="script"><link rel="prefetch" href="/blog/assets/交换机-DFvWoWT5.js" as="script"><link rel="prefetch" href="/blog/assets/传输层-CLVi_nWr.js" as="script"><link rel="prefetch" href="/blog/assets/网络传输介质-Chjlfrf7.js" as="script"><link rel="prefetch" href="/blog/assets/网络布线-BJXIunBL.js" as="script"><link rel="prefetch" href="/blog/assets/路由-acnkGb6Q.js" as="script"><link rel="prefetch" href="/blog/assets/跳板机-CDMYGFAJ.js" as="script"><link rel="prefetch" href="/blog/assets/nginx理论知识-CTA8vsgC.js" as="script"><link rel="prefetch" href="/blog/assets/web集群-D2sMInRd.js" as="script"><link rel="prefetch" href="/blog/assets/互联网的介绍-CPWO4l6U.js" as="script"><link rel="prefetch" href="/blog/assets/AI知识-Db3QBMuJ.js" as="script"><link rel="prefetch" href="/blog/assets/ai职能优化-DBKiFqpr.js" as="script"><link rel="prefetch" href="/blog/assets/linux中为什么要进行Swap分区-Smg5_pLc.js" as="script"><link rel="prefetch" href="/blog/assets/内核调优(Kernel_Tuning)-RzBKnRqI.js" as="script"><link rel="prefetch" href="/blog/assets/字节跳动运维开发工程师面试准备指南(适配你的简历背景)-CZIDmJpH.js" as="script"><link rel="prefetch" href="/blog/assets/核心技能考察-DBIwH5T-.js" as="script"><link rel="prefetch" href="/blog/assets/运维场景题-1Y57l0Iv.js" as="script"><link rel="prefetch" href="/blog/assets/面试刷题-DKaKuLcr.js" as="script"><link rel="prefetch" href="/blog/assets/项目梳理-CvqiUkpf.js" as="script"><link rel="prefetch" href="/blog/assets/ACID-DCqArQfa.js" as="script"><link rel="prefetch" href="/blog/assets/Aws s3-DtHLrgcR.js" as="script"><link rel="prefetch" href="/blog/assets/FUSE-d_3zhlZO.js" as="script"><link rel="prefetch" href="/blog/assets/HDFS-C7v9iqhD.js" as="script"><link rel="prefetch" href="/blog/assets/Juicefs-cQNgObj2.js" as="script"><link rel="prefetch" href="/blog/assets/MLAG-Bi8VRjo5.js" as="script"><link rel="prefetch" href="/blog/assets/MinIO-Dpw-2h6K.js" as="script"><link rel="prefetch" href="/blog/assets/NFS分布式存储-BRYT5DWd.js" as="script"><link rel="prefetch" href="/blog/assets/Raid-B4hpm5Bb.js" as="script"><link rel="prefetch" href="/blog/assets/RockDB-DYeKLlvJ.js" as="script"><link rel="prefetch" href="/blog/assets/TIKV-CiwTdB8k.js" as="script"><link rel="prefetch" href="/blog/assets/meta data-C4Sn94Mm.js" as="script"><link rel="prefetch" href="/blog/assets/分布式存储集群-Brt-G9d2.js" as="script"><link rel="prefetch" href="/blog/assets/数据管理-D2FCiqe7.js" as="script"><link rel="prefetch" href="/blog/assets/AWS Glue-aRkHykYk.js" as="script"><link rel="prefetch" href="/blog/assets/Apache Kafka-Co5K4TDm.js" as="script"><link rel="prefetch" href="/blog/assets/Apache Paimon-wOMx9ooq.js" as="script"><link rel="prefetch" href="/blog/assets/DLF-CwZIY0lk.js" as="script"><link rel="prefetch" href="/blog/assets/LakeFS-CE4RybCG.js" as="script"><link rel="prefetch" href="/blog/assets/MCAP-SpF2nF34.js" as="script"><link rel="prefetch" href="/blog/assets/Parquet-CXBNuZLU.js" as="script"><link rel="prefetch" href="/blog/assets/Spark-Wo7TYpEQ.js" as="script"><link rel="prefetch" href="/blog/assets/AI_infra-BZiIANwV.js" as="script"><link rel="prefetch" href="/blog/assets/Bank_Conflict(Bank_冲突)-Dfa2jUXw.js" as="script"><link rel="prefetch" href="/blog/assets/CUDA_Graphs-DzsSbr3Z.js" as="script"><link rel="prefetch" href="/blog/assets/Dialect-1gHNhd0N.js" as="script"><link rel="prefetch" href="/blog/assets/FX_Graph-CmNeOxon.js" as="script"><link rel="prefetch" href="/blog/assets/LLVM-CnZQ39TT.js" as="script"><link rel="prefetch" href="/blog/assets/MLIR-D2pavuUi.js" as="script"><link rel="prefetch" href="/blog/assets/wandb-DK1bMc65.js" as="script"><link rel="prefetch" href="/blog/assets/Hugging_Face-BEfy3p0R.js" as="script"><link rel="prefetch" href="/blog/assets/Pre_training(预训练)-_VXLpMx6.js" as="script"><link rel="prefetch" href="/blog/assets/RAG-NVLxMQw6.js" as="script"><link rel="prefetch" href="/blog/assets/VITRA-BPyi2XH-.js" as="script"><link rel="prefetch" href="/blog/assets/VLA-Cvu1eY6v.js" as="script"><link rel="prefetch" href="/blog/assets/位置编码-Buy2s_hf.js" as="script"><link rel="prefetch" href="/blog/assets/大模型技术-BcQeqvpV.js" as="script"><link rel="prefetch" href="/blog/assets/模型评估与测评-BzjjIqkE.js" as="script"><link rel="prefetch" href="/blog/assets/模型量化-1m0yLz-4.js" as="script"><link rel="prefetch" href="/blog/assets/Dropout-S47HvNXQ.js" as="script"><link rel="prefetch" href="/blog/assets/Loss(损失函数)-cWjZ4IMy.js" as="script"><link rel="prefetch" href="/blog/assets/PPO(Proximal_Policy_Optimization_近端策略优化)-ojOyHiOh.js" as="script"><link rel="prefetch" href="/blog/assets/优化算法-BQ6p7GQm.js" as="script"><link rel="prefetch" href="/blog/assets/学习率调度-sS6aC3fk.js" as="script"><link rel="prefetch" href="/blog/assets/层归一化-C5oCdzhs.js" as="script"><link rel="prefetch" href="/blog/assets/梯度下降-BCJPNkcz.js" as="script"><link rel="prefetch" href="/blog/assets/残差连接-DNlmQtk-.js" as="script"><link rel="prefetch" href="/blog/assets/深度学习基础-DHxfDFEz.js" as="script"><link rel="prefetch" href="/blog/assets/训练架构-BRTva4gG.js" as="script"><link rel="prefetch" href="/blog/assets/SLAM算法-u_Ko-dYq.js" as="script"><link rel="prefetch" href="/blog/assets/运动学与机械基础-Dm3pqr2a.js" as="script"><link rel="prefetch" href="/blog/assets/底层原理-D-1quzJz.js" as="script"><link rel="prefetch" href="/blog/assets/熔断保护-De8oHRdS.js" as="script"><link rel="prefetch" href="/blog/assets/PyTorch_TensorFlow_是什么怎么用-YZhuL_Yc.js" as="script"><link rel="prefetch" href="/blog/assets/PyTorch实践-DcGxjOPE.js" as="script"><link rel="prefetch" href="/blog/assets/DeepSpeed-CbWv3b7Q.js" as="script"><link rel="prefetch" href="/blog/assets/Ray-CaDsBkow.js" as="script"><link rel="prefetch" href="/blog/assets/分布式训练(软件分发(Framework))-N5_sK8rH.js" as="script"><link rel="prefetch" href="/blog/assets/提示词工程_本地部署_Function_Calling-BKV0GX6r.js" as="script"><link rel="prefetch" href="/blog/assets/DPU-D3Dee8Lt.js" as="script"><link rel="prefetch" href="/blog/assets/InfiniBand-COwbNv2N.js" as="script"><link rel="prefetch" href="/blog/assets/RDMA-DWjHBFPZ.js" as="script"><link rel="prefetch" href="/blog/assets/RoCE-CdMjO6Vg.js" as="script"><link rel="prefetch" href="/blog/assets/infiniBand_RocE_DPU-Bi68VCoC.js" as="script"><link rel="prefetch" href="/blog/assets/高吞吐分布式网络架构(物理分发)-BzfxsCp_.js" as="script"><link rel="prefetch" href="/blog/assets/Google_Cloud-DXU0wnNU.js" as="script"><link rel="prefetch" href="/blog/assets/Vertex_AI_Agent_Builder-DlIy-AHd.js" as="script"><link rel="prefetch" href="/blog/assets/Vertex_ai-BUHw13EF.js" as="script"><link rel="prefetch" href="/blog/assets/Function_Calling_(函数调用)-XHiBmJ8K.js" as="script"><link rel="prefetch" href="/blog/assets/Prompt_Enginnering(提示词工程)-BgqbQKlz.js" as="script"><link rel="prefetch" href="/blog/assets/ReAct_(Reasoning_and_Acting)-n0xKF0NS.js" as="script"><link rel="prefetch" href="/blog/assets/第一阶段_掌握“大脑”的决策机制_(基础)-DxOeRDkz.js" as="script"><link rel="prefetch" href="/blog/assets/Agent多意图识别(企业级网关)-BQMqXYAB.js" as="script"><link rel="prefetch" href="/blog/assets/Caption-DMZoc60f.js" as="script"><link rel="prefetch" href="/blog/assets/Chunk-B3hd2H6U.js" as="script"><link rel="prefetch" href="/blog/assets/Claude架构-CoKPmH33.js" as="script"><link rel="prefetch" href="/blog/assets/Claude结构解析-DIXuSW6e.js" as="script"><link rel="prefetch" href="/blog/assets/LangChain-DiExTsRQ.js" as="script"><link rel="prefetch" href="/blog/assets/LangGraph-CB5npWfz.js" as="script"><link rel="prefetch" href="/blog/assets/MCP-CE9AX5vc.js" as="script"><link rel="prefetch" href="/blog/assets/OCR(光学字符识别)-BB1V67DG.js" as="script"><link rel="prefetch" href="/blog/assets/Query改写-CtNcyrC6.js" as="script"><link rel="prefetch" href="/blog/assets/RRF(倒数排名融合)-ZilrufEi.js" as="script"><link rel="prefetch" href="/blog/assets/Schema(模式)-RDp8EyMd.js" as="script"><link rel="prefetch" href="/blog/assets/Temperature-BY59XzrM.js" as="script"><link rel="prefetch" href="/blog/assets/Top_k-DEx1GeDW.js" as="script"><link rel="prefetch" href="/blog/assets/Top_p-CHB1IjUO.js" as="script"><link rel="prefetch" href="/blog/assets/关键词搜索-B4E8AqMl.js" as="script"><link rel="prefetch" href="/blog/assets/多模态RAG-KlEBIfTt.js" as="script"><link rel="prefetch" href="/blog/assets/大模型怎么输出统一格式_json-D7367oTh.js" as="script"><link rel="prefetch" href="/blog/assets/知识库动态更新-BoTw6vVl.js" as="script"><link rel="prefetch" href="/blog/assets/第三阶段_拥抱生态与框架_(工程化)-DXbv2Ohe.js" as="script"><link rel="prefetch" href="/blog/assets/第二阶段_理解_Agent_的“思考套路”_(进阶)-DtBK58un.js" as="script"><link rel="prefetch" href="/blog/assets/第四阶段_实战_AIOps_Agent_(垂直领域)-Me_YsIjg.js" as="script"><link rel="prefetch" href="/blog/assets/Dashboard-y9vIrO5f.js" as="script"><link rel="prefetch" href="/blog/assets/K8s-BMEvwqIV.js" as="script"><link rel="prefetch" href="/blog/assets/k8s的架构-CF_dGlx3.js" as="script"><link rel="prefetch" href="/blog/assets/metrics_server安装-JP3rgzEf.js" as="script"><link rel="prefetch" href="/blog/assets/发布服务-BSZQWADy.js" as="script"><link rel="prefetch" href="/blog/assets/用containerd拉取镜像的配置问题-yUNB1Mar.js" as="script"><link rel="prefetch" href="/blog/assets/时序库-B0vPgxxm.js" as="script"><link rel="prefetch" href="/blog/assets/监控-prometheus-C9cz5VcB.js" as="script"><link rel="prefetch" href="/blog/assets/python基础-BKt-i60D.js" as="script"><link rel="prefetch" href="/blog/assets/用containerd拉取镜像的配置问题-BNaPW7Yc.js" as="script"><link rel="prefetch" href="/blog/assets/一、基础环境准备(所有服务器通用)-Dvp-I507.js" as="script"><link rel="prefetch" href="/blog/assets/七、DNS_服务部署(IP_192.168.203.145)-C2FJsfqc.js" as="script"><link rel="prefetch" href="/blog/assets/三、NFS_服务器配置-wsj76EI9.js" as="script"><link rel="prefetch" href="/blog/assets/二、搭建基础DMC集群(内网环境)-D6lDO15q.js" as="script"><link rel="prefetch" href="/blog/assets/五、Ansible_服务器配置(IP_192.168.203.145_与_NFS_共用)-C7f8regF.js" as="script"><link rel="prefetch" href="/blog/assets/八、压力测试(ab_工具)-PooLRXad.js" as="script"><link rel="prefetch" href="/blog/assets/六、Prometheus___Grafana_监控(IP_192.168.203.145)-BTwwgiVH.js" as="script"><link rel="prefetch" href="/blog/assets/四、配置LVS_keepalive负载均衡服务器-DFLna9qt.js" as="script"><link rel="prefetch" href="/blog/assets/DNAT-DKcDTQVS.js" as="script"><link rel="prefetch" href="/blog/assets/SNAT-wpbwqJtV.js" as="script"><link rel="prefetch" href="/blog/assets/Netfilter-Ou_sZxqY.js" as="script"><link rel="prefetch" href="/blog/assets/firewalld命令-xIWCLVQQ.js" as="script"><link rel="prefetch" href="/blog/assets/iptables命令-3uq5ISlF.js" as="script"><link rel="prefetch" href="/blog/assets/内核-DrJpEw8M.js" as="script"><link rel="prefetch" href="/blog/assets/子网的划分-Dl9t3EYO.js" as="script"><link rel="prefetch" href="/blog/assets/抓包工具的使用-Kes75n8h.js" as="script"><link rel="prefetch" href="/blog/assets/trunk-DGafUfc3.js" as="script"><link rel="prefetch" href="/blog/assets/vlan和vxlan-D-2eaXmh.js" as="script"><link rel="prefetch" href="/blog/assets/思科模拟器-zi_yjX-e.js" as="script"><link rel="prefetch" href="/blog/assets/ICMP报文-BRhmZOHG.js" as="script"><link rel="prefetch" href="/blog/assets/TCP和UDP对比-uZZJbkvh.js" as="script"><link rel="prefetch" href="/blog/assets/TCP的工作原理-Cl5s1FH7.js" as="script"><link rel="prefetch" href="/blog/assets/UDP的工作原理-CDfA_RQP.js" as="script"><link rel="prefetch" href="/blog/assets/WLAN-BYukB9kF.js" as="script"><link rel="prefetch" href="/blog/assets/常见的网络攻击方式-DNrsyLI_.js" as="script"><link rel="prefetch" href="/blog/assets/流量控制、拥塞控制、计时器-YSCvxGOP.js" as="script"><link rel="prefetch" href="/blog/assets/端口相关命令-jtbjv1bC.js" as="script"><link rel="prefetch" href="/blog/assets/网络流量查看命令-CqZgn7gx.js" as="script"><link rel="prefetch" href="/blog/assets/arp协议-BzESWJAb.js" as="script"><link rel="prefetch" href="/blog/assets/icmp协议-BgNCUtao.js" as="script"><link rel="prefetch" href="/blog/assets/ping的过程-BnxRfsb3.js" as="script"><link rel="prefetch" href="/blog/assets/动态路由-CMvjnFuM.js" as="script"><link rel="prefetch" href="/blog/assets/虚拟机网络模式-BFRoT9yu.js" as="script"><link rel="prefetch" href="/blog/assets/DMZ区域-CWRNi-8U.js" as="script"><link rel="prefetch" href="/blog/assets/JumpServer-BVKcKAPx.js" as="script"><link rel="prefetch" href="/blog/assets/VPN-BGWp1P7T.js" as="script"><link rel="prefetch" href="/blog/assets/堡垒机-CxrTcD-h.js" as="script"><link rel="prefetch" href="/blog/assets/web项目-BC7_R7ga.js" as="script"><link rel="prefetch" href="/blog/assets/前端-DVyPxi1N.js" as="script"><link rel="prefetch" href="/blog/assets/后端开发-B2kYY0Ck.js" as="script"><link rel="prefetch" href="/blog/assets/网站部署-zH4QCr6Q.js" as="script"><link rel="prefetch" href="/blog/assets/web集群项目-3wn5DdWS.js" as="script"><link rel="prefetch" href="/blog/assets/一、基础环境准备(所有服务器通用)-DxL6qNzb.js" as="script"><link rel="prefetch" href="/blog/assets/七、DNS_服务部署-B5xPJ0MX.js" as="script"><link rel="prefetch" href="/blog/assets/三、NFS_服务器配置-5ikCzb4T.js" as="script"><link rel="prefetch" href="/blog/assets/九、AIops改造-CcOEApYe.js" as="script"><link rel="prefetch" href="/blog/assets/二、搭建基础DMC集群(内网环境)-CKoT-8pJ.js" as="script"><link rel="prefetch" href="/blog/assets/五、Ansible_安装-DBF1uGZe.js" as="script"><link rel="prefetch" href="/blog/assets/八、压力测试(ab_工具)-DBQcGZDo.js" as="script"><link rel="prefetch" href="/blog/assets/六、Prometheus___Grafana_监控-Zcm8iVAG.js" as="script"><link rel="prefetch" href="/blog/assets/四、配置LVS_keepalive负载均衡服务器-x1GvgISB.js" as="script"><link rel="prefetch" href="/blog/assets/Context_Window-CjKsm331.js" as="script"><link rel="prefetch" href="/blog/assets/RAG_vs_Fine-tuning-Bq358X3Q.js" as="script"><link rel="prefetch" href="/blog/assets/ReAct_框架-CcqUmZBh.js" as="script"><link rel="prefetch" href="/blog/assets/共享内存(redis)在多智能体协作场景中如何降低成本-By9qLCYN.js" as="script"><link rel="prefetch" href="/blog/assets/多智能体协作_(Multi-Agent_Systems)-DWVERa2Y.js" as="script"><link rel="prefetch" href="/blog/assets/量化_(Quantization)-CtC2BMLR.js" as="script"><link rel="prefetch" href="/blog/assets/K8s-BMtJptjK.js" as="script"><link rel="prefetch" href="/blog/assets/Prometheus_存储原理(TSDB)、故障排查方法论(Load_高、IO_忙、内存泄漏如何排查)。-DMGFny7s.js" as="script"><link rel="prefetch" href="/blog/assets/Shell复习-Bsg7QYJJ.js" as="script"><link rel="prefetch" href="/blog/assets/jumpserver是怎么进行运维流量控制的-BIoIseDh.js" as="script"><link rel="prefetch" href="/blog/assets/mysql复习-Dd0FpiYI.js" as="script"><link rel="prefetch" href="/blog/assets/python复习-BX6IT49h.js" as="script"><link rel="prefetch" href="/blog/assets/基础问题-BbhaRqjX.js" as="script"><link rel="prefetch" href="/blog/assets/自我介绍(参考)-CNRk_TxD.js" as="script"><link rel="prefetch" href="/blog/assets/项目一(web集群)-DIWbdvCP.js" as="script"><link rel="prefetch" href="/blog/assets/项目二(分布式智能日志分析_AIOps_预警平台)-B0Y-78A7.js" as="script"><link rel="prefetch" href="/blog/assets/5_node_5090计算节点改造-a97Qc-Bz.js" as="script"><link rel="prefetch" href="/blog/assets/k8s的几种网络结构-Ci-gO2oo.js" as="script"><link rel="prefetch" href="/blog/assets/AI_INFRA(Hardware)-Ck1RViu9.js" as="script"><link rel="prefetch" href="/blog/assets/GPU_CPU_RNIC_DPU-BA3CoTr4.js" as="script"><link rel="prefetch" href="/blog/assets/B300测试与优化-DJXbsZKT.js" as="script"><link rel="prefetch" href="/blog/assets/Eager-BkBt0ZFg.js" as="script"><link rel="prefetch" href="/blog/assets/ZeRO版本区别-Vi-fWNB5.js" as="script"><link rel="prefetch" href="/blog/assets/aria2(开源下载加速工具)-CRiwkWmG.js" as="script"><link rel="prefetch" href="/blog/assets/FlushAttention_kernel-BsoyJvLD.js" as="script"><link rel="prefetch" href="/blog/assets/Kernel(算子)-CopLIKsu.js" as="script"><link rel="prefetch" href="/blog/assets/HBM和SRAM-Da2S8mjF.js" as="script"><link rel="prefetch" href="/blog/assets/计算中GPU的工作流程-BjF9Yneo.js" as="script"><link rel="prefetch" href="/blog/assets/Shared_Memory___SRAM-Du_moYaG.js" as="script"><link rel="prefetch" href="/blog/assets/运算流水线工作原理-Dgyf4bzy.js" as="script"><link rel="prefetch" href="/blog/assets/基于HPN的高性能算力服务器智能调度集群-3Ya8WWM3.js" as="script"><link rel="prefetch" href="/blog/assets/搭建方案-DOgbPnY-.js" as="script"><link rel="prefetch" href="/blog/assets/管理网络（oob和mgmt）-BBDHzC_x.js" as="script"><link rel="prefetch" href="/blog/assets/访问流量走向-B-APT3hb.js" as="script"><link rel="prefetch" href="/blog/assets/集群搭建流程-DUUSdZ2K.js" as="script"><link rel="prefetch" href="/blog/assets/Post_training(后训练)-CHdJHPSJ.js" as="script"><link rel="prefetch" href="/blog/assets/数据管线(Data_Pipeline)-BMvNfD2e.js" as="script"><link rel="prefetch" href="/blog/assets/Tokenization-BODaYvz-.js" as="script"><link rel="prefetch" href="/blog/assets/词嵌入-DbWXO52E.js" as="script"><link rel="prefetch" href="/blog/assets/Logits-B9vJRzJn.js" as="script"><link rel="prefetch" href="/blog/assets/Positional_Encoding(位置编码)-D1a9Maqg.js" as="script"><link rel="prefetch" href="/blog/assets/Self-Attention(自注意力)-CtqrUatt.js" as="script"><link rel="prefetch" href="/blog/assets/Transformer-D-w2DmFX.js" as="script"><link rel="prefetch" href="/blog/assets/CNN_-_卷积和池化(Convolution_And_Pooling)-DTdGjuBZ.js" as="script"><link rel="prefetch" href="/blog/assets/LSTM_GRU-DpgEnnTz.js" as="script"><link rel="prefetch" href="/blog/assets/循环神经网络(RNN)-BqWB1iYI.js" as="script"><link rel="prefetch" href="/blog/assets/神经网络-BRzKB_Kc.js" as="script"><link rel="prefetch" href="/blog/assets/Cluster_monitor-D6OuRu68.js" as="script"><link rel="prefetch" href="/blog/assets/常见错误排查-RT0Xwhab.js" as="script"><link rel="prefetch" href="/blog/assets/分布式训练-_TFUw4DD.js" as="script"><link rel="prefetch" href="/blog/assets/3D_计算机视觉_(3D_Computer_Vision)___SLAM-DXH_WVnA.js" as="script"><link rel="prefetch" href="/blog/assets/ROS2-zaiKRoqm.js" as="script"><link rel="prefetch" href="/blog/assets/machine-B9PaV3zh.js" as="script"><link rel="prefetch" href="/blog/assets/Ray_Actor-C2-FxC5G.js" as="script"><link rel="prefetch" href="/blog/assets/Ray详细解读-Bfg5C5CB.js" as="script"><link rel="prefetch" href="/blog/assets/JSON_Schema-EJG6J9Bn.js" as="script"><link rel="prefetch" href="/blog/assets/OpenAI库-B97baWyv.js" as="script"><link rel="prefetch" href="/blog/assets/scikit-learn库的使用-DGKzDDtJ.js" as="script"><link rel="prefetch" href="/blog/assets/提示词格式与优化-CxhAFp2T.js" as="script"><link rel="prefetch" href="/blog/assets/Agent框架-Dym66IHQ.js" as="script"><link rel="prefetch" href="/blog/assets/Tool_Skill_过多处理-CCP_1-6L.js" as="script"><link rel="prefetch" href="/blog/assets/路由网关架构-14gjRtPb.js" as="script"><link rel="prefetch" href="/blog/assets/Agentic-78ljnUFy.js" as="script"><link rel="prefetch" href="/blog/assets/Iterative_Loop-Da4zCCfz.js" as="script"><link rel="prefetch" href="/blog/assets/Agentic_RAG-gBdPv4Cp.js" as="script"><link rel="prefetch" href="/blog/assets/GREP--GbxqXxM.js" as="script"><link rel="prefetch" href="/blog/assets/LCEL_模式-BXgdH8xi.js" as="script"><link rel="prefetch" href="/blog/assets/LangChain下载-09QLaESK.js" as="script"><link rel="prefetch" href="/blog/assets/为什么加载慢-Brx2BhQu.js" as="script"><link rel="prefetch" href="/blog/assets/元数据是什么_-B6cfWbI1.js" as="script"><link rel="prefetch" href="/blog/assets/向量数据库-BYRViGZM.js" as="script"><link rel="prefetch" href="/blog/assets/流式输出-BwKOvx0N.js" as="script"><link rel="prefetch" href="/blog/assets/示例代码-DlIKko-m.js" as="script"><link rel="prefetch" href="/blog/assets/RAG-Fusion-C_1MKoGN.js" as="script"><link rel="prefetch" href="/blog/assets/Fitz的缺点-BmlLtfY8.js" as="script"><link rel="prefetch" href="/blog/assets/分层异构向量检索-CiXRqMQj.js" as="script"><link rel="prefetch" href="/blog/assets/混合PDF-CXp1nL7z.js" as="script"><link rel="prefetch" href="/blog/assets/长PDF-4QDeb5v-.js" as="script"><link rel="prefetch" href="/blog/assets/CI_CD-Bz17aYQ_.js" as="script"><link rel="prefetch" href="/blog/assets/CI_CD常规方案-DAN04tZz.js" as="script"><link rel="prefetch" href="/blog/assets/GitLab_CI___ArgoCD___K8s-CJXE6KZR.js" as="script"><link rel="prefetch" href="/blog/assets/GitLab_CI___Docker___K8s___Harbor-D8IjQzZH.js" as="script"><link rel="prefetch" href="/blog/assets/Jenkins___Ansible___ECS_物理机-B0JbD8b2.js" as="script"><link rel="prefetch" href="/blog/assets/iptables命令练习-YqhD0p6J.js" as="script"><link rel="prefetch" href="/blog/assets/日志的级别-B7HvcfJs.js" as="script"><link rel="prefetch" href="/blog/assets/计划任务-DUyv-UqV.js" as="script"><link rel="prefetch" href="/blog/assets/cisco中的常用命令-CIhKyInt.js" as="script"><link rel="prefetch" href="/blog/assets/TCP三次握手-D94_HwGX.js" as="script"><link rel="prefetch" href="/blog/assets/TCP四次挥手-MEm1g_It.js" as="script"><link rel="prefetch" href="/blog/assets/TCP的封装格式-CoYX7W1N.js" as="script"><link rel="prefetch" href="/blog/assets/滑动窗口-BN1HlhhD.js" as="script"><link rel="prefetch" href="/blog/assets/UDP的封装格式-D2HBEd3s.js" as="script"><link rel="prefetch" href="/blog/assets/Netcat命令-DbDOmsTn.js" as="script"><link rel="prefetch" href="/blog/assets/lsof命令-BbO5lcPz.js" as="script"><link rel="prefetch" href="/blog/assets/netstat命令-BkCfp8T2.js" as="script"><link rel="prefetch" href="/blog/assets/nmap命令-B-bm-QP_.js" as="script"><link rel="prefetch" href="/blog/assets/tcpdump命令-B9yd6qaZ.js" as="script"><link rel="prefetch" href="/blog/assets/arp欺骗的预防-DFapBs2T.js" as="script"><link rel="prefetch" href="/blog/assets/ospf-ByK3SAKS.js" as="script"><link rel="prefetch" href="/blog/assets/rip-MjoJHa8w.js" as="script"><link rel="prefetch" href="/blog/assets/rip实验-CRf6HDW_.js" as="script"><link rel="prefetch" href="/blog/assets/收敛-DnYopZWV.js" as="script"><link rel="prefetch" href="/blog/assets/1.添加Loki收集日志-DE3XSBUS.js" as="script"><link rel="prefetch" href="/blog/assets/2.趋势预测-Dw1YNn0y.js" as="script"><link rel="prefetch" href="/blog/assets/3.故障快速定位与根因分析-DfpkdYCN.js" as="script"><link rel="prefetch" href="/blog/assets/4.闭环自动化-DFyyUEhx.js" as="script"><link rel="prefetch" href="/blog/assets/JumpServer资产管理-Hv_jzv3c.js" as="script"><link rel="prefetch" href="/blog/assets/堡垒机配置(JumpServer)-D0lUAWTg.js" as="script"><link rel="prefetch" href="/blog/assets/禁止用除了堡垒机之外的连接-DP_hMXAI.js" as="script"><link rel="prefetch" href="/blog/assets/Ansible常用命令-Chb74r2L.js" as="script"><link rel="prefetch" href="/blog/assets/Ansible配置-CRR5TtN4.js" as="script"><link rel="prefetch" href="/blog/assets/Cgroup-2zvxKUuU.js" as="script"><link rel="prefetch" href="/blog/assets/K8s中的网络-CS3RI3L9.js" as="script"><link rel="prefetch" href="/blog/assets/K8s的各个组件-Cgxu9h9y.js" as="script"><link rel="prefetch" href="/blog/assets/Namespace命名空间-B9dZT6Ko.js" as="script"><link rel="prefetch" href="/blog/assets/Pod的创建流程-BW8T-yDF.js" as="script"><link rel="prefetch" href="/blog/assets/k8s中ConfigMap和secret分别是用来做什么的有什么区别-DQEdk6lu.js" as="script"><link rel="prefetch" href="/blog/assets/k8s中的污点和容忍度-D1zMSkIf.js" as="script"><link rel="prefetch" href="/blog/assets/k8s之POD、容器之间的网络通信-uOInKEg5.js" as="script"><link rel="prefetch" href="/blog/assets/k8s怎么做资源隔离与网络通信的-BhLy2nx6.js" as="script"><link rel="prefetch" href="/blog/assets/kube-proxy一般放在那些节点上-ClYCvm3O.js" as="script"><link rel="prefetch" href="/blog/assets/pod与pod之间是怎么进行内存隔离的-jpIXK_Ya.js" as="script"><link rel="prefetch" href="/blog/assets/pod和sever的关系-CldEFfe0.js" as="script"><link rel="prefetch" href="/blog/assets/容器和pod的区别-MItmVFmQ.js" as="script"><link rel="prefetch" href="/blog/assets/怎么看pod挂掉之前的日志文件-DI6eBQuV.js" as="script"><link rel="prefetch" href="/blog/assets/什么是索引_-NQUvSzyv.js" as="script"><link rel="prefetch" href="/blog/assets/建立数据库时候为什么要分表-Cc54QIrc.js" as="script"><link rel="prefetch" href="/blog/assets/面试中常见的问题-PVwBLCIT.js" as="script"><link rel="prefetch" href="/blog/assets/python中的数据结构-Cc8vYeN4.js" as="script"><link rel="prefetch" href="/blog/assets/CDN是什么_-BgsMJm3-.js" as="script"><link rel="prefetch" href="/blog/assets/DR模式的mac地址转换-BH0xOCPC.js" as="script"><link rel="prefetch" href="/blog/assets/Prometheus中写的rule是用来干吗的-BTjX0qmL.js" as="script"><link rel="prefetch" href="/blog/assets/https证书验证过程-BAIeG-LC.js" as="script"><link rel="prefetch" href="/blog/assets/ipvs是什么和我的lvs_keepalive_iptables有什么关系-Di8HCDLS.js" as="script"><link rel="prefetch" href="/blog/assets/nfs-server单点故障怎么办-CCD13RR5.js" as="script"><link rel="prefetch" href="/blog/assets/tcp_warppers-BSGSTD4p.js" as="script"><link rel="prefetch" href="/blog/assets/vip负载均衡-Cjz-lJXm.js" as="script"><link rel="prefetch" href="/blog/assets/vrrp是什么_-BUigDuKh.js" as="script"><link rel="prefetch" href="/blog/assets/你的ai在中间做了什么-BogStuJu.js" as="script"><link rel="prefetch" href="/blog/assets/压力测试-CHhg_C0K.js" as="script"><link rel="prefetch" href="/blog/assets/阿里云灵骏智算服务器架构-NtIeutHP.js" as="script"><link rel="prefetch" href="/blog/assets/torch.profiler-D26etaA2.js" as="script"><link rel="prefetch" href="/blog/assets/图分裂-D7moJn6-.js" as="script"><link rel="prefetch" href="/blog/assets/Num_workers和Batch_Size-BGPkkYUy.js" as="script"><link rel="prefetch" href="/blog/assets/gradient_accumulation_steps-bTutbQvO.js" as="script"><link rel="prefetch" href="/blog/assets/训练中的一些参数-Bi29_2Hk.js" as="script"><link rel="prefetch" href="/blog/assets/Kernel_Optimization(算子优化)-CGTq5UO6.js" as="script"><link rel="prefetch" href="/blog/assets/Triton-vIAumXeo.js" as="script"><link rel="prefetch" href="/blog/assets/CRD-DLLjVll9.js" as="script"><link rel="prefetch" href="/blog/assets/K8S-CzzYkrTR.js" as="script"><link rel="prefetch" href="/blog/assets/Volcano-Cb4ubbkN.js" as="script"><link rel="prefetch" href="/blog/assets/IL(Imitation_Learning_模仿学习)-DjktHG8w.js" as="script"><link rel="prefetch" href="/blog/assets/IL学习-BUer1PLE.js" as="script"><link rel="prefetch" href="/blog/assets/DPU-Bqx0j7YM.js" as="script"><link rel="prefetch" href="/blog/assets/PPO-BaA-_-Nj.js" as="script"><link rel="prefetch" href="/blog/assets/RL(Reinforcement_Learning__强化学习)-BuRzK8WI.js" as="script"><link rel="prefetch" href="/blog/assets/RL运算-mi8Y-Oxk.js" as="script"><link rel="prefetch" href="/blog/assets/Logits(对数几率)-CmAM0_vt.js" as="script"><link rel="prefetch" href="/blog/assets/Reward和Policy-CE6s0XP-.js" as="script"><link rel="prefetch" href="/blog/assets/SFT(监督微调)-CCWXUCUl.js" as="script"><link rel="prefetch" href="/blog/assets/数据管线全阶段总览-CNQoS0Wq.js" as="script"><link rel="prefetch" href="/blog/assets/HITL_(Human-In-The-Loop_人机协同)-3h9m_Tpv.js" as="script"><link rel="prefetch" href="/blog/assets/RLAIF_(基于_AI_反馈的强化学习)-MgXtMvMe.js" as="script"><link rel="prefetch" href="/blog/assets/大模型做数据标注_(Auto-Labeling)-DLggMzHi.js" as="script"><link rel="prefetch" href="/blog/assets/数据标注(Data_Annotation_Labeling)-zPQbddXn.js" as="script"><link rel="prefetch" href="/blog/assets/Apache Parquet-I4AKIdGT.js" as="script"><link rel="prefetch" href="/blog/assets/LeRobot_v3-C6gAqfMU.js" as="script"><link rel="prefetch" href="/blog/assets/NIR(Near-Infrared_近红外)-BnyNlfKo.js" as="script"><link rel="prefetch" href="/blog/assets/URDF(Unified_Robot_Description_Format_统一机器人描述格式)-CkVTx_5p.js" as="script"><link rel="prefetch" href="/blog/assets/VLC(变长编码压缩算法)-DUBWKhYD.js" as="script"><link rel="prefetch" href="/blog/assets/数据格式-FwMktm1V.js" as="script"><link rel="prefetch" href="/blog/assets/Patch-BSe2rMWH.js" as="script"><link rel="prefetch" href="/blog/assets/Video_Tokenization-DsVXqMxC.js" as="script"><link rel="prefetch" href="/blog/assets/视觉编码器-KUud6m3r.js" as="script"><link rel="prefetch" href="/blog/assets/Embedding(向量化)-_XczkDSX.js" as="script"><link rel="prefetch" href="/blog/assets/Transformer中的Embedding-C8G1fa7v.js" as="script"><link rel="prefetch" href="/blog/assets/Softmax-CqvDI34V.js" as="script"><link rel="prefetch" href="/blog/assets/激活函数-3st-d6tH.js" as="script"><link rel="prefetch" href="/blog/assets/LLM训练分层监控指标-DLEg4SYs.js" as="script"><link rel="prefetch" href="/blog/assets/LLM训练生命周期中常见指标-D4lm4zCw.js" as="script"><link rel="prefetch" href="/blog/assets/MFU(模型算力利用率)-D0kVLNQq.js" as="script"><link rel="prefetch" href="/blog/assets/DCGM_完整参数与监控指标速查手册-DK7xGQKm.js" as="script"><link rel="prefetch" href="/blog/assets/ECC(Error-Correcting_Code)-CJaTN2Rp.js" as="script"><link rel="prefetch" href="/blog/assets/GRC-ByflMZ02.js" as="script"><link rel="prefetch" href="/blog/assets/NVIDIA_GPU_监控观测最佳实践-r9TsM191.js" as="script"><link rel="prefetch" href="/blog/assets/PFC(Priority-based_Flow_Control)-B4tTjiCU.js" as="script"><link rel="prefetch" href="/blog/assets/Xid_Hardware_Failure-RtkgUwCL.js" as="script"><link rel="prefetch" href="/blog/assets/GPU_的硬件微架构-DQDb7eUI.js" as="script"><link rel="prefetch" href="/blog/assets/裸金属与_GPU_硬件层_(底盘)-DdJWuXGX.js" as="script"><link rel="prefetch" href="/blog/assets/DTensor-BOCyE1Po.js" as="script"><link rel="prefetch" href="/blog/assets/DeepSpeed_ZeRO-5zJ_euQm.js" as="script"><link rel="prefetch" href="/blog/assets/DeviceMesh(设备网格)-DqR3RdbP.js" as="script"><link rel="prefetch" href="/blog/assets/KV_Cache_(键值缓存)与PagedAttention-B_FjNF6X.js" as="script"><link rel="prefetch" href="/blog/assets/PyTorch_分布式概述-DVVKyDcL.js" as="script"><link rel="prefetch" href="/blog/assets/Tensor-BvZaaSgw.js" as="script"><link rel="prefetch" href="/blog/assets/Weights_Activations_Gradients-BqGD_TM0.js" as="script"><link rel="prefetch" href="/blog/assets/启动命令-Dqx3N1ug.js" as="script"><link rel="prefetch" href="/blog/assets/启动命令优化-Dfmc7SUO.js" as="script"><link rel="prefetch" href="/blog/assets/计算中的通信-Da7-5ogy.js" as="script"><link rel="prefetch" href="/blog/assets/DPU(Data_Processing_Unit)-tn63f0yj.js" as="script"><link rel="prefetch" href="/blog/assets/高性能网络与存储层-sG-p1Rd7.js" as="script"><link rel="prefetch" href="/blog/assets/JSON_Schema作用阶段-DzKUlKg3.js" as="script"><link rel="prefetch" href="/blog/assets/JSON_Schema可以用来干嘛_-BWu_uE3Q.js" as="script"><link rel="prefetch" href="/blog/assets/TOOLS-B_B4Dk0Z.js" as="script"><link rel="prefetch" href="/blog/assets/Model_Context调用(历史对话)-CzRJfewT.js" as="script"><link rel="prefetch" href="/blog/assets/OpenAI库的流式输出-QEM2Zmpy.js" as="script"><link rel="prefetch" href="/blog/assets/OpenAi库的基础使用-DPID1Nq4.js" as="script"><link rel="prefetch" href="/blog/assets/Iterative_Loop和react-C-_fhWFy.js" as="script"><link rel="prefetch" href="/blog/assets/ChromaDB-BQ3y7BWp.js" as="script"><link rel="prefetch" href="/blog/assets/Embedding-BpYqriDK.js" as="script"><link rel="prefetch" href="/blog/assets/元数据匹配(layer_embedied)-vgdi5AA-.js" as="script"><link rel="prefetch" href="/blog/assets/RAPTOR-BAu1O_tN.js" as="script"><link rel="prefetch" href="/blog/assets/HPA(水平扩缩)-GbXomCdc.js" as="script"><link rel="prefetch" href="/blog/assets/水平扩缩-DSLq0VyO.js" as="script"><link rel="prefetch" href="/blog/assets/具体实现-D8nS0Mnl.js" as="script"><link rel="prefetch" href="/blog/assets/集群存储架构-Dk28nZOI.js" as="script"><link rel="prefetch" href="/blog/assets/namespace怎么进行资源隔离的-DhYUe2PZ.js" as="script"><link rel="prefetch" href="/blog/assets/namespace的分类-Cn7nSy-T.js" as="script"><link rel="prefetch" href="/blog/assets/基础隔离_Linux_Namespace-zkbBcdHH.js" as="script"><link rel="prefetch" href="/blog/assets/Clos 架构-B4Coj63_.js" as="script"><link rel="prefetch" href="/blog/assets/Scale-out（水平扩展）-CBEcDdmk.js" as="script"><link rel="prefetch" href="/blog/assets/Scale-up（垂直扩展）-Cc19IJur.js" as="script"><link rel="prefetch" href="/blog/assets/Spine-Leaf（叶脊网络）-BPEy65g0.js" as="script"><link rel="prefetch" href="/blog/assets/WEKA-CkeD8OlP.js" as="script"><link rel="prefetch" href="/blog/assets/全闪(cpfs)-BMz8hB_S.js" as="script"><link rel="prefetch" href="/blog/assets/对象存储(OSS)-dEoOM2wB.js" as="script"><link rel="prefetch" href="/blog/assets/混闪(ssd_hdd)-p12aBWLW.js" as="script"><link rel="prefetch" href="/blog/assets/数据集管理-CYgHU3hd.js" as="script"><link rel="prefetch" href="/blog/assets/碎片化管理-Cx8EJnmx.js" as="script"><link rel="prefetch" href="/blog/assets/资源池_资源队列-B3Wb4f8J.js" as="script"><link rel="prefetch" href="/blog/assets/ACCL-CB6nWxrk.js" as="script"><link rel="prefetch" href="/blog/assets/HCA（主机通道适配器）-CM5VvDVg.js" as="script"><link rel="prefetch" href="/blog/assets/MPI-CmP_2iyh.js" as="script"><link rel="prefetch" href="/blog/assets/NCCL-aFHYveSV.js" as="script"><link rel="prefetch" href="/blog/assets/拓扑感知通信-B_7MjwYN.js" as="script"><link rel="prefetch" href="/blog/assets/集合通信算法-CLkzViw-.js" as="script"><link rel="prefetch" href="/blog/assets/ECMP（Equal-Cost Multi-Path）-CgLiquCk.js" as="script"><link rel="prefetch" href="/blog/assets/SLB(负载均衡)-BhpP_3fv.js" as="script"><link rel="prefetch" href="/blog/assets/Solar-RDMA-CgmmBLOb.js" as="script"><link rel="prefetch" href="/blog/assets/ToR交换机-aQwCy4uD.js" as="script"><link rel="prefetch" href="/blog/assets/VPC-Bw00ywvc.js" as="script"><link rel="prefetch" href="/blog/assets/Isaac_Lab-CSvXV2ac.js" as="script"><link rel="prefetch" href="/blog/assets/Omniverse-BZEdCell.js" as="script"><link rel="prefetch" href="/blog/assets/PhysX-DWclVlOZ.js" as="script"><link rel="prefetch" href="/blog/assets/Sim-to-Real-DK5_Db7N.js" as="script"><link rel="prefetch" href="/blog/assets/ETL清洗-Dhzk1w6N.js" as="script"><link rel="prefetch" href="/blog/assets/Fov_est-DxpIBrQB.js" as="script"><link rel="prefetch" href="/blog/assets/Undistortion(去畸变)-oVhK3dzs.js" as="script"><link rel="prefetch" href="/blog/assets/数据清洗-poMHO1-Y.js" as="script"><link rel="prefetch" href="/blog/assets/USD-DP0rysVY.js" as="script"><link rel="prefetch" href="/blog/assets/模态(Modality)-7jcCWzmS.js" as="script"><link rel="prefetch" href="/blog/assets/TSDF底层原理-nL3XnqL1.js" as="script"><link rel="prefetch" href="/blog/assets/TSDF的实际运用-BuVmmoyk.js" as="script"><link rel="prefetch" href="/blog/assets/BF16和FP16的区别-Dz7cDE36.js" as="script"><link rel="prefetch" href="/blog/assets/模型精度-Dsn8e2Gb.js" as="script"><link rel="prefetch" href="/blog/assets/DPDK-DEiFTwrV.js" as="script"><link rel="prefetch" href="/blog/assets/UIO和VFIO-efVNge8A.js" as="script"><link rel="prefetch" href="/blog/assets/用户态和内核态-BMc0eihM.js" as="script"><link rel="prefetch" href="/blog/assets/DSCP-DRH0baxg.js" as="script"><link rel="prefetch" href="/blog/assets/PCP-B5TaXH6c.js" as="script"><link rel="prefetch" href="/blog/assets/RDMA_QoS-C5TjVETY.js" as="script"><link rel="prefetch" href="/blog/assets/DDP(DistributedDataParallel)-DSBlmZ-L.js" as="script"><link rel="prefetch" href="/blog/assets/Forward_Propagation(正向传播)-Db3_MG7_.js" as="script"><link rel="prefetch" href="/blog/assets/HSDP-Dng262Gf.js" as="script"><link rel="prefetch" href="/blog/assets/Overlap-BdVjKEPq.js" as="script"><link rel="prefetch" href="/blog/assets/Parallel_(并行)-CM-6TBxz.js" as="script"><link rel="prefetch" href="/blog/assets/NCCL(NVIDIA_Collective_Communications_Library)-BWtrpnP_.js" as="script"><link rel="prefetch" href="/blog/assets/NCCL常用参数-DxFDpCQZ.js" as="script"><link rel="prefetch" href="/blog/assets/Ceph(统一存储)-B5o9r9wi.js" as="script"><link rel="prefetch" href="/blog/assets/SPDK(存储性能开发套件)-BPjFJYMV.js" as="script"><link rel="prefetch" href="/blog/assets/WEKA-B7XZBFV_.js" as="script"><link rel="prefetch" href="/blog/assets/存储架构-D87tJtQU.js" as="script"><link rel="prefetch" href="/blog/assets/对象存储(OSS_S3)-DQYNOlu9.js" as="script"><link rel="prefetch" href="/blog/assets/文件存储_(NAS)-Bqws5Q7z.js" as="script"><link rel="prefetch" href="/blog/assets/标准化TOOLS-DffJ7p08.js" as="script"><link rel="prefetch" href="/blog/assets/装饰器-dyOX4CU_.js" as="script"><link rel="prefetch" href="/blog/assets/delta是什么_-DxfP9s90.js" as="script"><link rel="prefetch" href="/blog/assets/LLM调用规范-C4jGIrOg.js" as="script"><link rel="prefetch" href="/blog/assets/调用方式-dkhM68d3.js" as="script"><link rel="prefetch" href="/blog/assets/数据预加载-txl71X_X.js" as="script"><link rel="prefetch" href="/blog/assets/Clos_Fat-Tree-BOtIE-a4.js" as="script"><link rel="prefetch" href="/blog/assets/HPN(High_Performance_Network)-CnaQruNZ.js" as="script"><link rel="prefetch" href="/blog/assets/ITW-DGa15jF9.js" as="script"><link rel="prefetch" href="/blog/assets/ITW标准数据分析-DH8YH185.js" as="script"><link rel="prefetch" href="/blog/assets/Backward_Pass-BOM45UIo.js" as="script"><link rel="prefetch" href="/blog/assets/LOSS-C_RXEVhl.js" as="script"><link rel="prefetch" href="/blog/assets/FSDP2-BWP9o_Pg.js" as="script"><link rel="prefetch" href="/blog/assets/Placement(放置策略)-CmnRh7ga.js" as="script"><link rel="prefetch" href="/blog/assets/GPFS-C7EQsmHT.js" as="script"><link rel="prefetch" href="/blog/assets/NAS-Dbqq_-5h.js" as="script"><link rel="prefetch" href="/blog/assets/高性能存储(CPFS_WEKA)-CHp4e53k.js" as="script"><link rel="prefetch" href="/blog/assets/API调用与回复-CP0kqVa6.js" as="script"><link rel="prefetch" href="/blog/assets/Message-CqMjMSlk.js" as="script"><link rel="prefetch" href="/blog/assets/client初始化-DBahyPZF.js" as="script"><link rel="prefetch" href="/blog/assets/response回复格式-BOpCE-Km.js" as="script"><link rel="prefetch" href="/blog/assets/一个简单的调用函数-BlGj-y59.js" as="script"><link rel="prefetch" href="/blog/assets/tips-DAhSSB3W.js" as="script"><link rel="prefetch" href="/blog/assets/404.html-BaV-mc_b.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CP1tN-Hg.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-Cr_nGTQM.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-xhy_blsy.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Xj5CfjoD.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CJlkCJsf.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BI8V0CLn.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CkofgNmQ.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DPkuK6Xl.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-B2x34-a-.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BvVYwwbG.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-ZMbYP1yZ.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Dw6gpdc_.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CKXzun0T.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DSVV0ORZ.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BI-_zf0Q.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BNWdV4BU.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CEnyvE3q.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DwjEYJqX.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BEgzWX2e.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-b9lYvGv9.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-o2XusIoq.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-C4vEN4hb.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BXnQjKZz.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-VT4ttzzz.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-cNSOUFQq.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-B62VPRGU.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-uR9D0tLj.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-SfszzLnF.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-D1Bpfblj.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-zfRFTAD_.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BW-Ilz44.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DL2IzpyR.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-cL_7_yf8.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-JjU9VqP2.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-AUCf3n1g.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-duugjA_g.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-_JfKwEQo.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DSBqxhqc.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Vip50zNL.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DfoQyH2t.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-B3zYl4Hr.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-CvXUin9X.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-C0PWM1Z-.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-Ba1NnS07.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-pqR8lPLt.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DT-KTis-.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-D5ywf5wA.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BetWpH7M.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Bi9ePfXC.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-LwlM3drl.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DUHb6_T_.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BNphXDUe.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CEU2YeM5.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Ckt9i9Dl.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DRttqqjM.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BaLp1XLl.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-D9tGf8rU.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-ButUWPfj.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-D5wkz8Ta.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DVQO_7x4.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-PH1aYcNH.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DU9IgWjs.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DfLDtzmp.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-7vpXzEm3.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CSid7Kkv.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BSWGHdpl.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DEnw87Zd.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-dQt0E1-U.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-CKdct1XH.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BKbgoCv-.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DdqBFN0g.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-C16nfMZw.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-Dw1BI28Q.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BbgZCShX.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BwklWlvO.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-g0CSYLr6.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-nBLPrWWp.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-pta5gKlB.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DZCdPSEL.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DXMNB_dT.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-IGvDFXtw.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DFgTXvYu.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-CBcYO9Fr.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BcBOdT3q.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DIeDe9SS.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-C87W-st1.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-Oo_A9zXq.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-nAqmNpXe.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-CgW-a8hq.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CxHWXcqx.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Cge-Ve_F.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-C7cIYYms.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-C_FJnwsn.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BhahxYX6.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-17U4aveJ.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-lA-lTYlj.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-CDJVq2fV.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BoCQvWQf.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-B4eUTaGa.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-B9d2YJ_S.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-COJaXXU7.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-CmuOVaxZ.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BRwN32ox.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-COYj1ydh.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-By3HrTTb.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CnvyBXSK.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BUwJ_VMM.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-Pupu93ac.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DfVJmGQ0.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BjiCoK39.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DJnt-vSu.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-Cpg67Lbj.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BQQUFgGU.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-Dmgut0X8.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BVWamvGA.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DahvYKPd.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DivCmYLL.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CoP4DTpE.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CpxvdrTD.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-C0D24xEX.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Bh1xwgat.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CUWfRNRs.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-0Qbe7Afn.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Dxl7xKz5.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-zTN3We7O.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-C2s3qZ3E.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BREQqsou.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DPitPmm8.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-CW_dx_sp.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BFnGkyv6.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BKFsEFej.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-C8lXLHmd.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-CzHP8Fbk.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-Cz-xc3rq.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CScqHzV5.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CAQJQpYx.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CtDfgwMW.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-dJL6TG5W.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-D2PIpf20.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DiVbjKRG.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-Dj-ermJi.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-CqS6z6ZT.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BINstwpk.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DEoW1GYf.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-B5WbU551.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-XpKbCOT2.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DwKNeUiz.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DZG6WACi.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-GVW0z5nV.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BMVoc8bU.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BMB72uTv.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CI77S8Y-.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-C78G4LmK.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-D0Pmv1gM.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-D2tFt_iZ.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CICnKShv.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-D9X9lkoX.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DqHv1RwW.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Ebznjdxj.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-DUDGSssw.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-DpuZuxwP.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CLk3obK7.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BxGcljyf.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-B-jF7bO-.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Dz1agoxf.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-CP5aLHd9.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BpQvnkcn.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-XD8rYUlQ.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-n0KpR5qd.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-Dc3pw3Cw.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-5FOSwYdf.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-on6x3FuE.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BE1rMypO.js" as="script"><link rel="prefetch" href="/blog/assets/index.html-BDazZCBz.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-BYNwUL_P.js" as="script"><link rel="prefetch" href="/blog/assets/index2.html-_ayDLNY0.js" as="script">
+  </head>
+  <body>
+    <div id="app"><!--[--><!--[--><!--[--><span tabindex="-1"></span><a href="#main-content" class="vp-skip-link sr-only">跳至主要內容</a><!--]--><!--[--><div class="theme-container external-link-icon has-toc" vp-container><!--[--><header id="navbar" class="vp-navbar" vp-navbar><div class="vp-navbar-start"><button type="button" class="vp-toggle-sidebar-button" title="Toggle Sidebar"><span class="icon"></span></button><!--[--><a class="route-link vp-brand" href="/blog/" aria-label="带我回家"><img class="vp-nav-logo" src="/blog/feather-indigo.png" alt><!----><span class="vp-site-name hide-in-pad">Kinger 的技术博客</span></a><!--]--></div><div class="vp-navbar-center"><!--[--><nav class="vp-nav-links"><div class="vp-nav-item hide-in-mobile"><a class="route-link auto-link" href="/blog/" aria-label="主页"><!--[--><iconify-icon class="vp-icon" icon="tabler:home" sizing="height" height="1em"></iconify-icon><!--]-->主页<!----></a></div><div class="vp-nav-item hide-in-mobile"><div class="vp-dropdown-wrapper"><button type="button" class="vp-dropdown-title" aria-label="博文"><!--[--><iconify-icon class="vp-icon" icon="tabler:edit" sizing="height" height="1em"></iconify-icon>博文<!--]--><span class="arrow"></span><ul class="vp-dropdown"><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/ai%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD/" aria-label="AI 基础设施"><!--[--><iconify-icon class="vp-icon" icon="tabler:cpu" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->AI 基础设施<!----></a></li><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/ai%E5%A4%A7%E6%A8%A1%E5%9E%8B/" aria-label="AI 大模型"><!--[--><iconify-icon class="vp-icon" icon="tabler:robot" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->AI 大模型<!----></a></li><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" aria-label="计算机网络"><!--[--><iconify-icon class="vp-icon" icon="tabler:network" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->计算机网络<!----></a></li><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/%E9%9D%A2%E8%AF%95/" aria-label="面试"><!--[--><iconify-icon class="vp-icon" icon="tabler:clipboard-text" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->面试<!----></a></li><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/%E8%BF%90%E7%BB%B4/" aria-label="运维"><!--[--><iconify-icon class="vp-icon" icon="tabler:server" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->运维<!----></a></li><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/%E4%BA%91%E5%8E%9F%E7%94%9F/" aria-label="云原生"><!--[--><iconify-icon class="vp-icon" icon="tabler:cloud" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->云原生<!----></a></li><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/%E5%BC%80%E5%8F%91/" aria-label="开发"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->开发<!----></a></li><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/aiops%E5%B9%B3%E5%8F%B0/" aria-label="AIOps 平台"><!--[--><iconify-icon class="vp-icon" icon="tabler:settings" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->AIOps 平台<!----></a></li><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/%E6%95%B0%E6%8D%AE%E5%BA%93/" aria-label="数据库"><!--[--><iconify-icon class="vp-icon" icon="tabler:database" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->数据库<!----></a></li><li class="vp-dropdown-item"><a class="route-link auto-link" href="/blog/category/%E6%9D%82%E9%A1%B9%E7%AC%94%E8%AE%B0/" aria-label="杂项笔记"><!--[--><iconify-icon class="vp-icon" icon="tabler:note" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->杂项笔记<!----></a></li></ul></button></div></div><div class="vp-nav-item hide-in-mobile"><a class="route-link auto-link" href="/blog/category/" aria-label="全部分类"><!--[--><iconify-icon class="vp-icon" icon="tabler:tags" sizing="height" height="1em"></iconify-icon><!--]-->全部分类<!----></a></div><div class="vp-nav-item hide-in-mobile"><a class="auto-link external-link" href="https://venking.tech/ai/" aria-label="AI 助手" rel="noopener noreferrer" target="_blank"><!--[--><iconify-icon class="vp-icon" icon="tabler:robot" sizing="height" height="1em"></iconify-icon><!--]-->AI 助手<!----></a></div><div class="vp-nav-item hide-in-mobile"><a class="auto-link external-link" href="https://blog.csdn.net/2301_79801717?spm=1011.2415.3001.5343" aria-label="CSDN" rel="noopener noreferrer" target="_blank"><!--[--><iconify-icon class="vp-icon" icon="tabler:book" sizing="height" height="1em"></iconify-icon><!--]-->CSDN<!----></a></div></nav><!--]--></div><div class="vp-navbar-end"><!--[--><!----><div class="vp-nav-item vp-action"><a class="vp-action-link" href="https://github.com/ZH-Kinger/venking" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" class="icon github-icon" viewBox="0 0 1024 1024" fill="currentColor" aria-label="github icon" name="github" style="width:1.25rem;height:1.25rem;vertical-align:middle;"><path d="M511.957 21.333C241.024 21.333 21.333 240.981 21.333 512c0 216.832 140.544 400.725 335.574 465.664 24.49 4.395 32.256-10.07 32.256-23.083 0-11.69.256-44.245 0-85.205-136.448 29.61-164.736-64.64-164.736-64.64-22.315-56.704-54.4-71.765-54.4-71.765-44.587-30.464 3.285-29.824 3.285-29.824 49.195 3.413 75.179 50.517 75.179 50.517 43.776 75.008 114.816 53.333 142.762 40.79 4.523-31.66 17.152-53.377 31.19-65.537-108.971-12.458-223.488-54.485-223.488-242.602 0-53.547 19.114-97.323 50.517-131.67-5.035-12.33-21.93-62.293 4.779-129.834 0 0 41.258-13.184 134.912 50.346a469.803 469.803 0 0 1 122.88-16.554c41.642.213 83.626 5.632 122.88 16.554 93.653-63.488 134.784-50.346 134.784-50.346 26.752 67.541 9.898 117.504 4.864 129.834 31.402 34.347 50.474 78.123 50.474 131.67 0 188.586-114.73 230.016-224.042 242.09 17.578 15.232 33.578 44.672 33.578 90.454v135.85c0 13.142 7.936 27.606 32.854 22.87C862.25 912.597 1002.667 728.747 1002.667 512c0-271.019-219.648-490.667-490.71-490.667z"></path></svg></a></div><div class="vp-nav-item hide-in-mobile"><button type="button" class="vp-color-mode-switch" id="color-mode-switch"><svg xmlns="http://www.w3.org/2000/svg" class="icon auto-icon" viewBox="0 0 1024 1024" fill="currentColor" aria-label="auto icon" name="auto" style="display:none;"><path d="M512 992C246.92 992 32 777.08 32 512S246.92 32 512 32s480 214.92 480 480-214.92 480-480 480zm0-840c-198.78 0-360 161.22-360 360 0 198.84 161.22 360 360 360s360-161.16 360-360c0-198.78-161.22-360-360-360zm0 660V212c165.72 0 300 134.34 300 300 0 165.72-134.28 300-300 300z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" viewBox="0 0 1024 1024" fill="currentColor" aria-label="dark icon" name="dark" style="display:none;"><path d="M524.8 938.667h-4.267a439.893 439.893 0 0 1-313.173-134.4 446.293 446.293 0 0 1-11.093-597.334A432.213 432.213 0 0 1 366.933 90.027a42.667 42.667 0 0 1 45.227 9.386 42.667 42.667 0 0 1 10.24 42.667 358.4 358.4 0 0 0 82.773 375.893 361.387 361.387 0 0 0 376.747 82.774 42.667 42.667 0 0 1 54.187 55.04 433.493 433.493 0 0 1-99.84 154.88 438.613 438.613 0 0 1-311.467 128z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon light-icon" viewBox="0 0 1024 1024" fill="currentColor" aria-label="light icon" name="light" style="display:block;"><path d="M952 552h-80a40 40 0 0 1 0-80h80a40 40 0 0 1 0 80zM801.88 280.08a41 41 0 0 1-57.96-57.96l57.96-58a41.04 41.04 0 0 1 58 58l-58 57.96zM512 752a240 240 0 1 1 0-480 240 240 0 0 1 0 480zm0-560a40 40 0 0 1-40-40V72a40 40 0 0 1 80 0v80a40 40 0 0 1-40 40zm-289.88 88.08-58-57.96a41.04 41.04 0 0 1 58-58l57.96 58a41 41 0 0 1-57.96 57.96zM192 512a40 40 0 0 1-40 40H72a40 40 0 0 1 0-80h80a40 40 0 0 1 40 40zm30.12 231.92a41 41 0 0 1 57.96 57.96l-57.96 58a41.04 41.04 0 0 1-58-58l58-57.96zM512 832a40 40 0 0 1 40 40v80a40 40 0 0 1-80 0v-80a40 40 0 0 1 40-40zm289.88-88.08 58 57.96a41.04 41.04 0 0 1-58 58l-57.96-58a41 41 0 0 1 57.96-57.96z"></path></svg></button></div><!----><!--]--><button type="button" class="vp-toggle-navbar-button" aria-label="Toggle Navbar" aria-expanded="false" aria-controls="nav-screen"><span><span class="vp-top"></span><span class="vp-middle"></span><span class="vp-bottom"></span></span></button></div></header><!----><!--]--><!----><div class="toggle-sidebar-wrapper"><span class="arrow start"></span></div><aside id="sidebar" class="vp-sidebar" vp-sidebar><!----><ul class="vp-sidebar-links"><li><a class="route-link auto-link vp-sidebar-link" href="/blog/" aria-label="主页"><!--[--><iconify-icon class="vp-icon" icon="tabler:home" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->主页<!----></a></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><iconify-icon class="vp-icon" icon="tabler:cpu" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">AI 基础设施</span><span class="vp-arrow end"></span></button><!----></section></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><iconify-icon class="vp-icon" icon="tabler:robot" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">AI 大模型</span><span class="vp-arrow end"></span></button><!----></section></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><iconify-icon class="vp-icon" icon="tabler:network" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">计算机网络</span><span class="vp-arrow end"></span></button><!----></section></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><iconify-icon class="vp-icon" icon="tabler:clipboard-text" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">面试</span><span class="vp-arrow end"></span></button><!----></section></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><iconify-icon class="vp-icon" icon="tabler:server" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">运维</span><span class="vp-arrow end"></span></button><!----></section></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><iconify-icon class="vp-icon" icon="tabler:cloud" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">云原生</span><span class="vp-arrow end"></span></button><!----></section></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable active" type="button"><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">开发</span><span class="vp-arrow down"></span></button><ul class="vp-sidebar-links"><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/GIT_%E7%9A%84%E4%BD%BF%E7%94%A8.html" aria-label="GIT_的使用"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->GIT_的使用<!----></a></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80.html" aria-label="go语言基础"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->go语言基础<!----></a></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable active" type="button"><!----><span class="vp-sidebar-title">Python开发</span><span class="vp-arrow down"></span></button><ul class="vp-sidebar-links"><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><!----><span class="vp-sidebar-title">Python基础</span><span class="vp-arrow end"></span></button><!----></section></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/python%E5%BC%80%E5%8F%91/python%E5%BC%80%E5%8F%91.html" aria-label="python开发"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->python开发<!----></a></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/python%E5%BC%80%E5%8F%91/%E4%BF%AE%E6%94%B9openclaw%E9%85%8D%E7%BD%AE%E9%99%8D%E4%BD%8Etoken%E6%B6%88%E8%80%97.html" aria-label="修改openclaw配置降低token消耗"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->修改openclaw配置降低token消耗<!----></a></li><li><a class="route-link route-link-active auto-link vp-sidebar-link active" href="/blog/posts/%E5%BC%80%E5%8F%91/python%E5%BC%80%E5%8F%91/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE.html" aria-label="卡夫卡项目"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->卡夫卡项目<!----></a></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/python%E5%BC%80%E5%8F%91/%E5%9F%BA%E4%BA%8EOpenClaw%E6%96%B0%E4%B8%80%E4%BB%A3AiOps%E5%B9%B3%E5%8F%B0.html" aria-label="基于OpenClaw新一代AiOps平台"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->基于OpenClaw新一代AiOps平台<!----></a></li></ul></section></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/VuePress%E5%88%9B%E5%BB%BAblog.html" aria-label="VuePress创建blog"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->VuePress创建blog<!----></a></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE.html" aria-label="创建项目"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->创建项目<!----></a></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/%E9%A1%B9%E7%9B%AE%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4.html" aria-label="项目常见命令"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->项目常见命令<!----></a></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/%E9%A1%B9%E7%9B%AE%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE.html" aria-label="项目环境配置"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->项目环境配置<!----></a></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/posts/%E5%BC%80%E5%8F%91/%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90.html" aria-label="项目结构分析"><!--[--><iconify-icon class="vp-icon" icon="tabler:code" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->项目结构分析<!----></a></li></ul></section></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><iconify-icon class="vp-icon" icon="tabler:settings" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">AIOps 平台</span><span class="vp-arrow end"></span></button><!----></section></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><iconify-icon class="vp-icon" icon="tabler:note" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">杂项笔记</span><span class="vp-arrow end"></span></button><!----></section></li><li><section class="vp-sidebar-group"><button class="vp-sidebar-header clickable" type="button"><iconify-icon class="vp-icon" icon="tabler:database" sizing="both" width="1em" height="1em"></iconify-icon><span class="vp-sidebar-title">数据库</span><span class="vp-arrow end"></span></button><!----></section></li><li><a class="route-link auto-link vp-sidebar-link" href="/blog/intro.html" aria-label="介绍页"><!--[--><iconify-icon class="vp-icon" icon="tabler:info-circle" sizing="both" width="1em" height="1em"></iconify-icon><!--]-->介绍页<!----></a></li></ul><!----></aside><!--[--><main id="main-content" class="vp-page"><!--[--><!----><!----><nav class="vp-breadcrumb disable"></nav><div class="vp-page-title"><h1><iconify-icon class="vp-icon" icon="tabler:code" sizing="height" height="1em"></iconify-icon>卡夫卡项目</h1><div class="page-info"><span class="page-author-info" aria-label="作者🖊" data-balloon-pos="up"><svg xmlns="http://www.w3.org/2000/svg" class="icon author-icon" viewBox="0 0 1024 1024" fill="currentColor" aria-label="author icon" name="author"><path d="M649.6 633.6c86.4-48 147.2-144 147.2-249.6 0-160-128-288-288-288s-288 128-288 288c0 108.8 57.6 201.6 147.2 249.6-121.6 48-214.4 153.6-240 288-3.2 9.6 0 19.2 6.4 25.6 3.2 9.6 12.8 12.8 22.4 12.8h704c9.6 0 19.2-3.2 25.6-12.8 6.4-6.4 9.6-16 6.4-25.6-25.6-134.4-121.6-240-243.2-288z"></path></svg><span><a class="page-author-item" href="https://www.yuque.com/kinger-wwnro" target="_blank" rel="noopener noreferrer">Kinger</a></span><span property="author" content="Kinger"></span></span><!----><span class="page-date-info" aria-label="写作日期📅" data-balloon-pos="up"><svg xmlns="http://www.w3.org/2000/svg" class="icon calendar-icon" viewBox="0 0 1024 1024" fill="currentColor" aria-label="calendar icon" name="calendar"><path d="M716.4 110.137c0-18.753-14.72-33.473-33.472-33.473-18.753 0-33.473 14.72-33.473 33.473v33.473h66.993v-33.473zm-334.87 0c0-18.753-14.72-33.473-33.473-33.473s-33.52 14.72-33.52 33.473v33.473h66.993v-33.473zm468.81 33.52H716.4v100.465c0 18.753-14.72 33.473-33.472 33.473a33.145 33.145 0 01-33.473-33.473V143.657H381.53v100.465c0 18.753-14.72 33.473-33.473 33.473a33.145 33.145 0 01-33.473-33.473V143.657H180.6A134.314 134.314 0 0046.66 277.595v535.756A134.314 134.314 0 00180.6 947.289h669.74a134.36 134.36 0 00133.94-133.938V277.595a134.314 134.314 0 00-133.94-133.938zm33.473 267.877H147.126a33.145 33.145 0 01-33.473-33.473c0-18.752 14.72-33.473 33.473-33.473h736.687c18.752 0 33.472 14.72 33.472 33.473a33.145 33.145 0 01-33.472 33.473z"></path></svg><span data-allow-mismatch="text">2026/7/23</span><meta property="datePublished" content="2026-07-23T00:00:00.000Z"></span><!----><span class="page-reading-time-info" aria-label="阅读时间⌛" data-balloon-pos="up"><svg xmlns="http://www.w3.org/2000/svg" class="icon timer-icon" viewBox="0 0 1024 1024" fill="currentColor" aria-label="timer icon" name="timer"><path d="M799.387 122.15c4.402-2.978 7.38-7.897 7.38-13.463v-1.165c0-8.933-7.38-16.312-16.312-16.312H256.33c-8.933 0-16.311 7.38-16.311 16.312v1.165c0 5.825 2.977 10.874 7.637 13.592 4.143 194.44 97.22 354.963 220.201 392.763-122.204 37.542-214.893 196.511-220.2 389.397-4.661 5.049-7.638 11.651-7.638 19.03v5.825h566.49v-5.825c0-7.379-2.849-13.981-7.509-18.9-5.049-193.016-97.867-351.985-220.2-389.527 123.24-37.67 216.446-198.453 220.588-392.892zM531.16 450.445v352.632c117.674 1.553 211.787 40.778 211.787 88.676H304.097c0-48.286 95.149-87.382 213.728-88.676V450.445c-93.077-3.107-167.901-81.297-167.901-177.093 0-8.803 6.99-15.793 15.793-15.793 8.803 0 15.794 6.99 15.794 15.793 0 80.261 63.69 145.635 142.01 145.635s142.011-65.374 142.011-145.635c0-8.803 6.99-15.793 15.794-15.793s15.793 6.99 15.793 15.793c0 95.019-73.789 172.82-165.96 177.093z"></path></svg><span>大约 28 分钟</span><meta property="timeRequired" content="PT28M"></span><span class="page-category-info" aria-label="分类🌈" data-balloon-pos="up"><svg xmlns="http://www.w3.org/2000/svg" class="icon category-icon" viewBox="0 0 1024 1024" fill="currentColor" aria-label="category icon" name="category"><path d="M148.41 106.992h282.176c22.263 0 40.31 18.048 40.31 40.31V429.48c0 22.263-18.047 40.31-40.31 40.31H148.41c-22.263 0-40.311-18.047-40.311-40.31V147.302c0-22.263 18.048-40.31 40.311-40.31zM147.556 553.478H429.73c22.263 0 40.311 18.048 40.311 40.31v282.176c0 22.263-18.048 40.312-40.31 40.312H147.555c-22.263 0-40.311-18.049-40.311-40.312V593.79c0-22.263 18.048-40.311 40.31-40.311zM593.927 106.992h282.176c22.263 0 40.31 18.048 40.31 40.31V429.48c0 22.263-18.047 40.31-40.31 40.31H593.927c-22.263 0-40.311-18.047-40.311-40.31V147.302c0-22.263 18.048-40.31 40.31-40.31zM730.22 920.502H623.926c-40.925 0-74.22-33.388-74.22-74.425V623.992c0-41.038 33.387-74.424 74.425-74.424h222.085c41.038 0 74.424 33.226 74.424 74.067v114.233c0 10.244-8.304 18.548-18.547 18.548s-18.548-8.304-18.548-18.548V623.635c0-20.388-16.746-36.974-37.33-36.974H624.13c-20.585 0-37.331 16.747-37.331 37.33v222.086c0 20.585 16.654 37.331 37.126 37.331H730.22c10.243 0 18.547 8.304 18.547 18.547 0 10.244-8.304 18.547-18.547 18.547z"></path></svg><!--[--><span class="page-category-item color0 clickable" role="navigation">开发</span><!--]--><meta property="articleSection" content="开发"></span><!----></div><hr></div><!----><div class="" vp-content><!----><div class="vp-migrated-content" id="markdown-content"><div><p>4c</p>
+<blockquote>
+<p>Apache Kafka（常被称为 &quot;卡夫卡&quot;）是<strong>Apache 软件基金会</strong>的开源分布式流处理平台，最初由 LinkedIn 开发，2011 年捐赠给 Apache 并成为顶级项目，名称取自捷克小说家弗兰兹・卡夫卡（Franz Kafka）。它本质上是一个<strong>分布式、分区化、多副本的日志提交服务</strong>，核心定位是 &quot;高吞吐量的分布式发布 - 订阅消息系统&quot;，同时兼具流处理平台的能力。<br>
+<img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-%E7%99%BD%E6%9D%BF-1.svg" alt="白板 1" loading="lazy"></p>
+</blockquote>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-1.png" alt="50b7b2423358235cc412c2651ce0746e.png" tabindex="0" loading="lazy"><figcaption>50b7b2423358235cc412c2651ce0746e.png</figcaption></figure>
+<p>​</p>
+<h2 id="查看网卡信息-ip-a" tabindex="-1"><a class="header-anchor" href="#查看网卡信息-ip-a"><span>查看网卡信息 ip a</span></a></h2>
+<p>[root@wang ~]# <strong>ip a</strong><br>
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000<br>
+link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00<br>
+inet 127.0.0.1/8 scope host lo<br>
+valid_lft forever preferred_lft forever<br>
+inet6 <VPIcon icon="1/128 scope host noprefixroute  
+valid\_lft forever preferred\_lft forever  
+2: ens160: <BROADCAST,MULTICAST,UP,LOWER\_UP> mtu 1500 qdisc mq state UP group default qlen 1000  
+link/ether 00:0c:29:40:a3:a8 brd ff:ff:ff:ff:ff:ff  
+altname enp3s0  
+altname enx000c2940a3a8  
+inet 192.168.245.130/24 brd 192.168.245.255 scope global dynamic noprefixroute ens160  
+valid\_lft 1746sec preferred\_lft 1746sec  
+inet6 fe80" />20c:29ff:fe40:a3a8/64 scope link noprefixroute<br>
+valid_lft forever preferred_lft forever</p>
+<h3 id="_1-127-0-0-1-8-——-本地回环地址" tabindex="-1"><a class="header-anchor" href="#_1-127-0-0-1-8-——-本地回环地址"><span>1. <code v-pre>127.0.0.1/8</code> —— 本地回环地址</span></a></h3>
+<ul>
+<li>
+<p><strong>所属接口</strong>：<code v-pre>lo</code>（loopback，回环接口）</p>
+</li>
+<li>
+<p><strong>核心含义</strong>：这是<strong>本机内部通信的虚拟地址</strong>，不对应任何物理网卡，数据不会经过网线或网卡传输，只在操作系统内核内部流转。</p>
+</li>
+<li>
+<p><strong>典型用途</strong></p>
+</li>
+<li>
+<p>测试本地运行的服务（比如你在本机启动了 Spring Boot 项目，用 <code v-pre>127.0.0.1:8080</code> 就能访问）。</p>
+</li>
+<li>
+<p>进程间通信（本机内的不同程序通过这个地址交互，无需走网络）。</p>
+</li>
+<li>
+<p>验证网络协议栈是否正常（<code v-pre>ping 127.0.0.1</code> 能通说明 TCP/IP 协议栈没问题）。</p>
+</li>
+<li>
+<p><strong>补充</strong>：<code v-pre>inet6 ::1/128</code> 是 IPv6 版本的回环地址，作用和 <code v-pre>127.0.0.1</code> 一致。</p>
+</li>
+</ul>
+<h3 id="_2-192-168-245-130-24-——-局域网-ip-地址" tabindex="-1"><a class="header-anchor" href="#_2-192-168-245-130-24-——-局域网-ip-地址"><span>2. <code v-pre>192.168.245.130/24</code> —— 局域网 IP 地址</span></a></h3>
+<ul>
+<li>
+<p><strong>所属接口</strong>：<code v-pre>ens160</code>（物理网卡接口，不同服务器的命名可能不同，比如 <code v-pre>eth0</code>、<code v-pre>ens33</code> 等）</p>
+</li>
+<li>
+<p><strong>核心含义</strong>：这是你的服务器在<strong>局域网内的唯一标识</strong>，由路由器或 DHCP 服务器分配（<code v-pre>dynamic</code> 表示是动态获取的），用于和局域网内的其他设备（比如同一网段的电脑、服务器）通信。</p>
+</li>
+<li>
+<p><strong>关键参数说明</strong></p>
+</li>
+<li>
+<p><code v-pre>/24</code>：表示子网掩码是 <code v-pre>255.255.255.0</code>，这个网段的可用 IP 范围是 <code v-pre>192.168.245.1</code> ~ <code v-pre>192.168.245.254</code>。</p>
+</li>
+<li>
+<p><code v-pre>dynamic</code>：表示该 IP 是通过 DHCP 动态获取的，重启网卡或设备后可能会变化；如果是 <code v-pre>static</code> 则是手动配置的固定 IP。</p>
+</li>
+<li>
+<p><strong>典型用途</strong></p>
+</li>
+<li>
+<p>局域网内设备互访（比如你用另一台电脑访问这个服务器上的 Kafka 或数据库）。</p>
+</li>
+<li>
+<p>连接外网（通过路由器的 NAT 功能，借助这个 IP 访问互联网）。</p>
+</li>
+</ul>
+<h3 id="总结" tabindex="-1"><a class="header-anchor" href="#总结"><span>总结</span></a></h3>
+<table>
+<thead>
+<tr>
+<th>IP 地址</th>
+<th>接口</th>
+<th>类型</th>
+<th>作用范围</th>
+<th>核心用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code v-pre>127.0.0.1/8</code></td>
+<td><code v-pre>lo</code></td>
+<td>回环地址</td>
+<td>本机内部</td>
+<td>本地服务测试、进程间通信</td>
+</tr>
+<tr>
+<td><code v-pre>192.168.245.130/24</code></td>
+<td><code v-pre>ens160</code></td>
+<td>局域网地址</td>
+<td>局域网 + 外网</td>
+<td>设备间通信、访问互联网</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dns-domain-name-server-域名服务" tabindex="-1"><a class="header-anchor" href="#dns-domain-name-server-域名服务"><span>DNS （domain name server 域名服务）</span></a></h2>
+<p><strong>DNS</strong>（Domain Name System，域名系统）是互联网的核心基础设施，<strong>相当于一本巨型的分布式 &quot;电话簿&quot;</strong>，负责将人类易记的域名（如<a href="https://www.baidu.com" target="_blank" rel="noopener noreferrer">www.baidu.com</a>）转换为计算机可识别的 IP 地址（如 14.215.177.38），使网络通信成为可能。</p>
+<p>​</p>
+<p>本地域名解析</p>
+<p>1.看缓存</p>
+<p>2.看/etc/hosts文件 本地域名映射文件</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-2.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<p>配置映射实现进程通信</p>
+<p>​</p>
+<p>3.请求本地域名解析服务器 /etc/resolv.conf</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-3.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<p>nameserver ： 声明 DNS 服务器的 IP 地址（最核心），可配置多个（最多 3 个，按优先级生效）</p>
+<p><strong>​</strong></p>
+<p>​</p>
+<p>​</p>
+<h2 id="负载均衡" tabindex="-1"><a class="header-anchor" href="#负载均衡"><span>负载均衡</span></a></h2>
+<h3 id="_1-dns解析实现负载均衡" tabindex="-1"><a class="header-anchor" href="#_1-dns解析实现负载均衡"><span>1.DNS解析实现负载均衡</span></a></h3>
+<p>DNS 解析实现负载均衡，是一种<strong>基于域名系统的负载分发技术</strong>，核心原理是：<strong>同一个域名对应多个不同的服务器 IP 地址</strong>，DNS 服务器在接收到域名解析请求时，按照预设策略返回不同的 IP，将用户请求均匀分配到多台服务器上，从而实现负载分担、提高服务可用性。</p>
+<h3 id="_2-各种反向代理" tabindex="-1"><a class="header-anchor" href="#_2-各种反向代理"><span>2.各种反向代理</span></a></h3>
+<p>一、反向代理的核心概念</p>
+<p>反向代理（Reverse Proxy）是 Nginx 最核心的功能之一：简单来说，<strong>客户端不直接访问后端服务器，而是先请求 Nginx 服务器，由 Nginx 代替客户端向后端服务器发起请求，再将后端的响应结果返回给客户端</strong>。</p>
+<ul>
+<li><strong>正向代理</strong>：替客户端（用户）向外部服务器请求（比如翻墙工具）；</li>
+<li><strong>反向代理</strong>：替后端服务器接收客户端请求（对外只暴露 Nginx 地址，隐藏后端服务）。</li>
+</ul>
+<h3 id="_3-ospf动态路由-根据cost-花费值选择" tabindex="-1"><a class="header-anchor" href="#_3-ospf动态路由-根据cost-花费值选择"><span>3.ospf动态路由（根据cost：花费值选择）</span></a></h3>
+<p><strong>OSPF（开放式最短路径优先）</strong> 是一种基于 <strong>链路状态</strong> 的内部网关协议（IGP），其核心是通过<strong>链路开销（Cost）</strong> 计算最短路径，实现动态路由选择。在搭建跨网段的日志监控系统（如多机房 ELK/Kafka 集群）时，OSPF 可以自动适配网络拓扑变化，保障日志数据传输的稳定性。</p>
+<h3 id="_4-云原生" tabindex="-1"><a class="header-anchor" href="#_4-云原生"><span>4.云原生</span></a></h3>
+<p><strong>云原生（Cloud Native）</strong> 是一套<strong>构建和运行应用的方法论与技术体系</strong>，核心目标是让应用能够充分利用云计算的弹性、可扩展性和分布式特性，实现快速迭代、高效运维和故障自愈。</p>
+<p>​</p>
+<p>基础设置建设</p>
+<h2 id="中台建设" tabindex="-1"><a class="header-anchor" href="#中台建设"><span>中台建设</span></a></h2>
+<h3 id="_1-dns管理" tabindex="-1"><a class="header-anchor" href="#_1-dns管理"><span>1.DNS管理</span></a></h3>
+<p><strong>DNS 管理</strong>是指对<strong>域名系统（Domain Name System）</strong> 的各类资源记录、解析策略、服务器配置进行规划、配置、监控和维护的一系列操作，核心目标是保障域名到 IP 地址解析的<strong>准确性、稳定性和高效性</strong>。</p>
+<p>简单来说，DNS 管理就是让用户输入域名（如 <code v-pre>kibana.example.com</code>）时，能快速、正确地找到对应的服务器 IP，同时满足业务的负载均衡、容灾、安全等需求。</p>
+<h3 id="_2-配置管理" tabindex="-1"><a class="header-anchor" href="#_2-配置管理"><span>2.配置管理</span></a></h3>
+<h3 id="_3-流量切换" tabindex="-1"><a class="header-anchor" href="#_3-流量切换"><span>3.流量切换</span></a></h3>
+<p>在 Kafka 中，<strong>流量切换</strong> 是指将生产者 / 消费者的请求流量，从某一组 Broker、分区或 Topic，转移到其他目标节点的运维操作，核心目标是 <strong>保障服务高可用、实现负载均衡、完成集群扩缩容或故障迁移</strong>。</p>
+<h3 id="_4-ci-cd" tabindex="-1"><a class="header-anchor" href="#_4-ci-cd"><span><a href="http://4.CI/CD" target="_blank" rel="noopener noreferrer">4.CI/CD</a></span></a></h3>
+<p><strong>CI/CD</strong> 是 <strong>持续集成（Continuous Integration）</strong> 和 <strong>持续部署 / 交付（Continuous Deployment/Delivery）</strong> 的合称，是一套<strong>自动化软件构建、测试、部署的流程体系</strong>，核心目标是<strong>缩短从代码提交到应用上线的周期</strong>，降低人工操作成本和出错概率，同时提升迭代效率。</p>
+<p>在你搭建的日志监控系统（ELK + Kafka + Filebeat + Python 消费端）中，CI/CD 可以自动化完成<strong>代码编译、镜像构建、配置更新、服务部署</strong>等工作，比如 Python 消费脚本的更新、Filebeat 配置的下发、Kibana 可视化面板的同步等。</p>
+<h3 id="_5-日志管理" tabindex="-1"><a class="header-anchor" href="#_5-日志管理"><span>5.日志管理</span></a></h3>
+<p><strong>日志管理</strong>是一套围绕<strong>日志的采集、传输、存储、解析、检索、分析、可视化及归档清理</strong>的全生命周期管理体系，核心目标是<strong>保障日志数据的完整性、可用性和安全性</strong>，同时通过日志挖掘系统运行状态、定位故障、审计合规、优化业务。</p>
+<p>​</p>
+<p>​</p>
+<h2 id="灰度" tabindex="-1"><a class="header-anchor" href="#灰度"><span>灰度</span></a></h2>
+<p>在云原生和软件发布领域，<strong>灰度</strong>通常指 <strong>灰度发布</strong>（也叫金丝雀发布），是一种<strong>平滑过渡的版本迭代策略</strong>，核心目标是<strong>降低新版本上线的风险</strong>，避免全量发布时因潜在 bug 导致大规模服务故障。</p>
+<p>简单来说，灰度发布不是一次性把所有用户流量切换到新版本，而是<strong>分批次、分范围</strong>地将流量导入新版本，验证没问题后再逐步扩大覆盖比例，最终实现全量切换。</p>
+<p>​</p>
+<p>​</p>
+<h1 id="日志收集平台" tabindex="-1"><a class="header-anchor" href="#日志收集平台"><span>日志收集平台</span></a></h1>
+<p>日志</p>
+<p>1.错误定位，追责</p>
+<p>2.用户行为分析</p>
+<p>​</p>
+<div class="language-mermaid line-numbers-mode" data-highlighter="shiki" data-ext="mermaid" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-mermaid"><span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">flowchart LR</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  n1["节点"]</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  n2["反向代理nginx"]</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  n3["python"]</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  n4["用户"]</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  n5["python"]</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  n6["nginx"]</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  n7["python"]</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  n4 --> n6</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-%E7%99%BD%E6%9D%BF-2.svg" alt="白板 2" tabindex="0" loading="lazy"><figcaption>白板 2</figcaption></figure>
+<figure><img src="https://cdn.nlark.com/yuque/0/2026/jpeg/62301513/1768206496384-714b60be-8753-417a-9347-add4ab7765b9.jpeg" alt="XE8~3`RVAPV3H{N17@SQ.jpg" tabindex="0" loading="lazy"><figcaption>XE]8]~3`RVAPV3H]{N17@SQ.jpg</figcaption></figure>
+<p>![U]NR{)O@L1UT3X$E<a href="https://cdn.nlark.com/yuque/0/2026/jpeg/62301513/1768206511355-abe64513-b838-493f-a2c5-0e3cc3c22659.jpeg" target="_blank" rel="noopener noreferrer">E$`(W9.jpg</a></p>
+<h3 id="元数据" tabindex="-1"><a class="header-anchor" href="#元数据"><span>元数据</span></a></h3>
+<p>元数据 (Metadata) 最本质的定义是 **&quot;描述数据的数据&quot;(Data about Data)**，又称中介数据、中继数据。它不包含数据本身的内容（如照片的像素、文档的文字），而是提供关于数据的属性、上下文、结构和管理规则等信息，帮助人们理解、查找、组织和使用数据。</p>
+<p>​</p>
+<h2 id="kafka-kraft-元数据管理全解析" tabindex="-1"><a class="header-anchor" href="#kafka-kraft-元数据管理全解析"><span>Kafka KRaft 元数据管理全解析</span></a></h2>
+<p><strong>核心结论</strong>：KRaft (Kafka Raft) 通过内置的<strong>Raft 共识协议</strong>与<strong>__cluster_metadata 内部主题</strong>实现元数据自主管理，移除对 ZooKeeper 的依赖，形成 ** 控制器集群 (Controller Quorum)+ 工作节点 (Broker)** 的双层架构，确保元数据的一致性、可用性与高效更新。</p>
+<hr>
+<h2 id="一、kraft-元数据管理的核心架构" tabindex="-1"><a class="header-anchor" href="#一、kraft-元数据管理的核心架构"><span>一、KRaft 元数据管理的核心架构</span></a></h2>
+<h3 id="_1-架构转型-从-zk-单控制器到-raft-控制器集群" tabindex="-1"><a class="header-anchor" href="#_1-架构转型-从-zk-单控制器到-raft-控制器集群"><span>1. 架构转型：从 ZK + 单控制器到 Raft 控制器集群</span></a></h3>
+<table>
+<thead>
+<tr>
+<th><strong>维度</strong></th>
+<th><strong>ZK 模式</strong></th>
+<th><strong>KRaft 模式</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>元数据存储</td>
+<td>外部 ZooKeeper 的 ZNode 树</td>
+<td>内置__cluster_metadata 单分区主题</td>
+</tr>
+<tr>
+<td>控制器</td>
+<td>单个选举产生的 Controller Broker</td>
+<td>3-5 节点的 Controller Quorum (控制器集群)，通过 Raft 选举 Leader</td>
+</tr>
+<tr>
+<td>一致性保障</td>
+<td>ZK 的 ZAB 协议</td>
+<td>KRaft (Raft 协议)，多数派确认机制</td>
+</tr>
+<tr>
+<td>故障恢复</td>
+<td>分钟级 (依赖 ZK)</td>
+<td>秒级 (基于快照与日志)</td>
+</tr>
+<tr>
+<td>扩展性</td>
+<td>受 ZK 性能限制</td>
+<td>随 Kafka 集群线性扩展</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2-核心组件分工" tabindex="-1"><a class="header-anchor" href="#_2-核心组件分工"><span>2. 核心组件分工</span></a></h3>
+<ul>
+<li><strong>Active Controller (主控制器)</strong>：Raft 集群 Leader，唯一处理元数据变更请求，负责写入__cluster_metadata 日志</li>
+<li><strong>Follower Controllers (从控制器)</strong>：同步元数据日志，参与 Leader 选举，主控制器故障时自动接管</li>
+<li><strong>Brokers (工作节点)</strong>：作为元数据日志的 Follower，定期拉取更新，维护本地元数据缓存，处理客户端请求</li>
+</ul>
+<p>消息通信机制</p>
+<p>1.点对点</p>
+<p>2.发布 - 订阅模式 --Kafka</p>
+<p>1.kafka相关概念</p>
+<p>broker： 集群节点</p>
+<p>producer： 生产者</p>
+<p>consumer： 消费者</p>
+<p>topic： 不同数据，不同topic，消息分布</p>
+<p>partition： 分区</p>
+<p>replication： 副本</p>
+<p>ISR： 副本同步队列</p>
+<p>​</p>
+<p>一般有几个节点，设置几个分区</p>
+<p>分区可以提高吞吐量</p>
+<p>多分区无法保证消息的顺序性</p>
+<p>单分区内消息是顺序的</p>
+<p>​</p>
+<h2 id="二、kafka-消息存储机制-基于分区日志的高效设计" tabindex="-1"><a class="header-anchor" href="#二、kafka-消息存储机制-基于分区日志的高效设计"><span>二、Kafka 消息存储机制：基于分区日志的高效设计</span></a></h2>
+<p>Kafka 的高性能核心源于其<strong>日志式存储</strong>和<strong>分区并行</strong>的设计，具体机制如下：</p>
+<ol>
+<li><strong>Partition 日志结构</strong>每个 Partition 对应磁盘上的一个目录，目录名格式为 <code v-pre>{topic}-{partition id}</code>。目录内的消息被拆分为多个<strong>日志分段（Log Segment）</strong> 文件，每个 Segment 由两类文件组成：</li>
+</ol>
+<ul>
+<li><code v-pre>.log</code> 文件：存储实际的消息数据</li>
+<li><code v-pre>.index</code> 文件：消息 offset 与物理存储位置的索引，用于快速查询</li>
+</ul>
+<ol start="2">
+<li><strong>顺序读写 + 零拷贝技术</strong></li>
+</ol>
+<ul>
+<li>Kafka 利用磁盘<strong>顺序写</strong>的特性（顺序写性能远高于随机写），消息追加到 Partition 尾部，避免磁盘寻址开销。</li>
+<li>采用 <strong>零拷贝（Zero-Copy）</strong> 技术，直接将数据从内核缓冲区传输到网卡缓冲区，跳过用户态拷贝，大幅提升消息传输效率。</li>
+</ul>
+<ol start="3">
+<li><strong>offset 与消息持久化</strong></li>
+</ol>
+<ul>
+<li>每个消息在 Partition 内有唯一的 <code v-pre>offset</code>，offset 是一个逻辑递增的整数，仅表示消息在 Partition 内的顺序。</li>
+<li>消息默认持久化到磁盘，支持配置<strong>保留时间</strong>或<strong>存储大小</strong>，过期数据自动清理。</li>
+</ul>
+<h2 id="三、kafka-生产-消费核心流程" tabindex="-1"><a class="header-anchor" href="#三、kafka-生产-消费核心流程"><span>三、Kafka 生产 - 消费核心流程</span></a></h2>
+<h3 id="_1-生产者发送消息流程" tabindex="-1"><a class="header-anchor" href="#_1-生产者发送消息流程"><span>1. 生产者发送消息流程</span></a></h3>
+<ol>
+<li>生产者向 Kafka 发送消息时，首先通过<strong>分区策略</strong>确定消息要写入的 Partition：</li>
+</ol>
+<ul>
+<li>轮询策略（默认）：消息均匀分配到所有 Partition</li>
+<li>Key 哈希策略：相同 Key 的消息写入同一个 Partition，保证消息有序</li>
+<li>自定义策略：用户根据业务规则指定 Partition</li>
+</ul>
+<ol start="2">
+<li>生产者向目标 Partition 的 <strong>Leader 副本</strong>发送消息，同时可通过 <code v-pre>acks</code> 参数控制消息可靠性：</li>
+</ol>
+<ul>
+<li><code v-pre>acks=0</code>：生产者发送后无需等待 Broker 确认，性能最高，可能丢消息</li>
+<li><code v-pre>acks=1</code>：Leader 副本写入成功后即返回确认，Leader 故障可能丢消息</li>
+<li><code v-pre>acks=-1/all</code>：ISR 列表中所有副本写入成功后才返回确认，可靠性最高</li>
+</ul>
+<ol start="3">
+<li>Leader 副本将消息写入本地日志，Follower 副本主动拉取 Leader 的日志进行同步。</li>
+<li>当 ISR 内所有副本同步完成后，Leader 标记消息为<strong>已提交</strong>，并向生产者返回成功响应。</li>
+</ol>
+<h3 id="_2-消费者消费消息流程" tabindex="-1"><a class="header-anchor" href="#_2-消费者消费消息流程"><span>2. 消费者消费消息流程</span></a></h3>
+<ol>
+<li>消费组内的 Consumer 向 Controller 请求获取 Topic 的 Partition 分配方案。</li>
+<li>Controller 根据<strong>分区分配策略</strong>（如 Range、RoundRobin），将不同 Partition 分配给消费组内的不同 Consumer。</li>
+<li>Consumer 向分配到的 Partition 的 Leader 副本发起拉取请求，指定要消费的起始 offset。</li>
+<li>Leader 副本根据 offset 和索引文件，快速定位消息并返回给 Consumer。</li>
+<li>Consumer 消费完成后，主动提交 offset（可配置自动提交或手动提交），记录消费进度，避免重复消费。</li>
+</ol>
+<h2 id="四、kafka-高可用保障机制" tabindex="-1"><a class="header-anchor" href="#四、kafka-高可用保障机制"><span>四、Kafka 高可用保障机制</span></a></h2>
+<p>Kafka 集群的高可用核心是 <strong>副本机制 + 控制器故障转移</strong>，确保 Broker 或 Leader 副本故障时，服务不中断：</p>
+<ol>
+<li><strong>Leader 副本选举</strong></li>
+</ol>
+<ul>
+<li>当 Topic 创建或 Broker 故障时，Controller 负责为每个 Partition 选举 Leader 副本。</li>
+<li>选举规则：优先从 ISR 列表中选择副本作为 Leader，保证数据一致性。</li>
+</ul>
+<ol start="2">
+<li><strong>Broker 故障转移流程</strong></li>
+</ol>
+<ul>
+<li>若某个 Broker 宕机，该 Broker 上的所有 Leader 副本都会下线。</li>
+<li>Controller 检测到 Broker 故障后，立即为这些 Partition 重新选举 Leader（从 ISR 中选）。</li>
+<li>新 Leader 上线后，生产者和消费者自动切换到新 Leader，集群恢复正常服务。</li>
+</ul>
+<ol start="3">
+<li><strong>KRaft 模式 vs ZK 模式的高可用差异</strong></li>
+</ol>
+<ul>
+<li><strong>ZK 模式</strong>：依赖 ZooKeeper 存储元数据、选举 Controller，Controller 为单节点，故障后需重新选举。</li>
+<li><strong>KRaft 模式</strong>：内置 Raft 协议，采用 Controller Quorum（3-5 节点），Leader 故障时秒级切换，元数据存储在内部主题 <code v-pre>__cluster_metadata</code>，可靠性更高。</li>
+</ul>
+<h2 id="五、kafka-集群核心特性" tabindex="-1"><a class="header-anchor" href="#五、kafka-集群核心特性"><span>五、Kafka 集群核心特性</span></a></h2>
+<ol>
+<li><strong>高吞吐</strong>：分区并行 + 顺序写 + 零拷贝，支持每秒百万级消息处理。</li>
+<li><strong>高可用</strong>：多副本 + 故障自动转移，集群节点故障不影响服务。</li>
+<li><strong>可扩展</strong>：支持动态添加 Broker，Partition 可重新分配，集群规模线性扩展。</li>
+<li><strong>消息持久化</strong>：消息落地磁盘，支持长期存储与回溯消费。</li>
+<li><strong>低延迟</strong>：批量发送 + 零拷贝技术，端到端延迟可低至毫秒级。</li>
+</ol>
+<p>​</p>
+<p>​</p>
+<h2 id="卡夫卡流量日志监控平台" tabindex="-1"><a class="header-anchor" href="#卡夫卡流量日志监控平台"><span>卡夫卡流量日志监控平台</span></a></h2>
+<h3 id="一、项目配置和准备" tabindex="-1"><a class="header-anchor" href="#一、项目配置和准备"><span>一、项目配置和准备</span></a></h3>
+<h4 id="将linux主机ip修改为静态ip" tabindex="-1"><a class="header-anchor" href="#将linux主机ip修改为静态ip"><span>将linux主机ip修改为静态ip</span></a></h4>
+<p>在搭建日志监控系统（ELK、Kafka、Filebeat 等）这类服务时，将 Linux 主机 IP 修改为<strong>静态 IP</strong> 是保障服务稳定运行的核心配置，核心原因是 <strong>避免 IP 动态变化导致服务链路中断、配置失效和运维成本剧增</strong>。</p>
+<p>​</p>
+<h4 id="下载依赖软件" tabindex="-1"><a class="header-anchor" href="#下载依赖软件"><span>下载依赖软件</span></a></h4>
+<p>dnf install wget vim java-21-openjdk.x86_64 -y</p>
+<p>​</p>
+<h5 id="查看ip和网卡型号便于修改ip配置文件-网卡型号可能是ens33或ens160-这里以ens33为例" tabindex="-1"><a class="header-anchor" href="#查看ip和网卡型号便于修改ip配置文件-网卡型号可能是ens33或ens160-这里以ens33为例"><span>查看ip和网卡型号便于修改ip配置文件（网卡型号可能是ens33或ens160，这里以ens33为例）</span></a></h5>
+<p>ip add</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-4.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<p>​</p>
+<h5 id="查看本地域名解析地址-将虚拟机ip和nameserver写入-etc-networkmanager-system-connections-ens33-nmconnection下的addressesl-dns设置为默认的114-114-114-114。" tabindex="-1"><a class="header-anchor" href="#查看本地域名解析地址-将虚拟机ip和nameserver写入-etc-networkmanager-system-connections-ens33-nmconnection下的addressesl-dns设置为默认的114-114-114-114。"><span>查看本地域名解析地址，将虚拟机ip和nameserver写入/etc/NetworkManager/system-connections/ens33.nmconnection下的addressesl，DNS设置为默认的114.114.114.114。</span></a></h5>
+<p>vim /etc/resolv.conf</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-5.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<h5 id="修改linux下的配置文件" tabindex="-1"><a class="header-anchor" href="#修改linux下的配置文件"><span>修改linux下的配置文件</span></a></h5>
+<p>vim /etc/NetworkManager/system-connections/ens33.nmconnection</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-6.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<h5 id="修改后重新加载配置" tabindex="-1"><a class="header-anchor" href="#修改后重新加载配置"><span>修改后重新加载配置</span></a></h5>
+<p>nmcli c reload #重新加载配置</p>
+<h5 id="如果出现断连-进入vm中在虚拟机中输入以下代码重新启动虚拟机网卡" tabindex="-1"><a class="header-anchor" href="#如果出现断连-进入vm中在虚拟机中输入以下代码重新启动虚拟机网卡"><span>如果出现断连，进入vm中在虚拟机中输入以下代码重新启动虚拟机网卡</span></a></h5>
+<p>#如果断连了</p>
+<p>nmcli d status</p>
+<p>nmcli d up ens33</p>
+<p>​</p>
+<h5 id="修改主机名-方便在后续操作中用主机名进行通讯-避免直接写ip" tabindex="-1"><a class="header-anchor" href="#修改主机名-方便在后续操作中用主机名进行通讯-避免直接写ip"><span>修改主机名，方便在后续操作中用主机名进行通讯（避免直接写ip）</span></a></h5>
+<p>hostnamectl set-hostname kafka1</p>
+<h5 id="修改-etc-hosts文件-添加主机名和ip地址映射" tabindex="-1"><a class="header-anchor" href="#修改-etc-hosts文件-添加主机名和ip地址映射"><span>修改/etc/hosts文件，添加主机名和ip地址映射</span></a></h5>
+<p>vim /etc/hosts</p>
+<p>修改 Linux 系统的 <code v-pre>/etc/hosts</code> 文件，添加 <strong>IP 地址与主机名的映射关系</strong>，核心目的是 <strong>绕过 DNS 解析、实现快速的主机名寻址</strong>，同时保障服务访问的稳定性、安全性和运维效率。</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-7.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<h3 id="如果windows需要连接kafka集群也需要修改hosts的ip地址映射" tabindex="-1"><a class="header-anchor" href="#如果windows需要连接kafka集群也需要修改hosts的ip地址映射"><span>如果windows需要连接kafka集群也需要修改hosts的ip地址映射</span></a></h3>
+<p>​</p>
+<p>window连接需要在本地修改 C:\Windows\System32\drivers\etc\hosts 文件添加映射（需要管理员权限）</p>
+<p>​</p>
+<h5 id="关闭每一台机器的selinux与防火墙" tabindex="-1"><a class="header-anchor" href="#关闭每一台机器的selinux与防火墙"><span>关闭每一台机器的selinux与防火墙</span></a></h5>
+<h6 id="关闭防火墙" tabindex="-1"><a class="header-anchor" href="#关闭防火墙"><span>关闭防火墙：</span></a></h6>
+<p>iptables -F #清空防火墙规则</p>
+<p>systemctl stop firewalld #关闭防火墙服务</p>
+<p>systemctl disable firewalld #设置开机不自启</p>
+<p>​</p>
+<h6 id="关闭selinux-编辑-etc-selinux-config-文件" tabindex="-1"><a class="header-anchor" href="#关闭selinux-编辑-etc-selinux-config-文件"><span>关闭selinux，编辑/etc/selinux/config 文件</span></a></h6>
+<p>​</p>
+<p>SELINUX=disabled</p>
+<p>重启系统：</p>
+<p>reboot</p>
+<p>​</p>
+<h3 id="二、部署kafka集群" tabindex="-1"><a class="header-anchor" href="#二、部署kafka集群"><span>二、部署kafka集群</span></a></h3>
+<h4 id="下载kafka将kafka压缩包放在opt目录下" tabindex="-1"><a class="header-anchor" href="#下载kafka将kafka压缩包放在opt目录下"><span>下载kafka将kafka压缩包放在opt目录下</span></a></h4>
+<p>cd /opt</p>
+<p>wget <a href="https://archive.apache.org/dist/kafka/3.6.1/kafka_2.13-3.6.1.tgz" target="_blank" rel="noopener noreferrer">https://archive.apache.org/dist/kafka/3.6.1/kafka_2.13-3.6.1.tgz</a></p>
+<p>​</p>
+<p>解压缩</p>
+<p>tar xf kafka_2.13-3.6.1.tgz</p>
+<p>cd kafka_2.13-3.6.1</p>
+<p>​</p>
+<h4 id="修改kafka的配置文件位于kafka目录下config-kraft-server-properties" tabindex="-1"><a class="header-anchor" href="#修改kafka的配置文件位于kafka目录下config-kraft-server-properties"><span>修改kafka的配置文件位于kafka目录下config/kraft/server.properties</span></a></h4>
+<p>vim /opt/kafka_2.13-3.6.1/config/kraft</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-8.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<h4 id="修改配置文件-位于kafka目录下config-kraft-server-properties" tabindex="-1"><a class="header-anchor" href="#修改配置文件-位于kafka目录下config-kraft-server-properties"><span>修改配置文件,位于kafka目录下config/kraft/server.properties</span></a></h4>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>#修改节点id，每个节点唯一</span></span>
+<span class="line"><span>node.id=1</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>#修改控制器投票列表</span></span>
+<span class="line"><span>controller.quorum.voters=1@192.168.223.161:9093,2@192.168.223.162:9093,3@192.168.223.163:9093</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>#修改监听器和控制器，绑定ip。其中kafka1为主机名，可用本机ip地址代替</span></span>
+<span class="line"><span>listeners=PLAINTEXT://kafka1:9092,CONTROLLER://kafka1:9093</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 侦听器名称、主机名和代理将向客户端公布的端口.(broker 对外暴露的地址)</span></span>
+<span class="line"><span># 如果未设置，则使用"listeners"的值.</span></span>
+<span class="line"><span>advertised.listeners=PLAINTEXT://kafka1:9092</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><ul>
+<li><em>配置文件详解</em></li>
+</ul>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>############################# Server Basics #############################</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 此服务器的角色。设置此项将进入KRaft模式(controller 相当于主机、broker 节点相当于从机,主机类似 zk 功能)</span></span>
+<span class="line"><span>process.roles=broker,controller</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 节点 ID</span></span>
+<span class="line"><span>node.id=2</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 全 Controller 列表</span></span>
+<span class="line"><span>controller.quorum.voters=2@192.168.58.130:9093,3@192.168.58.131:9093,4@192.168.58.132:9093</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>############################# Socket Server Settings #############################</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 套接字服务器侦听的地址.</span></span>
+<span class="line"><span># 组合节点（即具有`process.roles=broker,controller`的节点）必须至少在此处列出控制器侦听器</span></span>
+<span class="line"><span># 如果没有定义代理侦听器，那么默认侦听器将使用一个等于java.net.InetAddress.getCanonicalHostName()值的主机名,</span></span>
+<span class="line"><span># 带有PLAINTEXT侦听器名称和端口9092</span></span>
+<span class="line"><span>#   FORMAT:</span></span>
+<span class="line"><span>#     listeners = listener_name://host_name:port</span></span>
+<span class="line"><span>#   EXAMPLE:</span></span>
+<span class="line"><span>#     listeners = PLAINTEXT://your.host.name:9092</span></span>
+<span class="line"><span>#不同服务器绑定的端口</span></span>
+<span class="line"><span>listeners=PLAINTEXT://192.168.58.130:9092,CONTROLLER://192.168.58.130:9093</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 用于代理之间通信的侦听器的名称(broker 服务协议别名)</span></span>
+<span class="line"><span>inter.broker.listener.name=PLAINTEXT</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 侦听器名称、主机名和代理将向客户端公布的端口.(broker 对外暴露的地址)</span></span>
+<span class="line"><span># 如果未设置，则使用"listeners"的值.</span></span>
+<span class="line"><span>advertised.listeners=PLAINTEXT://192.168.58.130:9092</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># controller 服务协议别名</span></span>
+<span class="line"><span># 控制器使用的侦听器名称的逗号分隔列表</span></span>
+<span class="line"><span># 如果`listener.security.protocol.map`中未设置显式映射，则默认使用PLAINTEXT协议</span></span>
+<span class="line"><span># 如果在KRaft模式下运行，这是必需的。</span></span>
+<span class="line"><span>controller.listener.names=CONTROLLER</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 将侦听器名称映射到安全协议，默认情况下它们是相同的。(协议别名到安全协议的映射)有关更多详细信息，请参阅配置文档.</span></span>
+<span class="line"><span>listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 服务器用于从网络接收请求并向网络发送响应的线程数</span></span>
+<span class="line"><span>num.network.threads=3</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 服务器用于处理请求的线程数，其中可能包括磁盘I/O</span></span>
+<span class="line"><span>num.io.threads=8</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 套接字服务器使用的发送缓冲区（SO_SNDBUF）</span></span>
+<span class="line"><span>socket.send.buffer.bytes=102400</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 套接字服务器使用的接收缓冲区（SO_RCVBUF）</span></span>
+<span class="line"><span>socket.receive.buffer.bytes=102400</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 套接字服务器将接受的请求的最大大小（防止OOM）</span></span>
+<span class="line"><span>socket.request.max.bytes=104857600</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>############################# Log Basics #############################</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 存储日志文件的目录的逗号分隔列表(kafka 数据存储目录)</span></span>
+<span class="line"><span>log.dirs=/usr/kafka/kafka_2.13-3.6.1/datas</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 每个主题的默认日志分区数。更多的分区允许更大的并行性以供使用，但这也会导致代理之间有更多的文件。</span></span>
+<span class="line"><span>num.partitions=1</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 启动时用于日志恢复和关闭时用于刷新的每个数据目录的线程数。</span></span>
+<span class="line"><span># 对于数据目录位于RAID阵列中的安装，建议增加此值。</span></span>
+<span class="line"><span>num.recovery.threads.per.data.dir=1</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>############################# Internal Topic Settings  #############################</span></span>
+<span class="line"><span># 组元数据内部主题"__consumer_offsets"和"__transaction_state"的复制因子</span></span>
+<span class="line"><span># 对于除开发测试以外的任何测试，建议使用大于1的值来确保可用性，例如3.</span></span>
+<span class="line"><span>offsets.topic.replication.factor=1</span></span>
+<span class="line"><span>transaction.state.log.replication.factor=1</span></span>
+<span class="line"><span>transaction.state.log.min.isr=1</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>############################# Log Flush Policy #############################</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 消息会立即写入文件系统，但默认情况下，我们只使用fsync()进行同步</span></span>
+<span class="line"><span># 操作系统缓存延迟。以下配置控制将数据刷新到磁盘.</span></span>
+<span class="line"><span># 这里有一些重要的权衡:</span></span>
+<span class="line"><span>#    1. Durability(持久性): 如果不使用复制，未清理的数据可能会丢失</span></span>
+<span class="line"><span>#    2. Latency(延迟): 当刷新发生时，非常大的刷新间隔可能会导致延迟峰值，因为将有大量数据要刷新.</span></span>
+<span class="line"><span>#    3. Throughput(吞吐量): 刷新通常是最昂贵的操作，较小的刷新间隔可能导致过多的寻道.</span></span>
+<span class="line"><span># 下面的设置允许配置刷新策略，以便在一段时间后或每N条消息（或两者兼有）刷新数据。这可以全局完成，并在每个主题的基础上覆盖</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 强制将数据刷新到磁盘之前要接受的消息数</span></span>
+<span class="line"><span>#log.flush.interval.messages=10000</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 在我们强制刷新之前，消息可以在日志中停留的最长时间</span></span>
+<span class="line"><span>#log.flush.interval.ms=1000</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>############################# Log Retention Policy #############################</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 以下配置控制日志段的处理。可以将该策略设置为在一段时间后删除分段，或者在累积了给定大小之后删除分段。</span></span>
+<span class="line"><span># 只要满足这些条件中的任意一个，segment就会被删除。删除总是从日志的末尾开始</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 日志文件因使用年限而有资格删除的最短使用年限</span></span>
+<span class="line"><span>log.retention.hours=168</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 基于大小的日志保留策略。除非剩余的段低于log.retention.bytes，否则将从日志中删除段。独立于log.retention.hours的函数。</span></span>
+<span class="line"><span>#log.retention.bytes=1073741824</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 日志segment文件的最大大小。当达到此大小时，将创建一个新的日志segment</span></span>
+<span class="line"><span>log.segment.bytes=1073741824</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 检查日志segments以查看是否可以根据保留策略删除它们的间隔</span></span>
+<span class="line"><span>log.retention.check.interval.ms=300000</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>​</p>
+<h4 id="创建kafka集群" tabindex="-1"><a class="header-anchor" href="#创建kafka集群"><span>创建kafka集群</span></a></h4>
+<p>cd /opt/kafka_2.13-3.6.1</p>
+<p># 在其中一台执行，生成集群UUID命令，拿到集群UUID保存在当前tmp_random文件中</p>
+<p>bin/kafka-storage.sh random-uuid &gt;tmp_random</p>
+<p># 查看uuid</p>
+<p>[root@chainmaker1 kafka_2.13-3.6.1]# cat tmp_random</p>
+<p>z3oq9M4IQguOBm2rt1ovmQ</p>
+<p># 在所有机器上执行，它会初始化存储区域，为 Kafka 集群的元数据存储和后续操作做好准备。z3oq9M4IQguOBm2rt1ovmQ为自己生成的集群uuid</p>
+<p>bin/kafka-storage.sh format -t z3oq9M4IQguOBm2rt1ovmQ -c /opt/kafka_2.13-3.6.1/config/kraft/server.properties</p>
+<p>​</p>
+<h4 id="启动kafka" tabindex="-1"><a class="header-anchor" href="#启动kafka"><span>启动kafka</span></a></h4>
+<h6 id="命令行启动" tabindex="-1"><a class="header-anchor" href="#命令行启动"><span>命令行启动</span></a></h6>
+<p>启动：</p>
+<p>bin/kafka-server-start.sh -daemon /opt/kafka_2.13-3.6.1/config/kraft/server.properties</p>
+<p>关闭：</p>
+<p>bin/kafka-server-stop.sh</p>
+<h6 id="使用systemctl管理服务-systemd" tabindex="-1"><a class="header-anchor" href="#使用systemctl管理服务-systemd"><span>使用systemctl管理服务 -- systemd</span></a></h6>
+<p>编辑文件 /usr/lib/systemd/system/kafka.service</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>[Unit]</span></span>
+<span class="line"><span>Description=Apache Kafka server (KRaft mode)</span></span>
+<span class="line"><span>Documentation=http://kafka.apache.org/documentation.html</span></span>
+<span class="line"><span>After=network.target</span></span>
+<span class="line"><span>[Service]</span></span>
+<span class="line"><span>Type=forking</span></span>
+<span class="line"><span>User=root</span></span>
+<span class="line"><span>Group=root</span></span>
+<span class="line"><span>Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/usr/lib/jvm/java-11-openjdk-11.0.23.0.9-2.el7_9.x86_64/bin/"</span></span>
+<span class="line"><span>ExecStart=/opt/kafka_2.13-3.6.1/bin/kafka-server-start.sh -daemon /opt/kafka_2.13-3.6.1/config/kraft/server.properties</span></span>
+<span class="line"><span>ExecStop=/opt/kafka_2.13-3.6.1/bin/kafka-server-stop.sh</span></span>
+<span class="line"><span>Restart=on-failure</span></span>
+<span class="line"><span>[Install]</span></span>
+<span class="line"><span>WantedBy=multi-user.target</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>重新加载systemd配置</p>
+<p>systemctl daemon-reload</p>
+<p>​</p>
+<p>启动kafka服务</p>
+<p>systemctl start kafka</p>
+<p>​</p>
+<p>关闭kafka服务</p>
+<p>systemctl stop kafka</p>
+<p>​</p>
+<p>设置开机自启</p>
+<p>systemctl enable kafka</p>
+<p>​</p>
+<p>查看kafka状态</p>
+<p>systemctl status kafka</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-9.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<h4 id="测试集群" tabindex="-1"><a class="header-anchor" href="#测试集群"><span>测试集群</span></a></h4>
+<p># 创建topic</p>
+<p>​bin/kafka-topics.sh --create --bootstrap-server kafka3:9092 --replication-factor 3 --partitions 3 --topic my_topic</p>
+<p>** --replication-factor指定副本因子，--partitions指定分区数，--topic指定主题名称。</p>
+<p># 查看topic</p>
+<p>bin/kafka-topics.sh --list --bootstrap-server kafka3:9092</p>
+<p>#创建生产者，发送消息，测试用（在不同虚拟机上测试）</p>
+<p>bin/kafka-console-producer.sh --broker-list kafka3:9092 --topic my_topic</p>
+<p>#创建消费者，获取数据，测试用（在不同虚拟机上测试）</p>
+<p>bin/kafka-console-consumer.sh --bootstrap-server kafka1:9092 --topic my_topic --from-beginning</p>
+<p>​</p>
+<h3 id="三、部署filebeat" tabindex="-1"><a class="header-anchor" href="#三、部署filebeat"><span>三、部署filebeat</span></a></h3>
+<p><strong>Filebeat</strong> 是 Elastic 公司推出的一款<strong>轻量级、开源的日志采集器</strong>，专为在服务器上高效收集、转发日志数据而设计，是 ELK（Elasticsearch、Logstash、Kibana）技术栈中负责<strong>日志采集环节</strong>的核心组件，也是你搭建的日志监控系统里的<strong>数据入口</strong>。</p>
+<p>​</p>
+<p>​</p>
+<p>​</p>
+<p>​</p>
+<h3 id="celery部署" tabindex="-1"><a class="header-anchor" href="#celery部署"><span>Celery部署</span></a></h3>
+<h4 id="celery下载" tabindex="-1"><a class="header-anchor" href="#celery下载"><span>celery下载</span></a></h4>
+<p>cd /opt</p>
+<p>mkdir monitor/celery_app -p</p>
+<p>​</p>
+<h4 id="编辑配置文件-config-py" tabindex="-1"><a class="header-anchor" href="#编辑配置文件-config-py"><span>编辑配置文件 <a href="http://config.py" target="_blank" rel="noopener noreferrer">config.py</a></span></a></h4>
+<p>from celery.schedules import crontab<br>
+BROKER_URL = 'redis://192.168.20.161:6379/0' # Broker配置，使用Redis作为消息中间件<br>
+CELERY_RESULT_BACKEND = 'redis://192.168.20.161:6379/1' # BACKEND配置，这里使用redis<br>
+CELERY_RESULT_SERIALIZER = 'json' # 结果序列化方案<br>
+CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 24 # 任务过期时间<br>
+CELERY_TIMEZONE='Asia/Shanghai' # 时区配置<br>
+CELERY_IMPORTS = ( # 指定导入的任务模块,可以指定多个<br>
+'celery_app.task',<br>
+)</p>
+<p>CELERYBEAT_SCHEDULE = {<br>
+'celery_app.task.test': {<br>
+'task': 'celery_app.task.test',<br>
+'schedule': crontab(minute='*/1'),<br>
+'args': (-3, 10)<br>
+}<br>
+}</p>
+<h4 id="_2、编辑-init-py-双下划线开头-双下划线结尾" tabindex="-1"><a class="header-anchor" href="#_2、编辑-init-py-双下划线开头-双下划线结尾"><span>2、编辑__init__.py (双下划线开头，双下划线结尾)</span></a></h4>
+<p>from celery import Celery<br>
+app = Celery('task')<br>
+app.config_from_object('celery_app.config')</p>
+<h4 id="_3、编辑task-py" tabindex="-1"><a class="header-anchor" href="#_3、编辑task-py"><span>3、<a href="http://xn--task-pj6ks03f.py" target="_blank" rel="noopener noreferrer">编辑task.py</a></span></a></h4>
+<p>from . import app</p>
+<p>@app.task<br>
+def test(a,b):<br>
+print(&quot;task test start ...&quot;)<br>
+result = abs(a) + abs(b)<br>
+print(&quot;task test end....&quot;)<br>
+return result</p>
+<p>​</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span></span></span>
+<span class="line"><span>* celery 启动beat (在monitor目录下执行)</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div></div></div><p>celery -A celery_app beat</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span></span></span>
+<span class="line"><span>* celery 启动worker</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div></div></div><p>celery -A celery_app worker -l info -c 4</p>
+<p>启动</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span># 进入项目根目录</span></span>
+<span class="line"><span>cd /opt/monitor</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 安装依赖（首次执行）</span></span>
+<span class="line"><span>pip3 install pymysql sqlalchemy celery redis -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 杀死旧的Celery进程（避免冲突）</span></span>
+<span class="line"><span>ps -ef | grep celery | grep -v grep | awk '{print $2}' | xargs kill -9 2>/dev/null</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 启动Celery Beat（调度器）</span></span>
+<span class="line"><span>nohup celery -A celery_app beat > celery_beat.log 2>&#x26;1 &#x26;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 启动Celery Worker（执行器）</span></span>
+<span class="line"><span>nohup celery -A celery_app worker --loglevel=info > celery_worker.log 2>&#x26;1 &#x26;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 查看进程是否正常运行</span></span>
+<span class="line"><span>ps -ef | grep celery</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>​</p>
+<h3 id="redis部署" tabindex="-1"><a class="header-anchor" href="#redis部署"><span>redis部署</span></a></h3>
+<h4 id="redis安装" tabindex="-1"><a class="header-anchor" href="#redis安装"><span>redis安装</span></a></h4>
+<p>yum install -y epel-release</p>
+<p>dnf install -y epel-release</p>
+<p>​</p>
+<p>dnf install -y <a href="https://rpms.remirepo.net/enterprise/remi-release-10.rpm" target="_blank" rel="noopener noreferrer">https://rpms.remirepo.net/enterprise/remi-release-10.rpm</a></p>
+<p>​</p>
+<p>dnf module enable -y redis:remi-7.2</p>
+<p>dnf install -y redis</p>
+<p>​</p>
+<h4 id="redis-cli连接数据库" tabindex="-1"><a class="header-anchor" href="#redis-cli连接数据库"><span>redis-cli连接数据库</span></a></h4>
+<p>​</p>
+<h5 id="关闭数据库保护模式" tabindex="-1"><a class="header-anchor" href="#关闭数据库保护模式"><span>关闭数据库保护模式</span></a></h5>
+<p>临时关闭</p>
+<p>执行命令关闭保护模式</p>
+<p>CONFIG SET protected-mode no</p>
+<p>​</p>
+<p>验证是否关闭成功（返回no则正确）</p>
+<p>CONFIG GET protected-mode</p>
+<p>​</p>
+<h5 id="永久关闭" tabindex="-1"><a class="header-anchor" href="#永久关闭"><span>永久关闭</span></a></h5>
+<p>编辑Redis配置文件（老版本在/etc/redis.conf ）</p>
+<p>vim /etc/redis/redis.conf</p>
+<p>​</p>
+<p>找到以下配置行，修改为no</p>
+<p>protected-mode no</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-10.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<p>​</p>
+<p>保存后重启Redis服务</p>
+<p>systemctl restart redis</p>
+<p>​</p>
+<p>同时修改</p>
+<p>bind 0.0.0.0 #监听本机任意ip</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-11.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<p>​</p>
+<h3 id="nginx部署" tabindex="-1"><a class="header-anchor" href="#nginx部署"><span>nginx部署</span></a></h3>
+<p>* 安装nginx</p>
+<p>dnf install nginx -y</p>
+<p>编辑配置文件 /etc/nginx/conf.d/sc.conf</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>upstream flask {</span></span>
+<span class="line"><span>     server 192.168.20.162:5000;</span></span>
+<span class="line"><span>     server 192.168.20.163:5000;</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  server {</span></span>
+<span class="line"><span>      server_name www.sc.com;</span></span>
+<span class="line"><span>      location / {</span></span>
+<span class="line"><span>         proxy_pass http://flask;</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  }</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>启动nginx</p>
+<p>systemctl start nginx</p>
+<h2 id="elk近实时日志分析" tabindex="-1"><a class="header-anchor" href="#elk近实时日志分析"><span>ELK近实时日志分析</span></a></h2>
+<p>elaticsearch</p>
+<p>Elasticsearch（简称 ES）是一款 <strong>分布式、RESTful 风格的开源搜索引擎</strong>，基于 Lucene 底层构建，核心定位是 <strong>“快速检索、分析海量数据”</strong>，支持结构化 / 非结构化数据（日志、文本、JSON 等）的实时查询、聚合分析，广泛用于日志检索、全文搜索、监控告警、数据分析等场景。</p>
+<p>​</p>
+<h3 id="elasticsearch-es-速度远快于mysql的原因" tabindex="-1"><a class="header-anchor" href="#elasticsearch-es-速度远快于mysql的原因"><span>Elasticsearch（ES）速度远快于Mysql的原因</span></a></h3>
+<p>Elasticsearch（ES）速度远超MySQL的核心原因，本质是<strong>两者的设计目标和底层架构完全不同</strong>：MySQL是为「事务性数据存储+精准查询」设计的关系型数据库，而ES是为「海量非结构化/半结构化数据的全文检索+聚合分析」设计的分布式搜索引擎，从底层原理到查询逻辑都做了极致的性能优化。</p>
+<h4 id="一、核心设计目标差异-根源" tabindex="-1"><a class="header-anchor" href="#一、核心设计目标差异-根源"><span>一、核心设计目标差异（根源）</span></a></h4>
+<table>
+<thead>
+<tr>
+<th>Elasticsearch</th>
+<th>MySQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标是「快速检索/聚合海量数据」，牺牲部分写入性能、事务性，换取查询速度</td>
+<td>目标是「安全存储/精准读写事务性数据」，优先保证ACID、数据一致性，查询性能是次要优化方向</td>
+</tr>
+<tr>
+<td>典型场景：日志检索、全文搜索、实时监控、大数据分析（千万/亿级数据）</td>
+<td>典型场景：业务系统数据存储、订单/用户管理、精准条件查询（百万级数据）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="二、es速度快的核心技术原因-逐条拆解" tabindex="-1"><a class="header-anchor" href="#二、es速度快的核心技术原因-逐条拆解"><span>二、ES速度快的核心技术原因（逐条拆解）</span></a></h4>
+<h5 id="_1-倒排索引-最核心-——-检索的-专属优化" tabindex="-1"><a class="header-anchor" href="#_1-倒排索引-最核心-——-检索的-专属优化"><span>1. 倒排索引（最核心！）—— 检索的“专属优化”</span></a></h5>
+<p>这是ES远超MySQL的<strong>根本原因</strong>，MySQL的B+树索引在全文检索/模糊查询场景下完全无法匹敌：</p>
+<ul>
+<li><strong>MySQL的B+树索引</strong>：<br>
+为「行记录的精准查找」设计（如<code v-pre>where id=123</code>/<code v-pre>where user_id&gt;1000</code>），本质是“按字段值找行”。<br>
+若做模糊查询（如<code v-pre>where content like '%关键词%'</code>），会直接失效，触发全表扫描，速度极慢。</li>
+<li><strong>ES的倒排索引</strong>：<br>
+为「全文检索」设计，提前将文本内容拆分为“词条（Term）”，建立“词条→文档ID”的映射表（类似字典的索引）。<br>
+比如文本“Nginx监控日志”拆分为<code v-pre>nginx</code>/<code v-pre>监控</code>/<code v-pre>日志</code>，查询“监控”时，直接通过词条找到所有包含该词的文档，无需扫描全量数据。</li>
+</ul>
+<h5 id="_2-分布式架构——-并行处理海量数据" tabindex="-1"><a class="header-anchor" href="#_2-分布式架构——-并行处理海量数据"><span>2. 分布式架构—— 并行处理海量数据</span></a></h5>
+<ul>
+<li><strong>MySQL</strong>：<br>
+单机为主，虽支持主从/分库分表，但分表逻辑需业务层实现，查询时无法自动并行计算，单机性能瓶颈明显（百万级以上数据查询变慢）。</li>
+<li><strong>ES</strong>：<br>
+天生分布式，数据会自动分片（Shard）存储在多个节点，查询时<strong>多节点并行检索+结果聚合</strong>，相当于“多个人同时找东西，最后汇总结果”，海量数据下性能线性提升。</li>
+</ul>
+<h5 id="_3-内存优先的存储模型——-减少磁盘io" tabindex="-1"><a class="header-anchor" href="#_3-内存优先的存储模型——-减少磁盘io"><span>3. 内存优先的存储模型—— 减少磁盘IO</span></a></h5>
+<ul>
+<li><strong>MySQL</strong>：<br>
+数据默认存储在磁盘，虽有Buffer Pool缓存热点数据，但缓存策略为“按需缓存”，且受限于事务/锁机制，无法全部依赖内存。</li>
+<li><strong>ES</strong>：<br>
+核心数据（倒排索引、文档数据）优先加载到内存，查询时几乎全内存操作（磁盘仅作持久化），而内存IO速度是磁盘的千倍以上。<br>
+同时ES的Lucene底层做了内存对齐、数据压缩等优化，进一步提升内存利用率。</li>
+</ul>
+<h5 id="_4-无事务-锁的轻量化设计——-减少查询开销" tabindex="-1"><a class="header-anchor" href="#_4-无事务-锁的轻量化设计——-减少查询开销"><span>4. 无事务/锁的轻量化设计—— 减少查询开销</span></a></h5>
+<ul>
+<li><strong>MySQL</strong>：<br>
+为保证ACID，查询时需处理行锁/表锁、事务隔离级别、MVCC等，这些机制会带来大量性能开销（即使是读操作）。</li>
+<li><strong>ES</strong>：<br>
+不支持复杂事务（仅支持简单的文档级原子性），无锁设计，查询时无需处理锁竞争、事务回滚等逻辑，请求处理链路极短。</li>
+</ul>
+<h5 id="_5-列式存储-预聚合——-聚合查询更快" tabindex="-1"><a class="header-anchor" href="#_5-列式存储-预聚合——-聚合查询更快"><span>5. 列式存储+预聚合—— 聚合查询更快</span></a></h5>
+<ul>
+<li><strong>MySQL</strong>：<br>
+采用行式存储（一行数据的所有字段存在一起），做聚合查询（如<code v-pre>sum(traffic)</code>/<code v-pre>group by ip</code>）时，需扫描所有行的指定字段，效率低。</li>
+<li><strong>ES</strong>：<br>
+支持列式存储（同一字段的所有值存在一起），且可提前构建聚合桶（Bucket），聚合查询时直接读取预计算结果，无需全量扫描。</li>
+</ul>
+<h5 id="_6-分词-过滤的提前处理——-减少查询时计算" tabindex="-1"><a class="header-anchor" href="#_6-分词-过滤的提前处理——-减少查询时计算"><span>6. 分词/过滤的提前处理—— 减少查询时计算</span></a></h5>
+<ul>
+<li>ES在写入数据时，会提前完成：分词、大小写转换、停用词过滤（如“的/地/得”）、字段类型转换等；</li>
+<li>MySQL在查询时才会处理这些逻辑（如<code v-pre>lower(content)</code>/<code v-pre>substr(content)</code>），查询时额外增加计算开销。</li>
+</ul>
+<h4 id="三、关键对比-同场景下的性能差异" tabindex="-1"><a class="header-anchor" href="#三、关键对比-同场景下的性能差异"><span>三、关键对比：同场景下的性能差异</span></a></h4>
+<p>假设查询“过去1小时内包含‘error’的Nginx日志，按IP分组统计请求数”（数据量1000万条）：</p>
+<ul>
+<li><strong>MySQL</strong>：<br>
+需要执行<code v-pre>select ip, count(*) from nginx_log where content like '%error%' and time &gt; xxx group by ip</code>，触发全表扫描+文件排序，耗时可能<strong>几十秒甚至分钟级</strong>；</li>
+<li><strong>ES</strong>：<br>
+通过倒排索引快速找到含“error”的文档，分布式并行聚合IP维度的请求数，耗时<strong>毫秒到秒级</strong>。</li>
+</ul>
+<h4 id="四、注意-es不是-万能快" tabindex="-1"><a class="header-anchor" href="#四、注意-es不是-万能快"><span>四、注意：ES不是“万能快”</span></a></h4>
+<p>ES的快是“场景化的快”，在以下场景不如MySQL：</p>
+<ol>
+<li>精准的行级更新/删除（ES更新文档需重建索引，MySQL直接更新行）；</li>
+<li>强事务性操作（如金融交易，MySQL的ACID更可靠）；</li>
+<li>小数据量的简单查询（百万级以内，MySQL的B+树索引足够快，ES的分布式开销反而可能更高）。</li>
+<li>存储大文件</li>
+</ol>
+<h3 id="总结-1" tabindex="-1"><a class="header-anchor" href="#总结-1"><span>总结</span></a></h3>
+<p>ES速度远超MySQL的核心原因可归纳为3点：</p>
+<ol>
+<li><strong>索引层面</strong>：倒排索引专为检索设计，秒杀MySQL的B+树索引（尤其全文/模糊查询）；</li>
+<li><strong>架构层面</strong>：分布式并行处理，突破单机性能瓶颈；</li>
+<li><strong>存储/计算层面</strong>：内存优先+无事务开销+预处理，减少查询时的IO和计算成本。</li>
+</ol>
+<p>简单说：<strong>MySQL是“精准保管数据的仓库管理员”，ES是“快速找东西的搜索专家”</strong>，两者定位不同，导致检索性能天差地别。在你的监控场景中，若需检索海量日志、做实时聚合分析，用ES替代MySQL会带来数量级的性能提升。</p>
+<p>​</p>
+<p>elasticsearch选举</p>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-12.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<p>​</p>
+<p>​</p>
+<p>kibana</p>
+<p>​</p>
+<p>​</p>
+<p>​</p>
+<p>​</p>
+<p>​</p>
+<p>​</p>
+<h2 id="项目总结" tabindex="-1"><a class="header-anchor" href="#项目总结"><span>项目总结</span></a></h2>
+<figure><img src="/blog/assets/posts/%E5%8D%A1%E5%A4%AB%E5%8D%A1%E9%A1%B9%E7%9B%AE-13.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<p>为了监测网站访问状况，对网站日志进行分析，流量监控，我基于kafka搭建了一个日志收集平台，收集nginx反向代理集群的access日志，再进行可视化分析和流量预警，具体操作步骤，我搭建了一个3节点，3分区，3副本的kafka集群和nginx反向代理集群，通过filebeat对nginx上的access.log日志收集，用Kafka作为中间件接收这些日志数据，再通过python脚本消费kafka的储存的数据并进行数据清理选取一些的字段存储在mysql数据库中，用celery的定时任务从mysql中读取数据，实现流量预警功能（超出范围发送邮件告警）和ELK实现对日志数据的可视化分析，其中Elasticsearch用来快速检索，Kibana 将 Elasticsearch 的数据进行可视化管理。</p>
+</div></div><!----><!----><!----></div><footer class="vp-page-meta"><div class="vp-meta-item edit-link"><a class="auto-link external-link vp-meta-label" href="https://github.com/ZH-Kinger/venking/edit/main/src/posts/开发/python开发/卡夫卡项目.md" aria-label="在 GitHub 上编辑此页" rel="noopener noreferrer" target="_blank"><!--[--><svg xmlns="http://www.w3.org/2000/svg" class="icon edit-icon" viewBox="0 0 1024 1024" fill="currentColor" aria-label="edit icon" name="edit"><path d="M430.818 653.65a60.46 60.46 0 0 1-50.96-93.281l71.69-114.012 7.773-10.365L816.038 80.138A60.46 60.46 0 0 1 859.225 62a60.46 60.46 0 0 1 43.186 18.138l43.186 43.186a60.46 60.46 0 0 1 0 86.373L588.879 565.55l-8.637 8.637-117.466 68.234a60.46 60.46 0 0 1-31.958 11.229z"></path><path d="M728.802 962H252.891A190.883 190.883 0 0 1 62.008 771.98V296.934a190.883 190.883 0 0 1 190.883-192.61h267.754a60.46 60.46 0 0 1 0 120.92H252.891a69.962 69.962 0 0 0-69.098 69.099V771.98a69.962 69.962 0 0 0 69.098 69.098h475.911A69.962 69.962 0 0 0 797.9 771.98V503.363a60.46 60.46 0 1 1 120.922 0V771.98A190.883 190.883 0 0 1 728.802 962z"></path></svg><!--]-->在 GitHub 上编辑此页<!----></a></div><div class="vp-meta-item git-info"><!----><!----></div></footer><nav class="vp-page-nav"><a class="route-link auto-link prev" href="/blog/posts/%E5%BC%80%E5%8F%91/python%E5%BC%80%E5%8F%91/%E4%BF%AE%E6%94%B9openclaw%E9%85%8D%E7%BD%AE%E9%99%8D%E4%BD%8Etoken%E6%B6%88%E8%80%97.html" aria-label="修改openclaw配置降低token消耗"><div class="hint"><span class="arrow start"></span>上一页</div><div class="link"><iconify-icon class="vp-icon" icon="tabler:code" sizing="height" height="1em"></iconify-icon>修改openclaw配置降低token消耗</div></a><a class="route-link auto-link next" href="/blog/posts/%E5%BC%80%E5%8F%91/python%E5%BC%80%E5%8F%91/%E5%9F%BA%E4%BA%8EOpenClaw%E6%96%B0%E4%B8%80%E4%BB%A3AiOps%E5%B9%B3%E5%8F%B0.html" aria-label="基于OpenClaw新一代AiOps平台"><div class="hint">下一页<span class="arrow end"></span></div><div class="link">基于OpenClaw新一代AiOps平台<iconify-icon class="vp-icon" icon="tabler:code" sizing="height" height="1em"></iconify-icon></div></a></nav><!----><!----><!--]--></main><!--]--><footer class="vp-footer-wrapper" vp-footer><div class="vp-footer">© 2026 Kinger · AIOps & AI Infra · Built with VuePress · <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">湘ICP备2026030935号</a></div><div class="vp-copyright">Copyright © 2026 Kinger </div></footer></div><!--]--><!--]--><!--[--><!----><!--[--><!--]--><!--]--><!--]--></div>
+    <script type="module" src="/blog/assets/app-BoaHcSM-.js" defer></script>
+  </body>
+</html>

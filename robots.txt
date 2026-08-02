@@ -1,0 +1,4 @@
+User-agent:*
+Disallow:
+
+Sitemap: https://venking.tech/blog/sitemap.xml

@@ -1,0 +1,163 @@
+import{n as e,r as t}from"./app-BoaHcSM-.js";import{t as n}from"./plugin-vue_export-helper-BBNlaSNf.js";var r=JSON.parse(`{"path":"/posts/%E8%BF%90%E7%BB%B4/web%E9%9B%86%E7%BE%A4/web%E9%9B%86%E7%BE%A4%E9%A1%B9%E7%9B%AE/%E5%85%AD%E3%80%81Prometheus___Grafana_%E7%9B%91%E6%8E%A7.html","title":"六、Prometheus_+_Grafana_监控","lang":"zh-CN","frontmatter":{"title":"六、Prometheus_+_Grafana_监控","icon":"server","date":"2026-07-23T00:00:00.000Z","category":["运维"],"description":"安装Prometheus（堡垒机） docker安装 拉取docker镜像 启动prom ​ 在浏览器上访问localhost：9090（http://192.168.245.147:9090/） ​ 二进制源码安装 下载与解压 创建系统服务 (Systemd)： 为了实现开机自启，不要只用 nohup。创建服务文件 /usr/lib/systemd/...","head":[["script",{"type":"application/ld+json"},"{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Article\\",\\"headline\\":\\"六、Prometheus_+_Grafana_监控\\",\\"image\\":[\\"https://venking.tech/blog/blog/assets/posts/%E5%85%AD%E3%80%81Prometheus_+_Grafana_%E7%9B%91%E6%8E%A7-1.png\\",\\"https://venking.tech/blog/blog/assets/posts/%E5%85%AD%E3%80%81Prometheus_+_Grafana_%E7%9B%91%E6%8E%A7-2.png\\",\\"https://venking.tech/blog/blog/assets/posts/%E5%85%AD%E3%80%81Prometheus_+_Grafana_%E7%9B%91%E6%8E%A7-3.png\\"],\\"datePublished\\":\\"2026-07-23T00:00:00.000Z\\",\\"dateModified\\":null,\\"author\\":[{\\"@type\\":\\"Person\\",\\"name\\":\\"Kinger\\",\\"url\\":\\"https://www.yuque.com/kinger-wwnro\\"}]}"],["meta",{"property":"og:url","content":"https://venking.tech/blog/posts/%E8%BF%90%E7%BB%B4/web%E9%9B%86%E7%BE%A4/web%E9%9B%86%E7%BE%A4%E9%A1%B9%E7%9B%AE/%E5%85%AD%E3%80%81Prometheus___Grafana_%E7%9B%91%E6%8E%A7.html"}],["meta",{"property":"og:site_name","content":"Kinger 的技术博客"}],["meta",{"property":"og:title","content":"六、Prometheus_+_Grafana_监控"}],["meta",{"property":"og:description","content":"安装Prometheus（堡垒机） docker安装 拉取docker镜像 启动prom ​ 在浏览器上访问localhost：9090（http://192.168.245.147:9090/） ​ 二进制源码安装 下载与解压 创建系统服务 (Systemd)： 为了实现开机自启，不要只用 nohup。创建服务文件 /usr/lib/systemd/..."}],["meta",{"property":"og:type","content":"article"}],["meta",{"property":"og:image","content":"https://venking.tech/blog/blog/assets/posts/%E5%85%AD%E3%80%81Prometheus_+_Grafana_%E7%9B%91%E6%8E%A7-1.png"}],["meta",{"property":"og:locale","content":"zh-CN"}],["meta",{"property":"article:published_time","content":"2026-07-23T00:00:00.000Z"}]]},"git":{},"readingTime":{"minutes":3.47,"words":1042},"filePathRelative":"posts/运维/web集群/web集群项目/六、Prometheus_+_Grafana_监控.md","excerpt":"<h2>安装Prometheus（堡垒机）</h2>\\n<h3>docker安装</h3>\\n<h4>拉取docker镜像</h4>\\n<div class=\\"language-plain line-numbers-mode\\" data-highlighter=\\"shiki\\" data-ext=\\"plain\\" style=\\"--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34\\"><pre class=\\"shiki shiki-themes one-light one-dark-pro vp-code\\"><code class=\\"language-plain\\"><span class=\\"line\\"><span># 使用你环境里看起来能用的加速器拉取</span></span>\\n<span class=\\"line\\"><span>docker pull swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/prom/prometheus:latest</span></span>\\n<span class=\\"line\\"><span></span></span>\\n<span class=\\"line\\"><span># 拉取成功后，为了方便使用，给它打个短标签</span></span>\\n<span class=\\"line\\"><span>docker tag swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/prom/prometheus:latest prom/prometheus:latest</span></span></code></pre>\\n<div class=\\"line-numbers\\" aria-hidden=\\"true\\" style=\\"counter-reset:line-number 0\\"><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div><div class=\\"line-number\\"></div></div></div>","autoDesc":true}`),i={name:`六、Prometheus_+_Grafana_监控.md`},a=[`innerHTML`];function o(n,r,i,o,s,c){return t(),e(`div`,{class:`vp-migrated-content`,innerHTML:`<div><h2 id="安装prometheus-堡垒机" tabindex="-1"><a class="header-anchor" href="#安装prometheus-堡垒机"><span>安装Prometheus（堡垒机）</span></a></h2>
+<h3 id="docker安装" tabindex="-1"><a class="header-anchor" href="#docker安装"><span>docker安装</span></a></h3>
+<h4 id="拉取docker镜像" tabindex="-1"><a class="header-anchor" href="#拉取docker镜像"><span>拉取docker镜像</span></a></h4>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span># 使用你环境里看起来能用的加速器拉取</span></span>
+<span class="line"><span>docker pull swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/prom/prometheus:latest</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 拉取成功后，为了方便使用，给它打个短标签</span></span>
+<span class="line"><span>docker tag swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/prom/prometheus:latest prom/prometheus:latest</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="启动prom" tabindex="-1"><a class="header-anchor" href="#启动prom"><span>启动prom</span></a></h4>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>docker  run -d   -p9090:9090  --name prom-1  prom/prometheus</span></span>
+<span class="line"><span>docker ps</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div></div></div><p>​</p>
+<p>在浏览器上访问localhost：9090（<a href="http://192.168.245.147:9090/" target="_blank" rel="noopener noreferrer">http://192.168.245.147:9090/</a>）</p>
+<p>​</p>
+<h3 id="二进制源码安装" tabindex="-1"><a class="header-anchor" href="#二进制源码安装"><span>二进制源码安装</span></a></h3>
+<h4 id="下载与解压" tabindex="-1"><a class="header-anchor" href="#下载与解压"><span>下载与解压</span></a></h4>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>cd /usr/local/src</span></span>
+<span class="line"><span>#下载prometheus</span></span>
+<span class="line"><span>curl -L -O https://ghproxy.net/https://github.com/prometheus/prometheus/releases/download/v2.51.0/prometheus-2.51.0.linux-amd64.tar.gz</span></span>
+<span class="line"><span>#解压</span></span>
+<span class="line"><span>tar -xvf prometheus-2.51.0.linux-amd64.tar.gz</span></span>
+<span class="line"><span># 移动到安装目录</span></span>
+<span class="line"><span>mv prometheus-2.51.0.linux-amd64 /usr/local/prometheus</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="创建系统服务-systemd" tabindex="-1"><a class="header-anchor" href="#创建系统服务-systemd"><span>创建系统服务 (Systemd)：</span></a></h4>
+<p>为了实现开机自启，不要只用 <code v-pre>nohup</code>。创建服务文件 <code v-pre>/usr/lib/systemd/system/prometheus.service</code></p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>[Unit]</span></span>
+<span class="line"><span>Description=Prometheus</span></span>
+<span class="line"><span>After=network.target</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[Service]</span></span>
+<span class="line"><span>Type=simple</span></span>
+<span class="line"><span>ExecStart=/usr/local/prometheus/prometheus --config.file=/usr/local/prometheus/prometheus.yml --storage.tsdb.path=/usr/local/prometheus/data</span></span>
+<span class="line"><span>Restart=on-failure</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[Install]</span></span>
+<span class="line"><span>WantedBy=multi-user.target</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="启动服务" tabindex="-1"><a class="header-anchor" href="#启动服务"><span>启动服务</span></a></h4>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>systemctl daemon-reload</span></span>
+<span class="line"><span>systemctl enable --now prometheus</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="配置-prometheus-监控-dmz-集群" tabindex="-1"><a class="header-anchor" href="#配置-prometheus-监控-dmz-集群"><span>配置 Prometheus 监控 DMZ 集群</span></a></h3>
+<h4 id="docker安装的prometheus" tabindex="-1"><a class="header-anchor" href="#docker安装的prometheus"><span>docker安装的Prometheus</span></a></h4>
+<p><strong>挂载外部配置文件（最推荐的专业做法）</strong></p>
+<p>这种方法直接将宿主机上的 <code v-pre>prometheus.yml</code> “映射”到容器内部。这样你只需要用 <code v-pre>vi</code> 修改宿主机的文件，然后重启容器即可。</p>
+<p><strong>准备宿主机目录</strong>：</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>mkdir -p /prom/prometheus</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p><strong>创建或拷贝配置文件</strong>： 如果你已经有一个写好的文件，把它放到 <code v-pre>/prom/prometheus/prometheus.yml</code>。如果没有，可以先从容器里“偷”一个出来：</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>docker cp prometheus:/etc/prometheus/prometheus.yml /prom/prometheus/prometheus.yml</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p><strong>启动并挂载</strong>： 使用 <code v-pre>-v</code> 参数运行容器：</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>docker run -d \\</span></span>
+<span class="line"><span>  -p 9090:9090 \\</span></span>
+<span class="line"><span>  --name prometheus \\</span></span>
+<span class="line"><span>  -v /prom/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \\</span></span>
+<span class="line"><span>  prom/prometheus</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><ul>
+<li><strong>修改方式</strong>：以后只需执行 <code v-pre>vi /prom/prometheus/prometheus.yml</code> -&gt; 保存 -&gt; <code v-pre>docker restart prometheus</code>。</li>
+</ul>
+<p><strong>配置文件内容</strong></p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>scrape_configs:</span></span>
+<span class="line"><span>  - job_name: "prometheus"</span></span>
+<span class="line"><span>    static_configs:</span></span>
+<span class="line"><span>      - targets: ["dmz"]</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  - job_name: "dmz_nodes"</span></span>
+<span class="line"><span>    static_configs:</span></span>
+<span class="line"><span>      - targets:</span></span>
+<span class="line"><span>        - "192.168.31.130:9100"</span></span>
+<span class="line"><span>        - "192.168.31.131:9100"</span></span>
+<span class="line"><span>        - "192.168.31.132:9100"</span></span>
+<span class="line"><span>        - "192.168.31.133:9100"</span></span>
+<span class="line"><span>        - "192.168.31.135:9100"</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="二进制安装的prometheus" tabindex="-1"><a class="header-anchor" href="#二进制安装的prometheus"><span>二进制安装的Prometheus</span></a></h4>
+<p><strong>编辑配置文件</strong>：</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>vi /usr/local/prometheus/prometheus.yml</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p><strong>添加以下内容（注意 YAML 缩进）</strong>：</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>scrape_configs:</span></span>
+<span class="line"><span>  - job_name: "prometheus"</span></span>
+<span class="line"><span>    static_configs:</span></span>
+<span class="line"><span>      - targets: ["dmz"]</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  - job_name: "dmz_nodes"</span></span>
+<span class="line"><span>    static_configs:</span></span>
+<span class="line"><span>      - targets:</span></span>
+<span class="line"><span>        - "192.168.31.130:9100"</span></span>
+<span class="line"><span>        - "192.168.31.131:9100"</span></span>
+<span class="line"><span>        - "192.168.31.132:9100"</span></span>
+<span class="line"><span>        - "192.168.31.133:9100"</span></span>
+<span class="line"><span>        - "192.168.31.135:9100"</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p><strong>重载配置使其生效</strong>：</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>kill -HUP 959</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><hr>
+<h2 id="安装node-export-dmz集群所有机器" tabindex="-1"><a class="header-anchor" href="#安装node-export-dmz集群所有机器"><span>安装node_export（DMZ集群所有机器）</span></a></h2>
+<h3 id="下载与解压-1" tabindex="-1"><a class="header-anchor" href="#下载与解压-1"><span>下载与解压</span></a></h3>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>cd /usr/local/src</span></span>
+<span class="line"><span># 下载 1.8.2 版本（目前较新且稳定的版本）</span></span>
+<span class="line"><span>curl -O https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz</span></span>
+<span class="line"><span># 解压</span></span>
+<span class="line"><span>tar -xvf node_exporter-1.8.2.linux-amd64.tar.gz</span></span>
+<span class="line"><span># 移动到安装目录</span></span>
+<span class="line"><span>mv node_exporter-1.8.2.linux-amd64 /usr/local/node_exporter</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="创建-systemd-服务-实现开机自启" tabindex="-1"><a class="header-anchor" href="#创建-systemd-服务-实现开机自启"><span>创建 Systemd 服务（实现开机自启）</span></a></h3>
+<p>为了防止机器重启后监控掉线，<strong>千万不要只用</strong> <code v-pre>**nohup**</code>。请创建一个服务文件：</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>vi /usr/lib/systemd/system/node_exporter.service</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p><strong>写入以下内容：</strong></p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>[Unit]</span></span>
+<span class="line"><span>Description=Node Exporter</span></span>
+<span class="line"><span>After=network.target</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[Service]</span></span>
+<span class="line"><span>Type=simple</span></span>
+<span class="line"><span># 刚才移动到的路径</span></span>
+<span class="line"><span>ExecStart=/usr/local/node_exporter/node_exporter</span></span>
+<span class="line"><span>Restart=on-failure</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[Install]</span></span>
+<span class="line"><span>WantedBy=multi-user.target</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><hr>
+<h3 id="启动并检查" tabindex="-1"><a class="header-anchor" href="#启动并检查"><span>启动并检查</span></a></h3>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span># 重载系统服务配置</span></span>
+<span class="line"><span>systemctl daemon-reload</span></span>
+<span class="line"><span># 启动并设置开机自启</span></span>
+<span class="line"><span>systemctl enable --now node_exporter</span></span>
+<span class="line"><span># 检查状态</span></span>
+<span class="line"><span>systemctl status node_exporter</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="修改防火墙规则开放9100端口" tabindex="-1"><a class="header-anchor" href="#修改防火墙规则开放9100端口"><span>修改防火墙规则开放9100端口</span></a></h2>
+<p>prometheus通过9100端口收集node-export的数据，所以除了开放22，80端口外还需要开放9100端口</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>firewall-cmd --add-port=9100/tcp --permanent</span></span>
+<span class="line"><span>firewall-cmd --reload</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="安装grafana出图工具" tabindex="-1"><a class="header-anchor" href="#安装grafana出图工具"><span>安装Grafana出图工具</span></a></h2>
+<h3 id="启动-grafana-容器" tabindex="-1"><a class="header-anchor" href="#启动-grafana-容器"><span>启动 Grafana 容器</span></a></h3>
+<p>直接运行以下命令。我们将宿主机的 <code v-pre>3000</code> 端口映射到容器，并设置数据持久化（防止容器重启后配置丢失）：</p>
+<p>安装Grafana可以件Prometheus收集到的数据可视化展示出来</p>
+<div class="language-plain line-numbers-mode" data-highlighter="shiki" data-ext="plain" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-plain"><span class="line"><span>docker run -d \\</span></span>
+<span class="line"><span>  -p 3000:3000 \\</span></span>
+<span class="line"><span>  --name=grafana \\</span></span>
+<span class="line"><span>  --restart=always \\</span></span>
+<span class="line"><span>  grafana/grafana</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="登录与配置" tabindex="-1"><a class="header-anchor" href="#登录与配置"><span>登录与配置</span></a></h3>
+<ol>
+<li><strong>访问地址</strong>：浏览器打开 <code v-pre>http://192.168.31.136:3000</code>。</li>
+<li><strong>初始账号</strong>：用户名 <code v-pre>admin</code>，密码 <code v-pre>admin</code>。首次登录会要求你修改密码。</li>
+<li><strong>添加数据源 (Data Source)</strong>：</li>
+</ol>
+<ul>
+<li>点击左侧菜单的 <strong>Connections</strong> -&gt; <strong>Data Sources</strong>。</li>
+<li>点击 <strong>Add data source</strong>，选择 <strong>Prometheus</strong>。</li>
+<li>在 <strong>Connection</strong> 的 URL 处填写：<code v-pre>http://192.168.31.136:9090</code>。</li>
+<li>拉到最下方点击 <strong>Save &amp; test</strong>。如果显示绿色的 &quot;Successfully queried the Prometheus API&quot;，说明大脑与显示器接通了。</li>
+</ul>
+<p>​</p>
+<h3 id="导入-全能型-监控大盘-id-1860" tabindex="-1"><a class="header-anchor" href="#导入-全能型-监控大盘-id-1860"><span>导入“全能型”监控大盘 (ID: 1860)</span></a></h3>
+<p>你不需要从零开始画图。Grafana 社区有一个非常经典的面板（Node Exporter Full），能直接显示 CPU、内存、磁盘和网络的所有细节。</p>
+<ol>
+<li>点击dashboard的 <strong>+</strong> 号图标，选择 <strong>Import</strong>。</li>
+</ol>
+<figure><img src="/blog/assets/posts/%E5%85%AD%E3%80%81Prometheus_+_Grafana_%E7%9B%91%E6%8E%A7-1.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<ol start="2">
+<li>在 <strong>Import via <a href="http://grafana.com" target="_blank" rel="noopener noreferrer">grafana.com</a></strong> 框中输入 ID：<code v-pre>1860</code>，然后点击 <strong>Load</strong>。</li>
+<li><img src="/blog/assets/posts/%E5%85%AD%E3%80%81Prometheus_+_Grafana_%E7%9B%91%E6%8E%A7-2.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></li>
+<li>点击 <strong>load</strong>。</li>
+</ol>
+<h3 id="最终效果" tabindex="-1"><a class="header-anchor" href="#最终效果"><span>最终效果</span></a></h3>
+<figure><img src="/blog/assets/posts/%E5%85%AD%E3%80%81Prometheus_+_Grafana_%E7%9B%91%E6%8E%A7-3.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+</div>`},null,8,a)}var s=n(i,[[`render`,o]]);export{r as _pageData,s as default};

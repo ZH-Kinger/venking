@@ -1,0 +1,26 @@
+import{n as e,r as t}from"./app-BoaHcSM-.js";import{t as n}from"./plugin-vue_export-helper-BBNlaSNf.js";var r=JSON.parse(`{"path":"/posts/AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/%E8%AE%AD%E7%BB%83%E6%9E%B6%E6%9E%84/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83/PyTorch_%E5%88%86%E5%B8%83%E5%BC%8F%E6%A6%82%E8%BF%B0/DTensor.html","title":"DTensor","lang":"zh-CN","frontmatter":{"title":"DTensor","icon":"cpu","date":"2026-07-23T00:00:00.000Z","category":["AI基础设施"],"description":"我们在上一层刚聊过 Tensor（张量）是装载数据的“集装箱”。现在你问到的 DTensor（Distributed Tensor，分布式张量），正是 PyTorch 2.0 之后推出的最新、最硬核的底层杀手锏，也是支撑我们前面提到的 TorchTitan 能做到极致优雅的核心技术。 用一句话概括：DTensor 是一种“全局幻觉”。它让分散在几十台机...","head":[["script",{"type":"application/ld+json"},"{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Article\\",\\"headline\\":\\"DTensor\\",\\"image\\":[\\"https://venking.tech/blog/blog/assets/posts/DTensor-1.png\\"],\\"datePublished\\":\\"2026-07-23T00:00:00.000Z\\",\\"dateModified\\":null,\\"author\\":[{\\"@type\\":\\"Person\\",\\"name\\":\\"Kinger\\",\\"url\\":\\"https://www.yuque.com/kinger-wwnro\\"}]}"],["meta",{"property":"og:url","content":"https://venking.tech/blog/posts/AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/%E8%AE%AD%E7%BB%83%E6%9E%B6%E6%9E%84/%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83/PyTorch_%E5%88%86%E5%B8%83%E5%BC%8F%E6%A6%82%E8%BF%B0/DTensor.html"}],["meta",{"property":"og:site_name","content":"Kinger 的技术博客"}],["meta",{"property":"og:title","content":"DTensor"}],["meta",{"property":"og:description","content":"我们在上一层刚聊过 Tensor（张量）是装载数据的“集装箱”。现在你问到的 DTensor（Distributed Tensor，分布式张量），正是 PyTorch 2.0 之后推出的最新、最硬核的底层杀手锏，也是支撑我们前面提到的 TorchTitan 能做到极致优雅的核心技术。 用一句话概括：DTensor 是一种“全局幻觉”。它让分散在几十台机..."}],["meta",{"property":"og:type","content":"article"}],["meta",{"property":"og:image","content":"https://venking.tech/blog/blog/assets/posts/DTensor-1.png"}],["meta",{"property":"og:locale","content":"zh-CN"}],["meta",{"property":"article:published_time","content":"2026-07-23T00:00:00.000Z"}]]},"git":{},"readingTime":{"minutes":2.41,"words":723},"filePathRelative":"posts/AI基础设施/学习计划/训练架构/分布式训练/PyTorch_分布式概述/DTensor.md","excerpt":"<p>我们在上一层刚聊过 Tensor（张量）是装载数据的“集装箱”。现在你问到的 <strong>DTensor（Distributed Tensor，分布式张量）</strong>，正是 PyTorch 2.0 之后推出的<strong>最新、最硬核的底层杀手锏</strong>，也是支撑我们前面提到的 <strong>TorchTitan</strong> 能做到极致优雅的核心技术。</p>\\n<p>用一句话概括：<strong>DTensor 是一种“全局幻觉”。它让分散在几十台机器、上百张 GPU 里的物理数据碎片，在算法工程师眼里，看起来就像是一个完整的一整块 Tensor。</strong></p>","autoDesc":true}`),i={name:`DTensor.md`},a=[`innerHTML`];function o(n,r,i,o,s,c){return t(),e(`div`,{class:`vp-migrated-content`,innerHTML:`<div><p>我们在上一层刚聊过 Tensor（张量）是装载数据的“集装箱”。现在你问到的 <strong>DTensor（Distributed Tensor，分布式张量）</strong>，正是 PyTorch 2.0 之后推出的<strong>最新、最硬核的底层杀手锏</strong>，也是支撑我们前面提到的 <strong>TorchTitan</strong> 能做到极致优雅的核心技术。</p>
+<p>用一句话概括：<strong>DTensor 是一种“全局幻觉”。它让分散在几十台机器、上百张 GPU 里的物理数据碎片，在算法工程师眼里，看起来就像是一个完整的一整块 Tensor。</strong></p>
+<h3 id="为什么需要-dtensor-老技术的痛点" tabindex="-1"><a class="header-anchor" href="#为什么需要-dtensor-老技术的痛点"><span>为什么需要 DTensor？（老技术的痛点）</span></a></h3>
+<p>在 DTensor 出现之前（比如使用早期的 Megatron-LM 做张量并行 TP）：<br>
+算法工程师写代码极其痛苦。一个 8000x8000 的大矩阵，如果要分给 4 张卡算，工程师必须在代码里<strong>手动</strong>写出：</p>
+<ol>
+<li><code v-pre>GPU_0 取前 2000 行</code></li>
+<li><code v-pre>GPU_1 取中间 2000 行...</code></li>
+<li>算完之后，大家手动调用 <code v-pre>NCCL.AllGather()</code> 把结果拼起来。</li>
+</ol>
+<p>这种方式不仅代码像意大利面条一样混乱，而且极容易写出 Bug，SRE 排查起来更是灾难。</p>
+<h3 id="dtensor-的魔法-spmd-单程序多数据" tabindex="-1"><a class="header-anchor" href="#dtensor-的魔法-spmd-单程序多数据"><span>DTensor 的魔法：SPMD（单程序多数据）</span></a></h3>
+<p>有了 DTensor，算法工程师只需要写<strong>一份</strong>普通的单卡代码（SPMD，Single Program Multiple Data）。<br>
+DTensor 在底层默默接管了一切。它引入了两个对于 Infra SRE 必须掌握的核心概念：</p>
+<ol>
+<li><strong>DeviceMesh（设备网格）：</strong> 它描述了底层硬件的拓扑结构。比如你那台 8 卡机器，可以定义为一个 <code v-pre>[2, 4]</code> 的两维网格。</li>
+<li><strong>Placement（放置策略）：</strong> 也就是这块“大蛋糕”到底该怎么切、分给谁。这是 DTensor 的灵魂。</li>
+</ol>
+<p>为了让你直观理解 DTensor 是如何做切分的，我为你做了一个交互工具。你可以切换不同的 <strong>Placement 策略</strong>，看看一个“全局 Tensor”是如何被物理打散到 4 张 GPU 上的：</p>
+<figure><img src="/blog/assets/posts/DTensor-1.png" alt="image.png" tabindex="0" loading="lazy"><figcaption>image.png</figcaption></figure>
+<h3 id="为什么-sre-面试要懂这个" tabindex="-1"><a class="header-anchor" href="#为什么-sre-面试要懂这个"><span>为什么 SRE 面试要懂这个？</span></a></h3>
+<p>因为未来的大模型 Infra 平台化，底层必然会大规模转向 DTensor。</p>
+<p>当你理解了 DTensor，你就会明白为什么 <strong>TorchTitan</strong> 能如此强大：<br>
+在 TorchTitan 中，你想要把 8 张卡配成“4卡张量并行(TP) + 2卡数据并行(DP)”，你不再需要去改动模型里那些繁琐的切分逻辑，你<strong>只需要改一行 DeviceMesh 和 Placement 的配置</strong>！DTensor 会在底层自动把你的 3 维张量切得明明白白，并在需要同步时，<strong>自动</strong>去调用底层的 NCCL 发起通信。</p>
+<p>既然你们组有 8 卡甚至可能是 Blackwell 架构的巨兽，如果要在上面跑最前沿的训练，你是否考虑过直接基于这台机器，去试跑一个包含 DTensor 逻辑的极简切分脚本，感受一下它自动调用 NCCL 通信的魅力？</p>
+</div>`},null,8,a)}var s=n(i,[[`render`,o]]);export{r as _pageData,s as default};

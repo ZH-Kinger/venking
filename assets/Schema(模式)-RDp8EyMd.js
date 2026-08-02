@@ -1,0 +1,54 @@
+import{n as e,r as t}from"./app-BoaHcSM-.js";import{t as n}from"./plugin-vue_export-helper-BBNlaSNf.js";var r=JSON.parse(`{"path":"/posts/AI%E5%A4%A7%E6%A8%A1%E5%9E%8B/Agent%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5_%E6%8B%A5%E6%8A%B1%E7%94%9F%E6%80%81%E4%B8%8E%E6%A1%86%E6%9E%B6_(%E5%B7%A5%E7%A8%8B%E5%8C%96)/Schema(%E6%A8%A1%E5%BC%8F).html","title":"Schema(模式)","lang":"zh-CN","frontmatter":{"title":"Schema(模式)","icon":"robot","date":"2026-07-23T00:00:00.000Z","category":["AI大模型"],"description":"Schema（模式） 是指用来定义、约束和描述数据组织结构与业务规则的“元数据蓝图”或“骨架规范”。 通俗来说：Schema 就是一份官方的“数据规格说明书”。它本身不包含具体的业务数据，但它死死规定了数据必须长成什么样（有哪些字段、是什么数据类型、谁是必填项、谁是选填项、取值范围是多少）。 在当今的技术生态中，Schema 已经跨越了传统数据库的边界...","head":[["script",{"type":"application/ld+json"},"{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Article\\",\\"headline\\":\\"Schema(模式)\\",\\"image\\":[\\"\\"],\\"datePublished\\":\\"2026-07-23T00:00:00.000Z\\",\\"dateModified\\":null,\\"author\\":[{\\"@type\\":\\"Person\\",\\"name\\":\\"Kinger\\",\\"url\\":\\"https://www.yuque.com/kinger-wwnro\\"}]}"],["meta",{"property":"og:url","content":"https://venking.tech/blog/posts/AI%E5%A4%A7%E6%A8%A1%E5%9E%8B/Agent%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5_%E6%8B%A5%E6%8A%B1%E7%94%9F%E6%80%81%E4%B8%8E%E6%A1%86%E6%9E%B6_(%E5%B7%A5%E7%A8%8B%E5%8C%96)/Schema(%E6%A8%A1%E5%BC%8F).html"}],["meta",{"property":"og:site_name","content":"Kinger 的技术博客"}],["meta",{"property":"og:title","content":"Schema(模式)"}],["meta",{"property":"og:description","content":"Schema（模式） 是指用来定义、约束和描述数据组织结构与业务规则的“元数据蓝图”或“骨架规范”。 通俗来说：Schema 就是一份官方的“数据规格说明书”。它本身不包含具体的业务数据，但它死死规定了数据必须长成什么样（有哪些字段、是什么数据类型、谁是必填项、谁是选填项、取值范围是多少）。 在当今的技术生态中，Schema 已经跨越了传统数据库的边界..."}],["meta",{"property":"og:type","content":"article"}],["meta",{"property":"og:locale","content":"zh-CN"}],["meta",{"property":"article:published_time","content":"2026-07-23T00:00:00.000Z"}]]},"git":{},"readingTime":{"minutes":3.5,"words":1051},"filePathRelative":"posts/AI大模型/Agent应用开发/第三阶段_拥抱生态与框架_(工程化)/Schema(模式).md","excerpt":"<p><strong>Schema（模式）</strong> 是指<strong>用来定义、约束和描述数据组织结构与业务规则的“元数据蓝图”或“骨架规范”</strong>。</p>\\n<p>通俗来说：<strong>Schema 就是一份官方的“数据规格说明书”。它本身不包含具体的业务数据，但它死死规定了数据必须长成什么样（有哪些字段、是什么数据类型、谁是必填项、谁是选填项、取值范围是多少）。</strong></p>\\n<p>在当今的技术生态中，Schema 已经跨越了传统数据库的边界，全面演进为 <strong>AI 大模型、Agent 系统与现实世界物理代码之间互通的核心协议</strong>。</p>","autoDesc":true}`),i={name:`Schema(模式).md`},a=[`innerHTML`];function o(n,r,i,o,s,c){return t(),e(`div`,{class:`vp-migrated-content`,innerHTML:`<div><p><strong>Schema（模式）</strong> 是指<strong>用来定义、约束和描述数据组织结构与业务规则的“元数据蓝图”或“骨架规范”</strong>。</p>
+<p>通俗来说：<strong>Schema 就是一份官方的“数据规格说明书”。它本身不包含具体的业务数据，但它死死规定了数据必须长成什么样（有哪些字段、是什么数据类型、谁是必填项、谁是选填项、取值范围是多少）。</strong></p>
+<p>在当今的技术生态中，Schema 已经跨越了传统数据库的边界，全面演进为 <strong>AI 大模型、Agent 系统与现实世界物理代码之间互通的核心协议</strong>。</p>
+<hr>
+<h3 id="一、-大模型-agent-时代最火的-json-schema" tabindex="-1"><a class="header-anchor" href="#一、-大模型-agent-时代最火的-json-schema"><span>一、 大模型/Agent 时代最火的：JSON Schema</span></a></h3>
+<p>在大模型做<strong>意图识别、工具调用（Tool/Function Calling）</strong>或<strong>结构化数据提取</strong>时，大模型之所以能听话地输出严丝合缝的数据，全靠 <strong>JSON Schema</strong> 在底层充当约束机制。</p>
+<h4 id="💡-工业级实战-用-json-schema-约束大模型" tabindex="-1"><a class="header-anchor" href="#💡-工业级实战-用-json-schema-约束大模型"><span>💡 工业级实战：用 JSON Schema 约束大模型</span></a></h4>
+<p>当你告诉大模型“你有一个查系统监控的工具”时，你必须给它一份 Schema，大模型读懂这份说明书后，才能准确从用户的话里抠出对应的参数：</p>
+<div class="language-json line-numbers-mode" data-highlighter="shiki" data-ext="json" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code" v-pre=""><code class="language-json"><span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">{</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">  "$schema"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"https://json-schema.org/draft/2020-12/schema"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">  "title"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"QueryMonitor"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">  "description"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"当用户查询服务器、集群的 GPU 显存及利用率时触发该工具"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">  "type"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"object"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">  "properties"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: {</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">    "cluster_name"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: {</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">      "type"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"string"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">      "description"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"Kubernetes 集群的名称，例如: k8s-prod, k8s-dev"</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">    },</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">    "metric"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: {</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">      "type"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"string"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">      "enum"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: [</span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"cpu"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"gpu_memory"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">],</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">      "description"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"查询的物理指标，只能在指定的枚举值中选择"</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">    }</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  },</span></span>
+<span class="line"><span style="--shiki-light:#E45649;--shiki-dark:#E06C75">  "required"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">: [</span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"cluster_name"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">"metric"</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">]</span></span>
+<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">}</span></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><ul>
+<li><strong>大模型的底层物理翻译</strong>：当模型读取到这份 Schema，并且看到用户输入 <em>“帮我查下生产环境集群</em> <code v-pre>k8s-prod</code> <em>的显存”</em> 时，底层的约束解码算子（Grammar-Based Decoding）会直接干预大模型的 Token 预测概率，强行锁死它，使其必须吐出完美契合规范的结构化 JSON：<code v-pre>{&quot;cluster_name&quot;: &quot;k8s-prod&quot;, &quot;metric&quot;: &quot;gpu_memory&quot;}</code></li>
+<li><strong>物理效果</strong>：Schema 物理斩断了大模型胡言乱语（幻觉）或输出“套话”的可能，是 AI 能够闭眼自动化对接后端 API 的物理基石。</li>
+</ul>
+<hr>
+<h3 id="二、-传统传统领域的两大-schema-派系" tabindex="-1"><a class="header-anchor" href="#二、-传统传统领域的两大-schema-派系"><span>二、 传统传统领域的两大 Schema 派系</span></a></h3>
+<p>除了大模型，在后端开发、基础设施（DevOps）和分布式系统里，Schema 还在以下两个世界里充当底盘法律：</p>
+<h4 id="_1-关系型数据库-schema-database-schema" tabindex="-1"><a class="header-anchor" href="#_1-关系型数据库-schema-database-schema"><span>1. 关系型数据库 Schema（Database Schema）</span></a></h4>
+<p>在 MySQL、PostgreSQL 中，Schema 是<strong>表结构的物理定义</strong>。</p>
+<ul>
+<li>它用 SQL 语句（DDL）写成，规定了一张表有几列、主键（Primary Key）是谁、哪个字段是 <code v-pre>VARCHAR</code>（字符串）、哪个是 <code v-pre>INT</code>（整数）。</li>
+<li><strong>物理任务</strong>：守护数据的强一致性，任何不符合 Schema 规范的写入（例如在数字列写入中文字符）都会被数据库管理系统在最前线物理拒绝并抛出异常。</li>
+</ul>
+<h4 id="_2-分布式通信与大数据-schema-protobuf-avro" tabindex="-1"><a class="header-anchor" href="#_2-分布式通信与大数据-schema-protobuf-avro"><span>2. 分布式通信与大数据 Schema（Protobuf / Avro）</span></a></h4>
+<p>在高性能网络工程或 RPC 通信（如 gRPC）中，微服务之间需要进行高频的数据传输。</p>
+<ul>
+<li>以 Google 的 <strong>Protobuf（Protocol Buffers）</strong> 为例，你需要编写一个 <code v-pre>.proto</code> 格式的 Schema 文件，里面用极其紧凑的语法规定了传输的消息结构。</li>
+<li><strong>物理任务</strong>：基于这份静态 Schema，编译器会自动生成底层的二进制编解码代码，让数据在跨节点传输时以极致轻量的体积（远小于普通 JSON）在网络带宽中狂飙。</li>
+</ul>
+<hr>
+<h3 id="三、-极简总结-为什么要用-schema" tabindex="-1"><a class="header-anchor" href="#三、-极简总结-为什么要用-schema"><span>三、 极简总结：为什么要用 Schema？</span></a></h3>
+<p>无论是传统工程还是 AI Agent，Schema 的终极核心物理任务只有三个：</p>
+<ol>
+<li><strong>契约化（Contract）</strong>：让前后端、或者大模型与底代码之间有一份<strong>白纸黑字的绝对契约</strong>，只要 Schema 不变，两端的程序就能闭眼对接。</li>
+<li><strong>防御性编程（Validation）</strong>：在数据流的最前线设置物理卡槽，自动拦截所有不合规的脏数据，保护下游核心业务逻辑不崩溃。</li>
+<li><strong>消除自然语言的模糊性</strong>：利用强类型的定义（如指定 <code v-pre>enum</code> 枚举范围、<code v-pre>minimum</code> 最小值），彻底把含糊不清的现实人类语言，收拢为计算机 100% 懂的严密逻辑。</li>
+</ol>
+</div>`},null,8,a)}var s=n(i,[[`render`,o]]);export{r as _pageData,s as default};

@@ -1,0 +1,19 @@
+import{n as e,r as t}from"./app-BoaHcSM-.js";import{t as n}from"./plugin-vue_export-helper-BBNlaSNf.js";var r=JSON.parse(`{"path":"/posts/%E9%9D%A2%E8%AF%95/%E5%AD%97%E8%8A%82%E9%9D%A2%E8%AF%95/%E9%A1%B9%E7%9B%AE%E6%A2%B3%E7%90%86.html","title":"项目梳理","lang":"zh-CN","frontmatter":{"title":"项目梳理","icon":"clipboard-text","date":"2026-07-23T00:00:00.000Z","category":["面试"],"description":"项目一 负载均衡与高可用 安全架构 存储与标准化 可视化监控 测试与调优 项目二 数据收集 消息缓冲 预测告警 AI决策 自动化 项目三（项目二的升级） 双重数据缓冲+消费 多Agent协作 告警与降噪 OpenClaw调度中枢 安全与审计","head":[["script",{"type":"application/ld+json"},"{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Article\\",\\"headline\\":\\"项目梳理\\",\\"image\\":[\\"\\"],\\"datePublished\\":\\"2026-07-23T00:00:00.000Z\\",\\"dateModified\\":null,\\"author\\":[{\\"@type\\":\\"Person\\",\\"name\\":\\"Kinger\\",\\"url\\":\\"https://www.yuque.com/kinger-wwnro\\"}]}"],["meta",{"property":"og:url","content":"https://venking.tech/blog/posts/%E9%9D%A2%E8%AF%95/%E5%AD%97%E8%8A%82%E9%9D%A2%E8%AF%95/%E9%A1%B9%E7%9B%AE%E6%A2%B3%E7%90%86.html"}],["meta",{"property":"og:site_name","content":"Kinger 的技术博客"}],["meta",{"property":"og:title","content":"项目梳理"}],["meta",{"property":"og:description","content":"项目一 负载均衡与高可用 安全架构 存储与标准化 可视化监控 测试与调优 项目二 数据收集 消息缓冲 预测告警 AI决策 自动化 项目三（项目二的升级） 双重数据缓冲+消费 多Agent协作 告警与降噪 OpenClaw调度中枢 安全与审计"}],["meta",{"property":"og:type","content":"article"}],["meta",{"property":"og:locale","content":"zh-CN"}],["meta",{"property":"article:published_time","content":"2026-07-23T00:00:00.000Z"}]]},"git":{},"readingTime":{"minutes":0.34,"words":103},"filePathRelative":"posts/面试/字节面试/项目梳理.md","excerpt":"<h2>项目一</h2>\\n<h3>负载均衡与高可用</h3>\\n<h3>安全架构</h3>\\n<h3>存储与标准化</h3>\\n<h3>可视化监控</h3>\\n<h3>测试与调优</h3>\\n<h2>项目二</h2>\\n<h3>数据收集</h3>\\n<h3>消息缓冲</h3>\\n<h3>预测告警</h3>\\n<h3>AI决策</h3>\\n<h3>自动化</h3>\\n<h2>项目三（项目二的升级）</h2>\\n<h3>双重数据缓冲+消费</h3>\\n<h3>多Agent协作</h3>\\n<h3>告警与降噪</h3>\\n<h3>OpenClaw调度中枢</h3>\\n<h3>安全与审计</h3>\\n","autoDesc":true}`),i={name:`项目梳理.md`},a=[`innerHTML`];function o(n,r,i,o,s,c){return t(),e(`div`,{class:`vp-migrated-content`,innerHTML:`<div><h2 id="项目一" tabindex="-1"><a class="header-anchor" href="#项目一"><span>项目一</span></a></h2>
+<h3 id="负载均衡与高可用" tabindex="-1"><a class="header-anchor" href="#负载均衡与高可用"><span>负载均衡与高可用</span></a></h3>
+<h3 id="安全架构" tabindex="-1"><a class="header-anchor" href="#安全架构"><span>安全架构</span></a></h3>
+<h3 id="存储与标准化" tabindex="-1"><a class="header-anchor" href="#存储与标准化"><span>存储与标准化</span></a></h3>
+<h3 id="可视化监控" tabindex="-1"><a class="header-anchor" href="#可视化监控"><span>可视化监控</span></a></h3>
+<h3 id="测试与调优" tabindex="-1"><a class="header-anchor" href="#测试与调优"><span>测试与调优</span></a></h3>
+<h2 id="项目二" tabindex="-1"><a class="header-anchor" href="#项目二"><span>项目二</span></a></h2>
+<h3 id="数据收集" tabindex="-1"><a class="header-anchor" href="#数据收集"><span>数据收集</span></a></h3>
+<h3 id="消息缓冲" tabindex="-1"><a class="header-anchor" href="#消息缓冲"><span>消息缓冲</span></a></h3>
+<h3 id="预测告警" tabindex="-1"><a class="header-anchor" href="#预测告警"><span>预测告警</span></a></h3>
+<h3 id="ai决策" tabindex="-1"><a class="header-anchor" href="#ai决策"><span>AI决策</span></a></h3>
+<h3 id="自动化" tabindex="-1"><a class="header-anchor" href="#自动化"><span>自动化</span></a></h3>
+<h2 id="项目三-项目二的升级" tabindex="-1"><a class="header-anchor" href="#项目三-项目二的升级"><span>项目三（项目二的升级）</span></a></h2>
+<h3 id="双重数据缓冲-消费" tabindex="-1"><a class="header-anchor" href="#双重数据缓冲-消费"><span>双重数据缓冲+消费</span></a></h3>
+<h3 id="多agent协作" tabindex="-1"><a class="header-anchor" href="#多agent协作"><span>多Agent协作</span></a></h3>
+<h3 id="告警与降噪" tabindex="-1"><a class="header-anchor" href="#告警与降噪"><span>告警与降噪</span></a></h3>
+<h3 id="openclaw调度中枢" tabindex="-1"><a class="header-anchor" href="#openclaw调度中枢"><span>OpenClaw调度中枢</span></a></h3>
+<h3 id="安全与审计" tabindex="-1"><a class="header-anchor" href="#安全与审计"><span>安全与审计</span></a></h3>
+</div>`},null,8,a)}var s=n(i,[[`render`,o]]);export{r as _pageData,s as default};
